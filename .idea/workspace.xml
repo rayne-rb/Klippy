@@ -135,7 +135,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="10684000" />
+      <workItem from="1788947224616" duration="11102000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -201,7 +201,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788959981382</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed.">
+      <option name="closed" value="true" />
+      <created>1788962151678</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1788962151678</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -221,7 +229,8 @@
     <MESSAGE value="Add Klippy.x86_64 release build" />
     <MESSAGE value="Remove Klippy resources, project files, and configurations" />
     <MESSAGE value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
+    <MESSAGE value="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed." />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

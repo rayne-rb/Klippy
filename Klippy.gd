@@ -4,11 +4,18 @@ const GRAVITY := 2200.0
 const BOUNCE_DAMPING := 0.45
 const REST_SPEED := 80.0
 const FRICTION := 800.0
-const ROLL_RADIUS := 90.0
 const AIR_SPIN_DAMPING := 0.1
 const SPIN_RECOVERY_RATE := 10.0
 
+const TEXTURE_SIZE := 400.0
+const SIZE_STEPS := [100, 200, 300, 400]
+const CLOSE_ID := 0
+
 var sprite: Sprite2D
+var context_menu: PopupMenu
+var resize_menu: PopupMenu
+
+var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
 
 var dragging := false
@@ -18,10 +25,23 @@ var velocity := Vector2.ZERO
 var angular_velocity := 0.0
 var show_hitbox := false
 
+var roll_radius := 90.0
+
 
 func _ready() -> void:
 	sprite = $Sprite2D
 	_build_click_through_mask()
+
+	resize_menu = PopupMenu.new()
+	for i in SIZE_STEPS.size():
+		resize_menu.add_item("%d x %d" % [SIZE_STEPS[i], SIZE_STEPS[i]], i)
+	resize_menu.id_pressed.connect(_on_resize_option_pressed)
+
+	context_menu = PopupMenu.new()
+	context_menu.add_submenu_node_item("Resize", resize_menu)
+	context_menu.add_item("Close", CLOSE_ID)
+	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
+	add_child(context_menu)
 
 
 func _build_click_through_mask() -> void:
@@ -42,12 +62,19 @@ func _build_click_through_mask() -> void:
 		if polygon.size() > largest.size():
 			largest = polygon
 
-	var center := Vector2(get_window().size) / 2.0
-	mask_points.resize(largest.size())
-	for i in largest.size():
-		mask_points[i] = largest[i] * sprite.scale - center
-
+	raw_polygon = largest
+	_rebuild_mask_points()
 	_update_passthrough_mask(0.0)
+
+
+func _rebuild_mask_points() -> void:
+	if raw_polygon.is_empty():
+		return
+
+	var center := Vector2(get_window().size) / 2.0
+	mask_points.resize(raw_polygon.size())
+	for i in raw_polygon.size():
+		mask_points[i] = raw_polygon[i] * sprite.scale - center
 
 
 func _update_passthrough_mask(angle: float) -> void:
@@ -63,6 +90,34 @@ func _update_passthrough_mask(angle: float) -> void:
 	DisplayServer.window_set_mouse_passthrough(region, 0)
 
 
+func _on_context_menu_id_pressed(id: int) -> void:
+	if id == CLOSE_ID:
+		get_tree().quit()
+
+
+func _on_resize_option_pressed(id: int) -> void:
+	_apply_size(SIZE_STEPS[id])
+
+
+func _apply_size(new_size: int) -> void:
+	var window := get_window()
+	var old_center := Vector2(window.position) + Vector2(window.size) / 2.0
+	var new_size_v := Vector2i(new_size, new_size)
+
+	window.content_scale_size = new_size_v
+	window.size = new_size_v
+	window.position = Vector2i(old_center - Vector2(new_size_v) / 2.0)
+
+	sprite.scale = Vector2.ONE * (new_size / TEXTURE_SIZE)
+	position = Vector2(new_size_v) / 2.0
+	roll_radius = new_size * 0.45
+
+	_rebuild_mask_points()
+	_update_passthrough_mask(sprite.rotation)
+	if show_hitbox:
+		queue_redraw()
+
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -73,6 +128,9 @@ func _input(event: InputEvent) -> void:
 			drag_offset = last_mouse_pos - get_window().position
 		else:
 			dragging = false
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		context_menu.position = DisplayServer.mouse_get_position()
+		context_menu.popup()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
 		show_hitbox = not show_hitbox
 		queue_redraw()
@@ -131,25 +189,25 @@ func _physics_process(delta: float) -> void:
 	if pos.x < min_x:
 		pos.x = min_x
 		velocity.x = -velocity.x * BOUNCE_DAMPING
-		angular_velocity += -velocity.y / ROLL_RADIUS
+		angular_velocity += -velocity.y / roll_radius
 	elif pos.x > max_x:
 		pos.x = max_x
 		velocity.x = -velocity.x * BOUNCE_DAMPING
-		angular_velocity += -velocity.y / ROLL_RADIUS
+		angular_velocity += -velocity.y / roll_radius
 
 	if pos.y < min_y:
 		pos.y = min_y
 		velocity.y = -velocity.y * BOUNCE_DAMPING
-		angular_velocity += velocity.x / ROLL_RADIUS
+		angular_velocity += velocity.x / roll_radius
 	elif pos.y >= floor_y:
 		pos.y = floor_y
 		if abs(velocity.y) > REST_SPEED:
 			velocity.y = -velocity.y * BOUNCE_DAMPING
-			angular_velocity += velocity.x / ROLL_RADIUS
+			angular_velocity += velocity.x / roll_radius
 		else:
 			velocity.y = 0.0
 			velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
-			angular_velocity = velocity.x / ROLL_RADIUS
+			angular_velocity = velocity.x / roll_radius
 			direct_roll = true
 
 	if not direct_roll:
