@@ -18,6 +18,7 @@ public partial class Klippy : Node2D
     private Vector2I _lastMousePos;
     private Vector2 _velocity;
     private float _angularVelocity;
+    private bool _showHitbox;
 
     public override void _Ready()
     {
@@ -84,6 +85,24 @@ public partial class Klippy : Node2D
                 _dragging = false;
             }
         }
+        else if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.F1)
+        {
+            _showHitbox = !_showHitbox;
+            QueueRedraw();
+        }
+    }
+
+    public override void _Draw()
+    {
+        if (!_showHitbox || _maskPoints == null)
+            return;
+
+        var points = new Vector2[_maskPoints.Length + 1];
+        for (int i = 0; i < _maskPoints.Length; i++)
+            points[i] = _maskPoints[i].Rotated(_sprite.Rotation);
+        points[_maskPoints.Length] = points[0];
+
+        DrawPolyline(points, Colors.Red, 2f);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -106,6 +125,8 @@ public partial class Klippy : Node2D
                 if (Mathf.Abs(_sprite.Rotation) < 0.001f)
                     _sprite.Rotation = 0f;
                 UpdatePassthroughMask(_sprite.Rotation);
+                if (_showHitbox)
+                    QueueRedraw();
             }
 
             return;
@@ -170,6 +191,8 @@ public partial class Klippy : Node2D
         {
             _sprite.Rotation += _angularVelocity * dt;
             UpdatePassthroughMask(_sprite.Rotation);
+            if (_showHitbox)
+                QueueRedraw();
         }
 
         window.Position = (Vector2I)pos;
