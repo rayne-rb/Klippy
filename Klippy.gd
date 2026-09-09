@@ -13,6 +13,7 @@ const CLOSE_ID := 0
 const DVD_ID := 1
 const SETTINGS_ID := 2
 const FEED_ID := 3
+const STATUS_ID := 4
 
 const REFERENCE_SIZE := 200.0
 const BASE_FOLLOW_RATE := 25.0
@@ -25,14 +26,13 @@ var sprite: Sprite2D
 var context_menu: PopupMenu
 var resize_menu: PopupMenu
 var settings_window: SettingsPanel
+var status_dialog: StatusDialog
 
 var speech_bubble: SpeechBubble
-var status_tooltip: StatusTooltip
 var complaint_cooldown_timer: Timer
 var stats: PetStats
 
 var dvd_mode := false
-var hovering := false
 
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
@@ -82,6 +82,7 @@ func _ready() -> void:
 	context_menu = PopupMenu.new()
 	context_menu.add_submenu_node_item("Resize", resize_menu)
 	context_menu.add_item("Feed", FEED_ID)
+	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close", CLOSE_ID)
@@ -99,11 +100,13 @@ func _ready() -> void:
 	settings_window.show_food_toggled.connect(_on_show_food_toggled)
 	settings_window.hide()
 
+	status_dialog = StatusDialog.new()
+	add_child(status_dialog)
+	status_dialog.setup(stats)
+	status_dialog.hide()
+
 	speech_bubble = SpeechBubble.new()
 	add_child(speech_bubble)
-
-	status_tooltip = StatusTooltip.new()
-	add_child(status_tooltip)
 
 	complaint_cooldown_timer = Timer.new()
 	complaint_cooldown_timer.one_shot = true
@@ -193,30 +196,14 @@ func _update_passthrough_mask(angle: float) -> void:
 	DisplayServer.window_set_mouse_passthrough(_rotated_mask_points(angle), 0)
 
 
-func _update_hover(window: Window) -> void:
-	if mask_points.is_empty():
-		return
-
-	var local := Vector2(DisplayServer.mouse_get_position() - window.position)
-	var is_over := Geometry2D.is_point_in_polygon(local, _rotated_mask_points(sprite.rotation))
-
-	if is_over:
-		if hovering:
-			status_tooltip.set_text(stats.get_status())
-		else:
-			hovering = true
-			status_tooltip.show_status(stats.get_status(), window)
-	elif hovering:
-		hovering = false
-		status_tooltip.hide_status()
-
-
 func _on_context_menu_id_pressed(id: int) -> void:
 	match id:
 		CLOSE_ID:
 			_on_quit_requested()
 		SETTINGS_ID:
 			settings_window.popup_centered()
+		STATUS_ID:
+			status_dialog.popup_centered()
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
@@ -300,7 +287,6 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	var window := get_window()
-	_update_hover(window)
 
 	if dragging:
 		var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)

@@ -104,3 +104,16 @@ func get_status() -> String:
 		return "Hungry"
 	else:
 		return "Full"
+
+
+func get_mood_status() -> String:
+	if mood > 80.0:
+		return "Ecstatic"
+	elif mood > 60.0:
+		return "Happy"
+	elif mood > 40.0:
+		return "Content"
+	elif mood > 20.0:
+		return "Sad"
+	else:
+		return "Miserable"
