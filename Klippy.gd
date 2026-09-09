@@ -47,15 +47,31 @@ var current_size := 200
 var roll_radius := 90.0
 var mass := 1.0
 
+var show_food_value := false
+
 
 func _ready() -> void:
 	sprite = $Sprite2D
 	_build_click_through_mask()
 	_recompute_physical_properties()
 
+	var save_data := SaveData.load_data()
+	var klippy_data: Dictionary = save_data.get("klippy", {})
+	var stats_data: Dictionary = save_data.get("stats", {})
+	var settings_data: Dictionary = save_data.get("settings", {})
+	var meta_data: Dictionary = save_data.get("meta", {})
+
 	stats = PetStats.new()
 	add_child(stats)
+	stats.food = stats_data.get("food", PetStats.MAX_FOOD)
+	stats.feeding_enabled = stats_data.get("feeding_enabled", false)
+	stats.is_dead = stats_data.get("is_dead", false)
+	if meta_data.has("saved_at"):
+		var elapsed: float = Time.get_unix_time_from_system() - float(meta_data["saved_at"])
+		stats.apply_offline_decay(elapsed)
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
+
+	show_food_value = settings_data.get("show_food_value", false)
 
 	resize_menu = PopupMenu.new()
 	for i in SIZE_STEPS.size():
@@ -68,13 +84,18 @@ func _ready() -> void:
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close", CLOSE_ID)
-	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), true)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(context_menu)
+	_on_feeding_enabled_changed(stats.feeding_enabled)
+
+	var saved_size: int = klippy_data.get("size", current_size)
+	if saved_size in SIZE_STEPS:
+		_apply_size(saved_size)
 
 	settings_window = SettingsPanel.new()
 	add_child(settings_window)
-	settings_window.setup(stats)
+	settings_window.setup(stats, show_food_value)
+	settings_window.show_food_toggled.connect(_on_show_food_toggled)
 	settings_window.hide()
 
 	speech_bubble = SpeechBubble.new()
@@ -87,6 +108,30 @@ func _ready() -> void:
 	complaint_cooldown_timer.one_shot = true
 	complaint_cooldown_timer.wait_time = COMPLAINT_COOLDOWN
 	add_child(complaint_cooldown_timer)
+
+	get_tree().root.close_requested.connect(_on_quit_requested)
+
+
+func _on_show_food_toggled(enabled: bool) -> void:
+	show_food_value = enabled
+
+
+func _save_state() -> void:
+	SaveData.save_data({
+		"klippy": {"size": current_size},
+		"stats": {
+			"food": stats.food,
+			"feeding_enabled": stats.feeding_enabled,
+			"is_dead": stats.is_dead,
+		},
+		"settings": {"show_food_value": show_food_value},
+		"meta": {"saved_at": Time.get_unix_time_from_system()},
+	})
+
+
+func _on_quit_requested() -> void:
+	_save_state()
+	get_tree().quit()
 
 
 func _maybe_complain() -> void:
@@ -167,7 +212,7 @@ func _update_hover(window: Window) -> void:
 func _on_context_menu_id_pressed(id: int) -> void:
 	match id:
 		CLOSE_ID:
-			get_tree().quit()
+			_on_quit_requested()
 		SETTINGS_ID:
 			settings_window.popup_centered()
 		DVD_ID:

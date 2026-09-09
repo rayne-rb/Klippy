@@ -24,6 +24,14 @@ func _process(delta: float) -> void:
 		died.emit()
 
 
+func apply_offline_decay(elapsed_seconds: float) -> void:
+	if not feeding_enabled or is_dead or elapsed_seconds <= 0.0:
+		return
+	food = max(food - FOOD_DECAY_RATE * elapsed_seconds, 0.0)
+	if food <= 0.0:
+		is_dead = true
+
+
 func feed() -> void:
 	if is_dead:
 		return

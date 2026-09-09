@@ -1,6 +1,8 @@
 class_name SettingsPanel
 extends Window
 
+signal show_food_toggled(enabled: bool)
+
 var stats: PetStats
 var food_label: Label
 
@@ -11,7 +13,7 @@ func _ready() -> void:
 	close_requested.connect(hide)
 
 
-func setup(pet_stats: PetStats) -> void:
+func setup(pet_stats: PetStats, initial_show_food: bool) -> void:
 	stats = pet_stats
 
 	var margin := MarginContainer.new()
@@ -28,16 +30,18 @@ func setup(pet_stats: PetStats) -> void:
 
 	var feeding_check := CheckBox.new()
 	feeding_check.text = "Enable feeding"
+	feeding_check.set_pressed_no_signal(stats.feeding_enabled)
 	feeding_check.toggled.connect(_on_feeding_toggled)
 	vbox.add_child(feeding_check)
 
 	var show_food_check := CheckBox.new()
 	show_food_check.text = "Show food value"
+	show_food_check.set_pressed_no_signal(initial_show_food)
 	show_food_check.toggled.connect(_on_show_food_toggled)
 	vbox.add_child(show_food_check)
 
 	food_label = Label.new()
-	food_label.visible = false
+	food_label.visible = initial_show_food
 	vbox.add_child(food_label)
 
 	stats.food_changed.connect(_on_food_changed)
@@ -50,6 +54,7 @@ func _on_feeding_toggled(enabled: bool) -> void:
 
 func _on_show_food_toggled(enabled: bool) -> void:
 	food_label.visible = enabled
+	show_food_toggled.emit(enabled)
 
 
 func _on_food_changed(value: float) -> void:
