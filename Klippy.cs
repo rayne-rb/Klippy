@@ -8,6 +8,7 @@ public partial class Klippy : Node2D
     private const float Friction = 800f;
     private const float RollRadius = 90f;
     private const float AirSpinDamping = 0.1f;
+    private const float SpinRecoveryRate = 10f;
 
     private Sprite2D _sprite;
     private Vector2[] _maskPoints;
@@ -97,6 +98,16 @@ public partial class Klippy : Node2D
             if (dt > 0f)
                 _velocity = (Vector2)(mousePos - _lastMousePos) / dt;
             _lastMousePos = mousePos;
+
+            if (_sprite.Rotation != 0f)
+            {
+                float t = 1f - Mathf.Exp(-SpinRecoveryRate * dt);
+                _sprite.Rotation = Mathf.LerpAngle(_sprite.Rotation, 0f, t);
+                if (Mathf.Abs(_sprite.Rotation) < 0.001f)
+                    _sprite.Rotation = 0f;
+                UpdatePassthroughMask(_sprite.Rotation);
+            }
+
             return;
         }
 
