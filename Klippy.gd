@@ -64,11 +64,12 @@ func _ready() -> void:
 	stats = PetStats.new()
 	add_child(stats)
 	stats.food = stats_data.get("food", PetStats.MAX_FOOD)
+	stats.mood = stats_data.get("mood", PetStats.MOOD_MID)
 	stats.feeding_enabled = stats_data.get("feeding_enabled", false)
 	stats.is_dead = stats_data.get("is_dead", false)
 	if meta_data.has("saved_at"):
 		var elapsed: float = Time.get_unix_time_from_system() - float(meta_data["saved_at"])
-		stats.apply_offline_decay(elapsed)
+		stats.apply_offline_progress(elapsed)
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
 
 	show_food_value = settings_data.get("show_food_value", false)
@@ -121,6 +122,7 @@ func _save_state() -> void:
 		"klippy": {"size": current_size},
 		"stats": {
 			"food": stats.food,
+			"mood": stats.mood,
 			"feeding_enabled": stats.feeding_enabled,
 			"is_dead": stats.is_dead,
 		},

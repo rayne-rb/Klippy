@@ -10,7 +10,10 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -132,7 +135,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="16737000" />
+      <workItem from="1788947224616" duration="18911000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -254,7 +257,31 @@
       <option name="project" value="LOCAL" />
       <updated>1788968509883</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.&#10;- Integrated hover">
+      <option name="closed" value="true" />
+      <created>1788968708661</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1788968708661</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.">
+      <option name="closed" value="true" />
+      <created>1788969411701</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1788969411701</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity.">
+      <option name="closed" value="true" />
+      <created>1788970101351</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1788970101351</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -281,7 +308,12 @@
     <MESSAGE value="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions. &#10;- Included probabilistic logic and cooldown system for complaint generation." />
     <MESSAGE value="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions.&#10;- Included probabilistic logic and cooldown system for complaint generation." />
     <MESSAGE value="Add feeding system with stats management to Klippy&#10;&#10;- Introduced `PetStats` to track and emit hunger and feeding states.&#10;- Added `SettingsPanel` with toggles for feeding and hunger visibility.&#10;- Enabled feeding through context menu with dynamic state management.&#10;- Integrated hunger updates with real-time UI feedback." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add feeding system with stats management to Klippy&#10;&#10;- Introduced `PetStats` to track and emit hunger and feeding states.&#10;- Added `SettingsPanel` with toggles for feeding and hunger visibility.&#10;- Enabled feeding through context menu with dynamic state management.&#10;- Integrated hunger updates with real-time UI feedback." />
+    <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `" />
+    <MESSAGE value=" detection to dynamically show status tooltips on mouse interaction." />
+    <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.&#10;-" />
+    <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior." />
+    <MESSAGE value="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
