@@ -12,7 +12,9 @@
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPanel.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/StatusDialog.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +137,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="18911000" />
+      <workItem from="1788947224616" duration="19319000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -281,7 +283,23 @@
       <option name="project" value="LOCAL" />
       <updated>1788970101351</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add mood tracking and integrate with food mechanics&#10;&#10;- Introduced `mood` property with decay and improvement rates based on food levels.&#10;- Added `mood_changed` signal for real-time updates.&#10;- Implemented `_update_mood` to adjust mood dynamically with food thresholds.&#10;- Refactored offline decay to apply both food and mood changes during inactivity.&#10;- Enhanced save/load system to persist mood state.">
+      <option name="closed" value="true" />
+      <created>1788970833105</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1788970833105</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based interaction.">
+      <option name="closed" value="true" />
+      <created>1788971014344</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1788971014344</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -313,7 +331,10 @@
     <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.&#10;-" />
     <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior." />
     <MESSAGE value="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity" />
+    <MESSAGE value="Add mood tracking and integrate with food mechanics&#10;&#10;- Introduced `mood` property with decay and improvement rates based on food levels.&#10;- Added `mood_changed` signal for real-time updates.&#10;- Implemented `_update_mood` to adjust mood dynamically with food thresholds.&#10;- Refactored offline decay to apply both food and mood changes during inactivity.&#10;- Enhanced save/load system to persist mood state." />
+    <MESSAGE value="Add `StatusDialog` for real-time food and mood tracking&#10;&#10;- Introduced `StatusDialog` to display pet's food and mood levels.&#10;- Replaced `StatusTooltip` with `StatusDialog` for improved user interaction.&#10;- Connected `food_changed` and `mood_changed` signals to update status dynamically.&#10;- Updated `Klippy` context menu with a &quot;Status&quot; option to access `StatusDialog`." />
+    <MESSAGE value="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based" />
+    <option name="LAST_COMMIT_MESSAGE" value="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

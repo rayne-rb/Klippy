@@ -10,6 +10,7 @@ const MAX_FOOD := 100.0
 const FOOD_DECAY_RATE := (MAX_FOOD * 0.1) / 3600.0
 const FEED_AMOUNT := 40.0
 
+const MAX_MOOD := 100.0
 const MOOD_MID := 50.0
 const MOOD_INCREASE_RATE := 5.0 / 3600.0
 const MOOD_DECREASE_RATE := 5.0 / 3600.0

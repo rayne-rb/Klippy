@@ -24,7 +24,6 @@ const COMPLAINT_COOLDOWN := 4.0
 
 var sprite: Sprite2D
 var context_menu: PopupMenu
-var resize_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
 
@@ -48,6 +47,7 @@ var roll_radius := 90.0
 var mass := 1.0
 
 var show_food_value := false
+var show_mood_value := false
 
 
 func _ready() -> void:
@@ -73,14 +73,9 @@ func _ready() -> void:
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
 
 	show_food_value = settings_data.get("show_food_value", false)
-
-	resize_menu = PopupMenu.new()
-	for i in SIZE_STEPS.size():
-		resize_menu.add_item("%d x %d" % [SIZE_STEPS[i], SIZE_STEPS[i]], i)
-	resize_menu.id_pressed.connect(_on_resize_option_pressed)
+	show_mood_value = settings_data.get("show_mood_value", false)
 
 	context_menu = PopupMenu.new()
-	context_menu.add_submenu_node_item("Resize", resize_menu)
 	context_menu.add_item("Feed", FEED_ID)
 	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_item("DVD", DVD_ID)
@@ -96,13 +91,17 @@ func _ready() -> void:
 
 	settings_window = SettingsPanel.new()
 	add_child(settings_window)
-	settings_window.setup(stats, show_food_value)
+	settings_window.setup(stats, show_food_value, show_mood_value, current_size, SIZE_STEPS)
 	settings_window.show_food_toggled.connect(_on_show_food_toggled)
+	settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
+	settings_window.size_selected.connect(_on_size_selected)
 	settings_window.hide()
 
 	status_dialog = StatusDialog.new()
 	add_child(status_dialog)
 	status_dialog.setup(stats)
+	status_dialog.set_show_food_value(show_food_value)
+	status_dialog.set_show_mood_value(show_mood_value)
 	status_dialog.hide()
 
 	speech_bubble = SpeechBubble.new()
@@ -118,6 +117,16 @@ func _ready() -> void:
 
 func _on_show_food_toggled(enabled: bool) -> void:
 	show_food_value = enabled
+	status_dialog.set_show_food_value(enabled)
+
+
+func _on_show_mood_toggled(enabled: bool) -> void:
+	show_mood_value = enabled
+	status_dialog.set_show_mood_value(enabled)
+
+
+func _on_size_selected(new_size: int) -> void:
+	_apply_size(new_size)
 
 
 func _save_state() -> void:
@@ -129,7 +138,10 @@ func _save_state() -> void:
 			"feeding_enabled": stats.feeding_enabled,
 			"is_dead": stats.is_dead,
 		},
-		"settings": {"show_food_value": show_food_value},
+		"settings": {
+			"show_food_value": show_food_value,
+			"show_mood_value": show_mood_value,
+		},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -221,10 +233,6 @@ func _toggle_dvd_mode() -> void:
 		velocity = Vector2(DVD_SPEED, 0.0).rotated(randf_range(0.0, TAU))
 	else:
 		velocity = Vector2.ZERO
-
-
-func _on_resize_option_pressed(id: int) -> void:
-	_apply_size(SIZE_STEPS[id])
 
 
 func _apply_size(new_size: int) -> void:
