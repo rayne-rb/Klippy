@@ -27,10 +27,12 @@ var resize_menu: PopupMenu
 var settings_window: SettingsPanel
 
 var speech_bubble: SpeechBubble
+var status_tooltip: StatusTooltip
 var complaint_cooldown_timer: Timer
 var stats: PetStats
 
 var dvd_mode := false
+var hovering := false
 
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
@@ -77,6 +79,9 @@ func _ready() -> void:
 
 	speech_bubble = SpeechBubble.new()
 	add_child(speech_bubble)
+
+	status_tooltip = StatusTooltip.new()
+	add_child(status_tooltip)
 
 	complaint_cooldown_timer = Timer.new()
 	complaint_cooldown_timer.one_shot = true
@@ -125,17 +130,38 @@ func _rebuild_mask_points() -> void:
 		mask_points[i] = raw_polygon[i] * sprite.scale - center
 
 
-func _update_passthrough_mask(angle: float) -> void:
-	if mask_points.is_empty():
-		return
-
+func _rotated_mask_points(angle: float) -> PackedVector2Array:
 	var center := Vector2(get_window().size) / 2.0
 	var region := PackedVector2Array()
 	region.resize(mask_points.size())
 	for i in mask_points.size():
 		region[i] = mask_points[i].rotated(angle) + center
+	return region
 
-	DisplayServer.window_set_mouse_passthrough(region, 0)
+
+func _update_passthrough_mask(angle: float) -> void:
+	if mask_points.is_empty():
+		return
+
+	DisplayServer.window_set_mouse_passthrough(_rotated_mask_points(angle), 0)
+
+
+func _update_hover(window: Window) -> void:
+	if mask_points.is_empty():
+		return
+
+	var local := Vector2(DisplayServer.mouse_get_position() - window.position)
+	var is_over := Geometry2D.is_point_in_polygon(local, _rotated_mask_points(sprite.rotation))
+
+	if is_over:
+		if hovering:
+			status_tooltip.set_text(stats.get_status())
+		else:
+			hovering = true
+			status_tooltip.show_status(stats.get_status(), window)
+	elif hovering:
+		hovering = false
+		status_tooltip.hide_status()
 
 
 func _on_context_menu_id_pressed(id: int) -> void:
@@ -227,6 +253,7 @@ func _draw() -> void:
 
 func _physics_process(delta: float) -> void:
 	var window := get_window()
+	_update_hover(window)
 
 	if dragging:
 		var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)

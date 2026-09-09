@@ -2,7 +2,7 @@ class_name SettingsPanel
 extends Window
 
 var stats: PetStats
-var hunger_label: Label
+var food_label: Label
 
 
 func _ready() -> void:
@@ -31,26 +31,26 @@ func setup(pet_stats: PetStats) -> void:
 	feeding_check.toggled.connect(_on_feeding_toggled)
 	vbox.add_child(feeding_check)
 
-	var show_hunger_check := CheckBox.new()
-	show_hunger_check.text = "Show hunger value"
-	show_hunger_check.toggled.connect(_on_show_hunger_toggled)
-	vbox.add_child(show_hunger_check)
+	var show_food_check := CheckBox.new()
+	show_food_check.text = "Show food value"
+	show_food_check.toggled.connect(_on_show_food_toggled)
+	vbox.add_child(show_food_check)
 
-	hunger_label = Label.new()
-	hunger_label.visible = false
-	vbox.add_child(hunger_label)
+	food_label = Label.new()
+	food_label.visible = false
+	vbox.add_child(food_label)
 
-	stats.hunger_changed.connect(_on_hunger_changed)
-	_on_hunger_changed(stats.hunger)
+	stats.food_changed.connect(_on_food_changed)
+	_on_food_changed(stats.food)
 
 
 func _on_feeding_toggled(enabled: bool) -> void:
 	stats.set_feeding_enabled(enabled)
 
 
-func _on_show_hunger_toggled(enabled: bool) -> void:
-	hunger_label.visible = enabled
+func _on_show_food_toggled(enabled: bool) -> void:
+	food_label.visible = enabled
 
 
-func _on_hunger_changed(value: float) -> void:
-	hunger_label.text = "Hunger: %.1f / %.0f" % [value, PetStats.MAX_HUNGER]
+func _on_food_changed(value: float) -> void:
+	food_label.text = "Food: %.1f / %.0f" % [value, PetStats.MAX_FOOD]
