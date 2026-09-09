@@ -11,8 +11,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/editor/filesystem_cache10" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.godot/uid_cache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.godot/uid_cache.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/project.godot" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -87,7 +86,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Editor" type="RunExe" factoryName=".NET Executable">
-      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_mono_linux_x86_64/Godot_v4.7.1-stable_mono_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -103,7 +102,7 @@
       </method>
     </configuration>
     <configuration name="Player" type="RunExe" factoryName=".NET Executable">
-      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_mono_linux_x86_64/Godot_v4.7.1-stable_mono_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot;" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -119,7 +118,7 @@
       </method>
     </configuration>
     <configuration name="Editor" type="RunNativeExe" factoryName="Native Executable">
-      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_mono_linux_x86_64/Godot_v4.7.1-stable_mono_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Downloads/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -136,7 +135,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="8464000" />
+      <workItem from="1788947224616" duration="10684000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -194,7 +193,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788959561516</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings.">
+      <option name="closed" value="true" />
+      <created>1788959981382</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1788959981382</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,7 +220,8 @@
     <MESSAGE value="Enable C# support and adjust project configuration settings" />
     <MESSAGE value="Add Klippy.x86_64 release build" />
     <MESSAGE value="Remove Klippy resources, project files, and configurations" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove Klippy resources, project files, and configurations" />
+    <MESSAGE value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

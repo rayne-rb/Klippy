@@ -30,7 +30,7 @@ func _build_click_through_mask() -> void:
 		return
 
 	var image := texture.get_image()
-	var bitmap := Bitmap.new()
+	var bitmap := BitMap.new()
 	bitmap.create_from_image_alpha(image, 0.1)
 
 	var polygons := bitmap.opaque_to_polygons(Rect2i(Vector2i.ZERO, image.get_size()), 2.0)
