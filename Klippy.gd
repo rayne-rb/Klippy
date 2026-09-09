@@ -17,10 +17,16 @@ const REFERENCE_SIZE := 200.0
 const BASE_FOLLOW_RATE := 25.0
 const DVD_SPEED := 220.0
 
+const COMPLAINT_CHANCE := 0.12
+const COMPLAINT_COOLDOWN := 4.0
+
 var sprite: Sprite2D
 var context_menu: PopupMenu
 var resize_menu: PopupMenu
 var settings_window: Window
+
+var speech_bubble: SpeechBubble
+var complaint_cooldown_timer: Timer
 
 var dvd_mode := false
 
@@ -62,6 +68,22 @@ func _ready() -> void:
 	settings_window.close_requested.connect(settings_window.hide)
 	add_child(settings_window)
 	settings_window.hide()
+
+	speech_bubble = SpeechBubble.new()
+	add_child(speech_bubble)
+
+	complaint_cooldown_timer = Timer.new()
+	complaint_cooldown_timer.one_shot = true
+	complaint_cooldown_timer.wait_time = COMPLAINT_COOLDOWN
+	add_child(complaint_cooldown_timer)
+
+
+func _maybe_complain() -> void:
+	if not complaint_cooldown_timer.is_stopped():
+		return
+	if randf() < COMPLAINT_CHANCE:
+		speech_bubble.say(Dialogue.random_complaint(), get_window())
+		complaint_cooldown_timer.start()
 
 
 func _build_click_through_mask() -> void:
@@ -166,6 +188,8 @@ func _input(event: InputEvent) -> void:
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
 			drag_offset = DisplayServer.mouse_get_position() - get_window().position
+			if event.double_click:
+				speech_bubble.say(Dialogue.random_greeting(), get_window())
 		else:
 			dragging = false
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -239,20 +263,24 @@ func _physics_process(delta: float) -> void:
 		pos.x = min_x
 		velocity.x = -velocity.x * BOUNCE_DAMPING
 		angular_velocity += -velocity.y / roll_radius
+		_maybe_complain()
 	elif pos.x > max_x:
 		pos.x = max_x
 		velocity.x = -velocity.x * BOUNCE_DAMPING
 		angular_velocity += -velocity.y / roll_radius
+		_maybe_complain()
 
 	if pos.y < min_y:
 		pos.y = min_y
 		velocity.y = -velocity.y * BOUNCE_DAMPING
 		angular_velocity += velocity.x / roll_radius
+		_maybe_complain()
 	elif pos.y >= floor_y:
 		pos.y = floor_y
 		if abs(velocity.y) > REST_SPEED:
 			velocity.y = -velocity.y * BOUNCE_DAMPING
 			angular_velocity += velocity.x / roll_radius
+			_maybe_complain()
 		else:
 			velocity.y = 0.0
 			velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
