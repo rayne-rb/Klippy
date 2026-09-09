@@ -11,6 +11,9 @@ const TEXTURE_SIZE := 400.0
 const SIZE_STEPS := [100, 200, 300, 400]
 const CLOSE_ID := 0
 
+const REFERENCE_SIZE := 200.0
+const BASE_FOLLOW_RATE := 25.0
+
 var sprite: Sprite2D
 var context_menu: PopupMenu
 var resize_menu: PopupMenu
@@ -20,17 +23,19 @@ var mask_points: PackedVector2Array = PackedVector2Array()
 
 var dragging := false
 var drag_offset := Vector2i.ZERO
-var last_mouse_pos := Vector2i.ZERO
 var velocity := Vector2.ZERO
 var angular_velocity := 0.0
 var show_hitbox := false
 
+var current_size := 200
 var roll_radius := 90.0
+var mass := 1.0
 
 
 func _ready() -> void:
 	sprite = $Sprite2D
 	_build_click_through_mask()
+	_recompute_physical_properties()
 
 	resize_menu = PopupMenu.new()
 	for i in SIZE_STEPS.size():
@@ -110,12 +115,18 @@ func _apply_size(new_size: int) -> void:
 
 	sprite.scale = Vector2.ONE * (new_size / TEXTURE_SIZE)
 	position = Vector2(new_size_v) / 2.0
-	roll_radius = new_size * 0.45
+	current_size = new_size
+	_recompute_physical_properties()
 
 	_rebuild_mask_points()
 	_update_passthrough_mask(sprite.rotation)
 	if show_hitbox:
 		queue_redraw()
+
+
+func _recompute_physical_properties() -> void:
+	roll_radius = current_size * 0.45
+	mass = pow(current_size / REFERENCE_SIZE, 2.0)
 
 
 func _input(event: InputEvent) -> void:
@@ -124,8 +135,7 @@ func _input(event: InputEvent) -> void:
 			dragging = true
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
-			last_mouse_pos = DisplayServer.mouse_get_position()
-			drag_offset = last_mouse_pos - get_window().position
+			drag_offset = DisplayServer.mouse_get_position() - get_window().position
 		else:
 			dragging = false
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -153,11 +163,16 @@ func _physics_process(delta: float) -> void:
 	var window := get_window()
 
 	if dragging:
-		var mouse_pos := DisplayServer.mouse_get_position()
-		window.position = mouse_pos - drag_offset
+		var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)
+		var old_pos := Vector2(window.position)
+		var follow_t := 1.0
 		if delta > 0.0:
-			velocity = Vector2(mouse_pos - last_mouse_pos) / delta
-		last_mouse_pos = mouse_pos
+			var follow_rate := BASE_FOLLOW_RATE / mass
+			follow_t = 1.0 - exp(-follow_rate * delta)
+		var new_pos := old_pos.lerp(target_pos, follow_t)
+		if delta > 0.0:
+			velocity = (new_pos - old_pos) / delta
+		window.position = Vector2i(new_pos)
 
 		if sprite.rotation != 0.0:
 			var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)

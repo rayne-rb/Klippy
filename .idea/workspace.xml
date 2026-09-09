@@ -12,7 +12,6 @@
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/project.godot" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +134,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="11102000" />
+      <workItem from="1788947224616" duration="11446000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -209,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788962151678</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Add context menu and resize functionality to Klippy&#10;&#10;- Implemented context menu with resize and close options.&#10;- Added dynamic resize functionality based on predefined size steps.&#10;- Updated hitbox and passthrough mask calculations to reflect size changes.">
+      <option name="closed" value="true" />
+      <created>1788962629334</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1788962629334</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,7 +237,8 @@
     <MESSAGE value="Remove Klippy resources, project files, and configurations" />
     <MESSAGE value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
     <MESSAGE value="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed." />
+    <MESSAGE value="Add context menu and resize functionality to Klippy&#10;&#10;- Implemented context menu with resize and close options.&#10;- Added dynamic resize functionality based on predefined size steps.&#10;- Updated hitbox and passthrough mask calculations to reflect size changes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add context menu and resize functionality to Klippy&#10;&#10;- Implemented context menu with resize and close options.&#10;- Added dynamic resize functionality based on predefined size steps.&#10;- Updated hitbox and passthrough mask calculations to reflect size changes." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
