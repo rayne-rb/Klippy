@@ -12,6 +12,7 @@ const SIZE_STEPS := [100, 200, 300, 400]
 const CLOSE_ID := 0
 const DVD_ID := 1
 const SETTINGS_ID := 2
+const FEED_ID := 3
 
 const REFERENCE_SIZE := 200.0
 const BASE_FOLLOW_RATE := 25.0
@@ -23,10 +24,11 @@ const COMPLAINT_COOLDOWN := 4.0
 var sprite: Sprite2D
 var context_menu: PopupMenu
 var resize_menu: PopupMenu
-var settings_window: Window
+var settings_window: SettingsPanel
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
+var stats: PetStats
 
 var dvd_mode := false
 
@@ -49,6 +51,10 @@ func _ready() -> void:
 	_build_click_through_mask()
 	_recompute_physical_properties()
 
+	stats = PetStats.new()
+	add_child(stats)
+	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
+
 	resize_menu = PopupMenu.new()
 	for i in SIZE_STEPS.size():
 		resize_menu.add_item("%d x %d" % [SIZE_STEPS[i], SIZE_STEPS[i]], i)
@@ -56,17 +62,17 @@ func _ready() -> void:
 
 	context_menu = PopupMenu.new()
 	context_menu.add_submenu_node_item("Resize", resize_menu)
+	context_menu.add_item("Feed", FEED_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close", CLOSE_ID)
+	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), true)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(context_menu)
 
-	settings_window = Window.new()
-	settings_window.title = "Settings"
-	settings_window.size = Vector2i(300, 200)
-	settings_window.close_requested.connect(settings_window.hide)
+	settings_window = SettingsPanel.new()
 	add_child(settings_window)
+	settings_window.setup(stats)
 	settings_window.hide()
 
 	speech_bubble = SpeechBubble.new()
@@ -140,6 +146,12 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			settings_window.popup_centered()
 		DVD_ID:
 			_toggle_dvd_mode()
+		FEED_ID:
+			stats.feed()
+
+
+func _on_feeding_enabled_changed(enabled: bool) -> void:
+	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not enabled)
 
 
 func _toggle_dvd_mode() -> void:
