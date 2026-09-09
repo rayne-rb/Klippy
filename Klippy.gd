@@ -10,13 +10,19 @@ const SPIN_RECOVERY_RATE := 10.0
 const TEXTURE_SIZE := 400.0
 const SIZE_STEPS := [100, 200, 300, 400]
 const CLOSE_ID := 0
+const DVD_ID := 1
+const SETTINGS_ID := 2
 
 const REFERENCE_SIZE := 200.0
 const BASE_FOLLOW_RATE := 25.0
+const DVD_SPEED := 220.0
 
 var sprite: Sprite2D
 var context_menu: PopupMenu
 var resize_menu: PopupMenu
+var settings_window: Window
+
+var dvd_mode := false
 
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
@@ -44,9 +50,18 @@ func _ready() -> void:
 
 	context_menu = PopupMenu.new()
 	context_menu.add_submenu_node_item("Resize", resize_menu)
+	context_menu.add_item("DVD", DVD_ID)
+	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close", CLOSE_ID)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(context_menu)
+
+	settings_window = Window.new()
+	settings_window.title = "Settings"
+	settings_window.size = Vector2i(300, 200)
+	settings_window.close_requested.connect(settings_window.hide)
+	add_child(settings_window)
+	settings_window.hide()
 
 
 func _build_click_through_mask() -> void:
@@ -96,8 +111,22 @@ func _update_passthrough_mask(angle: float) -> void:
 
 
 func _on_context_menu_id_pressed(id: int) -> void:
-	if id == CLOSE_ID:
-		get_tree().quit()
+	match id:
+		CLOSE_ID:
+			get_tree().quit()
+		SETTINGS_ID:
+			settings_window.popup_centered()
+		DVD_ID:
+			_toggle_dvd_mode()
+
+
+func _toggle_dvd_mode() -> void:
+	dvd_mode = not dvd_mode
+	angular_velocity = 0.0
+	if dvd_mode:
+		velocity = Vector2(DVD_SPEED, 0.0).rotated(randf_range(0.0, TAU))
+	else:
+		velocity = Vector2.ZERO
 
 
 func _on_resize_option_pressed(id: int) -> void:
@@ -133,6 +162,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			dragging = true
+			dvd_mode = false
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
 			drag_offset = DisplayServer.mouse_get_position() - get_window().position
@@ -185,6 +215,10 @@ func _physics_process(delta: float) -> void:
 
 		return
 
+	if dvd_mode:
+		_process_dvd(delta, window)
+		return
+
 	if velocity == Vector2.ZERO:
 		return
 
@@ -233,5 +267,32 @@ func _physics_process(delta: float) -> void:
 		_update_passthrough_mask(sprite.rotation)
 		if show_hitbox:
 			queue_redraw()
+
+	window.position = Vector2i(pos)
+
+
+func _process_dvd(delta: float, window: Window) -> void:
+	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
+	var size := Vector2(window.size)
+	var pos := Vector2(window.position) + velocity * delta
+
+	var min_x := float(bounds.position.x)
+	var max_x := bounds.position.x + bounds.size.x - size.x
+	var min_y := float(bounds.position.y)
+	var max_y := bounds.position.y + bounds.size.y - size.y
+
+	if pos.x < min_x:
+		pos.x = min_x
+		velocity.x = -velocity.x
+	elif pos.x > max_x:
+		pos.x = max_x
+		velocity.x = -velocity.x
+
+	if pos.y < min_y:
+		pos.y = min_y
+		velocity.y = -velocity.y
+	elif pos.y > max_y:
+		pos.y = max_y
+		velocity.y = -velocity.y
 
 	window.position = Vector2i(pos)
