@@ -26,6 +26,7 @@ var sprite: Sprite2D
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
+var close_confirm_dialog: ConfirmationDialog
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -80,7 +81,7 @@ func _ready() -> void:
 	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
-	context_menu.add_item("Close", CLOSE_ID)
+	context_menu.add_item("Close Klippy", CLOSE_ID)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(context_menu)
 	_on_feeding_enabled_changed(stats.feeding_enabled)
@@ -103,6 +104,13 @@ func _ready() -> void:
 	status_dialog.set_show_food_value(show_food_value)
 	status_dialog.set_show_mood_value(show_mood_value)
 	status_dialog.hide()
+
+	close_confirm_dialog = ConfirmationDialog.new()
+	close_confirm_dialog.title = "Close Klippy"
+	close_confirm_dialog.dialog_text = "Close Klippy?"
+	close_confirm_dialog.confirmed.connect(_on_quit_requested)
+	add_child(close_confirm_dialog)
+	close_confirm_dialog.hide()
 
 	speech_bubble = SpeechBubble.new()
 	add_child(speech_bubble)
@@ -211,7 +219,7 @@ func _update_passthrough_mask(angle: float) -> void:
 func _on_context_menu_id_pressed(id: int) -> void:
 	match id:
 		CLOSE_ID:
-			_on_quit_requested()
+			close_confirm_dialog.popup_centered()
 		SETTINGS_ID:
 			settings_window.popup_centered()
 		STATUS_ID:
