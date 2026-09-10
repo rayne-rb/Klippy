@@ -156,6 +156,13 @@ func revive() -> void:
 	health_changed.emit(health)
 
 
+func apply_play_boost(amount: float) -> void:
+	if is_dead:
+		return
+	mood = clamp(mood + amount, 0.0, MAX_MOOD)
+	mood_changed.emit(mood)
+
+
 func feed(amount: float) -> void:
 	if is_dead:
 		return

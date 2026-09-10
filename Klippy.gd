@@ -29,6 +29,10 @@ const HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE := 0.35
 const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
+const PLAY_MIN_HEALTH := 60.0
+const PLAY_DISTANCE_THRESHOLD := 400.0
+const PLAY_MOOD_BOOST := 3.0
+
 var active_food_items: Array[Window] = []
 
 var idle_base_y := 0
@@ -36,6 +40,9 @@ var bounce_timer := 0.0
 var bouncing := false
 var bounce_phase := 0.0
 var bounce_cycles_done := 0
+
+var play_tracking_active := false
+var play_distance_traveled := 0.0
 
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
@@ -443,13 +450,30 @@ func _run_state_physics(delta: float, window: Window) -> void:
 	if dvd_mode:
 		_process_dvd(delta, window)
 		return
+
+	var pos_before := Vector2(window.position)
 	super._run_state_physics(delta, window)
+
+	if state == State.THROWN and play_tracking_active:
+		play_distance_traveled += (Vector2(window.position) - pos_before).length()
 
 
 func _on_state_enter(new_state: State) -> void:
 	if new_state == State.IDLE:
 		idle_base_y = get_window().position.y
 		_reset_bounce()
+	elif new_state == State.THROWN:
+		play_tracking_active = not dvd_mode
+		play_distance_traveled = 0.0
+
+
+func _on_state_exit(old_state: State) -> void:
+	if old_state != State.THROWN or not play_tracking_active:
+		return
+
+	play_tracking_active = false
+	if play_distance_traveled >= PLAY_DISTANCE_THRESHOLD and stats.health > PLAY_MIN_HEALTH:
+		stats.apply_play_boost(PLAY_MOOD_BOOST)
 
 
 func _reset_bounce() -> void:
