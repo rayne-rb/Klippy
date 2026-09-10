@@ -10,12 +10,14 @@ const FRICTION := 800.0
 const AIR_SPIN_DAMPING := 0.1
 const SPIN_RECOVERY_RATE := 10.0
 const BASE_FOLLOW_RATE := 25.0
+const DRAG_SPIN_STEP := PI / 6.0
 
 var sprite: Sprite2D
 var state := State.IDLE
 var drag_offset := Vector2i.ZERO
 var velocity := Vector2.ZERO
 var angular_velocity := 0.0
+var drag_spin_target := 0.0
 
 var mass := 1.0
 var roll_radius := 90.0
@@ -46,12 +48,18 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
+			drag_spin_target = 0.0
 			drag_offset = DisplayServer.mouse_get_position() - get_window().position
 			_set_state(State.DRAGGING)
 			_on_drag_started(event)
 		elif state == State.DRAGGING:
 			_set_state(State.THROWN)
 			_on_drag_ended()
+	elif event is InputEventMouseButton and event.pressed and state == State.DRAGGING:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			drag_spin_target = wrapf(drag_spin_target + DRAG_SPIN_STEP, -PI, PI)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			drag_spin_target = wrapf(drag_spin_target - DRAG_SPIN_STEP, -PI, PI)
 
 
 func _on_drag_started(_event: InputEventMouseButton) -> void:
@@ -100,11 +108,11 @@ func _process_dragging(delta: float, window: Window) -> void:
 		velocity = (new_pos - old_pos) / delta
 	window.position = Vector2i(new_pos)
 
-	if sprite.rotation != 0.0:
+	if sprite.rotation != drag_spin_target:
 		var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)
-		sprite.rotation = lerp_angle(sprite.rotation, 0.0, t)
-		if abs(sprite.rotation) < 0.001:
-			sprite.rotation = 0.0
+		sprite.rotation = lerp_angle(sprite.rotation, drag_spin_target, t)
+		if abs(sprite.rotation - drag_spin_target) < 0.001:
+			sprite.rotation = drag_spin_target
 		_on_rotation_changed(sprite.rotation)
 
 
