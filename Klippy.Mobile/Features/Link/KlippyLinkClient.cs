@@ -19,6 +19,7 @@ public sealed class KlippyLinkClient(
     ServerLocator locator,
     MobilePairingClient pairing,
     PairedServerStore store,
+    ManualAddressStore manualAddress,
     ILogger<KlippyLinkClient> logger) : IAsyncDisposable
 {
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(3);
@@ -65,6 +66,20 @@ public sealed class KlippyLinkClient(
             : LinkEnvelope.Create(type, payload);
 
         _outbound.Writer.TryWrite(envelope);
+    }
+
+    /// <summary>The address the user typed, if any.</summary>
+    public Task<string?> GetManualAddressAsync() => manualAddress.GetAsync();
+
+    /// <summary>
+    /// Records where the server is and retries at once, rather than waiting out the
+    /// next retry delay.
+    /// </summary>
+    public async Task SetManualAddressAsync(string? address)
+    {
+        await manualAddress.SetAsync(address);
+        await StopAsync();
+        Start();
     }
 
     /// <summary>Forgets the pairing and starts looking for a server again.</summary>
@@ -133,7 +148,18 @@ public sealed class KlippyLinkClient(
         var stored = await store.GetAsync(ct);
 
         SetState(LinkState.Searching);
-        var beacon = await locator.FindAsync(DiscoveryTimeout, ct);
+
+        // A typed address is tried before multicast, not after it. It is an explicit
+        // choice, and in the cases that call for one - a tailnet, mobile data, an
+        // emulator behind user-mode NAT - multicast can never succeed, so probing
+        // first would burn the discovery timeout ahead of every connection attempt.
+        var typed = await manualAddress.GetAsync(ct);
+        var beacon = typed is { Length: > 0 }
+            ? await locator.ResolveAsync(typed, ct)
+            : null;
+
+        // Multicast handles the ordinary case: same Wi-Fi, nothing configured.
+        beacon ??= await locator.FindAsync(DiscoveryTimeout, ct);
 
         if (stored is not null)
         {

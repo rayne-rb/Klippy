@@ -45,6 +45,7 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapDiscoveryEndpoints();
 app.MapPairingEndpoints();
 app.MapLinkEndpoints();
 app.MapPetStateEndpoints();
