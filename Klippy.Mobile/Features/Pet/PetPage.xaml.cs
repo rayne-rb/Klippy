@@ -1,4 +1,7 @@
 using Klippy.Mobile.Features.Link;
+#if ANDROID
+using Klippy.Mobile.Features.AudioCast;
+#endif
 using Klippy.Shared.Link;
 using Klippy.Shared.Link.Payloads;
 
@@ -18,10 +21,21 @@ public partial class PetPage : ContentPage
     private readonly Queue<string> _activity = new();
     private bool _dvdOn;
 
+#if ANDROID
+    private readonly AudioCastClient _cast;
+
+    public PetPage(KlippyLinkClient link, AudioCastClient cast)
+#else
     public PetPage(KlippyLinkClient link)
+#endif
     {
         InitializeComponent();
         _link = link;
+
+#if ANDROID
+        _cast = cast;
+        _cast.CastingChanged += OnCastingChanged;
+#endif
 
         _link.StateChanged += OnStateChanged;
         _link.EventReceived += OnEventReceived;
@@ -74,6 +88,17 @@ public partial class PetPage : ContentPage
 
         var live = state == LinkState.Connected;
         ControlsSection.IsVisible = live;
+
+#if ANDROID
+        CastSection.IsVisible = live;
+
+        // The cast is negotiated over the link, so a dropped link means the stream is
+        // orphaned: stop it rather than leave the sink playing into nothing.
+        if (!live && _cast.IsCasting)
+        {
+            _ = _cast.StopAsync();
+        }
+#endif
         UnpairButton.IsVisible = state is LinkState.Connected or LinkState.Offline;
 
         // Only worth offering once automatic discovery has visibly not worked.
@@ -180,6 +205,61 @@ public partial class PetPage : ContentPage
         Note($"Trying {typed}");
         await _link.SetManualAddressAsync(typed);
     }
+
+#if ANDROID
+    private async void OnCastClicked(object? sender, EventArgs e)
+    {
+        // The button drives a negotiation with a 10s ceiling; a second tap midway
+        // would start a competing one.
+        CastButton.IsEnabled = false;
+
+        try
+        {
+            if (_cast.IsCasting)
+            {
+                await _cast.StopAsync();
+                return;
+            }
+
+            // Without this the foreground service runs but its notification is
+            // suppressed, which is the one thing a media-playback service must show.
+            if (OperatingSystem.IsAndroidVersionAtLeast(33))
+            {
+                await Permissions.RequestAsync<Permissions.PostNotifications>();
+            }
+
+            CastStatusLabel.Text = "Asking the server for a stream…";
+
+            if (!await _cast.StartAsync())
+            {
+                // StartAsync has already logged why; the user only needs to know it
+                // did not take, and that trying again is reasonable.
+                CastStatusLabel.Text = "The server didn't start a stream. Try again.";
+                Note("Could not start the audio cast.");
+            }
+        }
+        finally
+        {
+            CastButton.IsEnabled = true;
+        }
+    }
+
+    private void OnCastingChanged(bool casting) => Dispatcher.Dispatch(() =>
+    {
+        CastButton.Text = casting ? "Stop listening" : "Listen";
+        CastStatusLabel.Text = casting
+            ? "Playing your PC's audio."
+            : "Play your computer's sound through this phone.";
+
+        Note(casting ? "Audio cast started." : "Audio cast stopped.");
+    });
+#else
+    // No audio sink off Android, so the section never becomes visible; the handler
+    // exists only because the XAML is shared across every target.
+    private void OnCastClicked(object? sender, EventArgs e)
+    {
+    }
+#endif
 
     private void OnFeedClicked(object? sender, EventArgs e) =>
         _link.Publish(KlippyEvents.PetFeed, new FeedPayload { Count = 1 });

@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Klippy.Mobile">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-10T19:44:12.352991103Z">
+        <DropdownSelection timestamp="2026-09-10T20:21:05.530038010Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/home/tulonga/.android/avd/wms_emulator.avd" />
+              <DeviceId pluginId="Default" identifier="serial=100.70.206.70:44467;connection=7161b992" />
             </handle>
           </Target>
         </DropdownSelection>

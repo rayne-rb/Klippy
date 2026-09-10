@@ -67,6 +67,15 @@
                 <Button Text="Say it" Clicked="OnSayClicked" />
             </VerticalStackLayout>
 
+            <!-- PC audio played through this phone. Android only: the audio sink is
+                 platform-specific, so the section stays hidden everywhere else. -->
+            <VerticalStackLayout x:Name="CastSection" Spacing="8" IsVisible="False">
+                <Label Text="PC audio" FontSize="16" FontAttributes="Bold" />
+                <Label x:Name="CastStatusLabel" FontSize="12" Opacity="0.7"
+                       Text="Play your computer's sound through this phone." />
+                <Button x:Name="CastButton" Text="Listen" Clicked="OnCastClicked" />
+            </VerticalStackLayout>
+
             <!-- Activity -->
             <VerticalStackLayout Spacing="6">
                 <Label Text="Recent" FontSize="16" FontAttributes="Bold" />
