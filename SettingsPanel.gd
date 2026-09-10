@@ -3,6 +3,7 @@ extends Window
 
 signal show_food_toggled(enabled: bool)
 signal show_mood_toggled(enabled: bool)
+signal show_health_toggled(enabled: bool)
 signal size_selected(size: int)
 
 var stats: PetStats
@@ -11,7 +12,7 @@ var size_steps: Array
 
 func _ready() -> void:
 	title = "Settings"
-	size = Vector2i(300, 220)
+	size = Vector2i(300, 250)
 	close_requested.connect(hide)
 
 
@@ -19,6 +20,7 @@ func setup(
 	pet_stats: PetStats,
 	initial_show_food: bool,
 	initial_show_mood: bool,
+	initial_show_health: bool,
 	initial_size: int,
 	sizes: Array
 ) -> void:
@@ -55,6 +57,12 @@ func setup(
 	show_mood_check.toggled.connect(_on_show_mood_toggled)
 	vbox.add_child(show_mood_check)
 
+	var show_health_check := CheckBox.new()
+	show_health_check.text = "Show health value"
+	show_health_check.set_pressed_no_signal(initial_show_health)
+	show_health_check.toggled.connect(_on_show_health_toggled)
+	vbox.add_child(show_health_check)
+
 	var size_row := HBoxContainer.new()
 	size_row.add_theme_constant_override("separation", 8)
 	vbox.add_child(size_row)
@@ -81,6 +89,10 @@ func _on_show_food_toggled(enabled: bool) -> void:
 
 func _on_show_mood_toggled(enabled: bool) -> void:
 	show_mood_toggled.emit(enabled)
+
+
+func _on_show_health_toggled(enabled: bool) -> void:
+	show_health_toggled.emit(enabled)
 
 
 func _on_size_selected(index: int) -> void:

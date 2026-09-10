@@ -42,6 +42,7 @@ var current_size := 200
 
 var show_food_value := false
 var show_mood_value := false
+var show_health_value := false
 
 
 func _ready() -> void:
@@ -59,6 +60,7 @@ func _ready() -> void:
 	add_child(stats)
 	stats.food = stats_data.get("food", PetStats.MAX_FOOD)
 	stats.mood = stats_data.get("mood", PetStats.MOOD_MID)
+	stats.health = stats_data.get("health", PetStats.MAX_HEALTH)
 	stats.feeding_enabled = stats_data.get("feeding_enabled", false)
 	stats.is_dead = stats_data.get("is_dead", false)
 	if meta_data.has("saved_at"):
@@ -68,6 +70,7 @@ func _ready() -> void:
 
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
+	show_health_value = settings_data.get("show_health_value", false)
 
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
@@ -87,9 +90,10 @@ func _ready() -> void:
 
 	settings_window = SettingsPanel.new()
 	add_child(settings_window)
-	settings_window.setup(stats, show_food_value, show_mood_value, current_size, SIZE_STEPS)
+	settings_window.setup(stats, show_food_value, show_mood_value, show_health_value, current_size, SIZE_STEPS)
 	settings_window.show_food_toggled.connect(_on_show_food_toggled)
 	settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
+	settings_window.show_health_toggled.connect(_on_show_health_toggled)
 	settings_window.size_selected.connect(_on_size_selected)
 	settings_window.hide()
 
@@ -98,6 +102,7 @@ func _ready() -> void:
 	status_dialog.setup(stats)
 	status_dialog.set_show_food_value(show_food_value)
 	status_dialog.set_show_mood_value(show_mood_value)
+	status_dialog.set_show_health_value(show_health_value)
 	status_dialog.hide()
 
 	close_confirm_dialog = ConfirmationDialog.new()
@@ -128,6 +133,11 @@ func _on_show_mood_toggled(enabled: bool) -> void:
 	status_dialog.set_show_mood_value(enabled)
 
 
+func _on_show_health_toggled(enabled: bool) -> void:
+	show_health_value = enabled
+	status_dialog.set_show_health_value(enabled)
+
+
 func _on_size_selected(new_size: int) -> void:
 	_apply_size(new_size)
 
@@ -138,12 +148,14 @@ func _save_state() -> void:
 		"stats": {
 			"food": stats.food,
 			"mood": stats.mood,
+			"health": stats.health,
 			"feeding_enabled": stats.feeding_enabled,
 			"is_dead": stats.is_dead,
 		},
 		"settings": {
 			"show_food_value": show_food_value,
 			"show_mood_value": show_mood_value,
+			"show_health_value": show_health_value,
 		},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
@@ -356,6 +368,7 @@ func _on_rotation_changed(angle: float) -> void:
 
 
 func _on_energetic_bounce() -> void:
+	stats.apply_throw_damage()
 	_maybe_complain()
 
 

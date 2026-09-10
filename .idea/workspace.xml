@@ -11,7 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPanel.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/StatusDialog.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +138,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="22483000" />
+      <workItem from="1788947224616" duration="25311000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -320,7 +324,39 @@
       <option name="project" value="LOCAL" />
       <updated>1789018223918</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Limit feeding items to a maximum and update feed menu state dynamically&#10;&#10;- Introduced `MAX_FOOD_ITEMS` constant to cap the number of food items.&#10;- Added `active_food_items` array to track current food items.&#10;- Updated feeding logic to disable context menu option when limit is reached.&#10;- Implemented dynamic state updates for food spawning and removal using `_update_feed_menu_state`.">
+      <option name="closed" value="true" />
+      <created>1789018486789</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1789018486789</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Add UID files for `FoodBody` and `PetBody` classes">
+      <option name="closed" value="true" />
+      <created>1789018544108</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1789018544108</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Prevent feeding logic from executing while dragging">
+      <option name="closed" value="true" />
+      <created>1789018634916</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1789018634916</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state.">
+      <option name="closed" value="true" />
+      <created>1789018864713</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1789018864713</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -330,10 +366,6 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add spin recovery mechanic to Klippy movement&#10;&#10;Includes:&#10;- Introduced `SpinRecoveryRate` for smoothing sprite rotation back to default.&#10;- Updated passthrough mask dynamically based on rotation changes." />
-    <MESSAGE value="Add hitbox visualization toggle to Klippy&#10;&#10;Includes:&#10;- Added `_showHitbox` flag for enabling/disabling hitbox rendering.&#10;- Implemented F1 key toggle for hitbox visibility.&#10;- Updated `_Draw` method to render hitbox when enabled.&#10;- Integrated redraw calls to maintain real-time hitbox updates." />
-    <MESSAGE value="Add Linux export configurations for Klippy&#10;&#10;Includes:&#10;- Added `export_presets.cfg` for Linux platform-specific settings.&#10;- Introduced `Klippy.deps.json` for runtime dependencies.&#10;- Added `Klippy.pck` as part of the Linux build." />
-    <MESSAGE value="Enable C# support and adjust project configuration settings" />
     <MESSAGE value="Add Klippy.x86_64 release build" />
     <MESSAGE value="Remove Klippy resources, project files, and configurations" />
     <MESSAGE value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
@@ -355,7 +387,11 @@
     <MESSAGE value="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels." />
     <MESSAGE value="Add confirmation dialog for closing Klippy&#10;&#10;- Replaced direct close action with a confirmation dialog in the context menu.&#10;- Updated context menu item text to &quot;Close Klippy&quot; for clarity.&#10;- Implemented confirmation dialog with &quot;Close Klippy?&quot; prompt and connected it to the quit logic." />
     <MESSAGE value="Introduce `PetBody` base class and `FoodBody` feeding mechanic  &#10;&#10;- Added `PetBody` class to standardize physics interactions and dragging logic for all pet-related objects.  &#10;- Implemented `FoodBody` to handle window-based feeding mechanics, interacting with `PetStats` via collision.  &#10;- Refactored `Klippy` to inherit from `PetBody`, centralizing common physics and interaction logic.  &#10;- Adjusted `Stats.gd` to use dynamic feeding amounts instead of a fixed value." />
-    <option name="LAST_COMMIT_MESSAGE" value="Introduce `PetBody` base class and `FoodBody` feeding mechanic  &#10;&#10;- Added `PetBody` class to standardize physics interactions and dragging logic for all pet-related objects.  &#10;- Implemented `FoodBody` to handle window-based feeding mechanics, interacting with `PetStats` via collision.  &#10;- Refactored `Klippy` to inherit from `PetBody`, centralizing common physics and interaction logic.  &#10;- Adjusted `Stats.gd` to use dynamic feeding amounts instead of a fixed value." />
+    <MESSAGE value="Limit feeding items to a maximum and update feed menu state dynamically&#10;&#10;- Introduced `MAX_FOOD_ITEMS` constant to cap the number of food items.&#10;- Added `active_food_items` array to track current food items.&#10;- Updated feeding logic to disable context menu option when limit is reached.&#10;- Implemented dynamic state updates for food spawning and removal using `_update_feed_menu_state`." />
+    <MESSAGE value="Add UID files for `FoodBody` and `PetBody` classes" />
+    <MESSAGE value="Prevent feeding logic from executing while dragging" />
+    <MESSAGE value="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
