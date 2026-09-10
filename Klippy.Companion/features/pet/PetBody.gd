@@ -24,7 +24,23 @@ var roll_radius := 90.0
 
 
 func _ready() -> void:
-	sprite = $Sprite2D
+	sprite = _resolve_sprite()
+
+
+## Scene-built bodies get their sprite from the .tscn, where it is named; bodies
+## assembled in code may not name theirs, so fall back to the first Sprite2D child
+## rather than leaving [member sprite] null for every rotation to trip over.
+func _resolve_sprite() -> Sprite2D:
+	var named := get_node_or_null(^"Sprite2D") as Sprite2D
+	if named != null:
+		return named
+
+	for child in get_children():
+		if child is Sprite2D:
+			return child as Sprite2D
+
+	push_error("%s has no Sprite2D child; it will not rotate or draw." % name)
+	return null
 
 
 func _set_state(new_state: State) -> void:

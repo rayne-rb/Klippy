@@ -86,6 +86,9 @@ func _build_window() -> Window:
 	body.roll_radius = WINDOW_SIZE * 0.45
 
 	var sprite := Sprite2D.new()
+	# Godot names an unnamed code-added child @Sprite2D@N; say it plainly so the
+	# body finds it the same way a scene-built one does.
+	sprite.name = "Sprite2D"
 	sprite.texture = _make_texture()
 	body.add_child(sprite)
 	window.add_child(body)
