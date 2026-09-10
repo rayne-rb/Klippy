@@ -11,9 +11,35 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/projectSettingsUpdater.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DevToolsDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/DevToolsDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DevToolsDialog.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/DevToolsDialog.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dialogue.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Dialogue.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dialogue.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Dialogue.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/FoodBody.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.png" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.png.import" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.png.import" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.tscn" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/PetBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PetBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/PetBody.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SaveData.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SaveData.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SaveData.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SaveData.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SettingsPanel.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SettingsPanel.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpeechBubble.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SpeechBubble.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpeechBubble.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SpeechBubble.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Stats.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Stats.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Stats.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/StatusDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StatusDialog.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/StatusDialog.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/icon.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/icon.svg.import" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/icon.svg.import" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/project.godot" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +47,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="32" />
+    <option name="cachedIndexableFilesCount" value="224" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -33,12 +59,12 @@
     &quot;assignee&quot;: &quot;rayne-rb&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/rayne-rb/Klippy.git",
-    "accountId": "d7215db0-8f33-473b-8b58-b39489f65c0f"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/rayne-rb/Klippy.git&quot;,
+    &quot;accountId&quot;: &quot;d7215db0-8f33-473b-8b58-b39489f65c0f&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -112,34 +138,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "GDScript Start and Debug.Debug GDScript (Running session).executor": "Debug",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "master",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/rayne/klippy",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Executable.Player.executor&quot;: &quot;Run&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;GDScript Start and Debug.Debug GDScript (Running session).executor&quot;: &quot;Debug&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/rayne/klippy&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Executable.Player">
     <configuration name="Debug GDScript (Running session)" type="GDSCRIPT_DEBUG_RUN_CONFIGURATION" factoryName="GdScriptRunFactory">
       <option name="json" value="{&#10;  // Launch: &quot;Launch a new instance of the game&quot;,&#10;  // Attach: &quot;Attach to an already running game, which was started from the Godot Editor&quot;&#10;  &quot;request&quot; : &quot;Attach&quot;,&#10;  &quot;debugServer&quot; : 6006, // port should match the Debug Adapter port in the Godot Editor project settings.&#10;  &quot;scene&quot; : &quot;main&quot;, // main, current, res://path/to/file.tscn&#10;  &#10;  // &quot;playArgs&quot; : [ &quot;--editor&quot; ], // debugging a tool script&#10;  // &quot;playArgs&quot;: [&quot;--debug-collisions&quot;,&quot;--debug-navigation&quot;], // different options&#10;  &#10;  // one click deploy and debug via Godot Editor:&#10;  // &quot;platform&quot;: &quot;Android&quot;, // including Android, iOS, Web and W4 consoles&#10;  // &quot;device&quot;: &quot;0&quot;, // index of the device of a &quot;platform&quot; type&#10;}" />
@@ -151,7 +177,7 @@
     </configuration>
     <configuration name="Editor" type="RunExe" factoryName=".NET Executable">
       <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
-      <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot; --editor" />
+      <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="ENV_FILE_PATHS" value="" />
@@ -167,7 +193,7 @@
     </configuration>
     <configuration name="Player" type="RunExe" factoryName=".NET Executable">
       <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
-      <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot;" />
+      <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot;" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="ENV_FILE_PATHS" value="" />
@@ -183,7 +209,7 @@
     </configuration>
     <configuration name="Editor" type="RunNativeExe" factoryName="Native Executable">
       <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
-      <option name="PROGRAM_PARAMETERS" value="--path &quot;./&quot; --editor" />
+      <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="ENV_FILE_PATHS" value="" />
@@ -581,7 +607,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels." />
     <MESSAGE value="Add confirmation dialog for closing Klippy&#10;&#10;- Replaced direct close action with a confirmation dialog in the context menu.&#10;- Updated context menu item text to &quot;Close Klippy&quot; for clarity.&#10;- Implemented confirmation dialog with &quot;Close Klippy?&quot; prompt and connected it to the quit logic." />
     <MESSAGE value="Introduce `PetBody` base class and `FoodBody` feeding mechanic  &#10;&#10;- Added `PetBody` class to standardize physics interactions and dragging logic for all pet-related objects.  &#10;- Implemented `FoodBody` to handle window-based feeding mechanics, interacting with `PetStats` via collision.  &#10;- Refactored `Klippy` to inherit from `PetBody`, centralizing common physics and interaction logic.  &#10;- Adjusted `Stats.gd` to use dynamic feeding amounts instead of a fixed value." />
     <MESSAGE value="Limit feeding items to a maximum and update feed menu state dynamically&#10;&#10;- Introduced `MAX_FOOD_ITEMS` constant to cap the number of food items.&#10;- Added `active_food_items` array to track current food items.&#10;- Updated feeding logic to disable context menu option when limit is reached.&#10;- Implemented dynamic state updates for food spawning and removal using `_update_feed_menu_state`." />
@@ -606,7 +631,8 @@
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
     <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
     <MESSAGE value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
+    <MESSAGE value="Add IntelliJ IDEA project configuration files and update Godot project settings" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add IntelliJ IDEA project configuration files and update Godot project settings" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
