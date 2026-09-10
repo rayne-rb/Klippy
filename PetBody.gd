@@ -1,6 +1,8 @@
 class_name PetBody
 extends Node2D
 
+enum State { IDLE, DRAGGING, THROWN }
+
 const GRAVITY := 2200.0
 const BOUNCE_DAMPING := 0.45
 const REST_SPEED := 80.0
@@ -10,7 +12,7 @@ const SPIN_RECOVERY_RATE := 10.0
 const BASE_FOLLOW_RATE := 25.0
 
 var sprite: Sprite2D
-var dragging := false
+var state := State.IDLE
 var drag_offset := Vector2i.ZERO
 var velocity := Vector2.ZERO
 var angular_velocity := 0.0
@@ -23,16 +25,32 @@ func _ready() -> void:
 	sprite = $Sprite2D
 
 
+func _set_state(new_state: State) -> void:
+	if new_state == state:
+		return
+	_on_state_exit(state)
+	state = new_state
+	_on_state_enter(state)
+
+
+func _on_state_enter(_new_state: State) -> void:
+	pass
+
+
+func _on_state_exit(_old_state: State) -> void:
+	pass
+
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			dragging = true
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
 			drag_offset = DisplayServer.mouse_get_position() - get_window().position
+			_set_state(State.DRAGGING)
 			_on_drag_started(event)
-		else:
-			dragging = false
+		elif state == State.DRAGGING:
+			_set_state(State.THROWN)
 			_on_drag_ended()
 
 
@@ -55,32 +73,48 @@ func _on_energetic_bounce(_impact_speed: float) -> void:
 func _physics_process(delta: float) -> void:
 	var window := get_window()
 
-	if dragging:
-		var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)
-		var old_pos := Vector2(window.position)
-		var follow_t := 1.0
-		if delta > 0.0:
-			var follow_rate := BASE_FOLLOW_RATE / mass
-			follow_t = 1.0 - exp(-follow_rate * delta)
-		var new_pos := old_pos.lerp(target_pos, follow_t)
-		if delta > 0.0:
-			velocity = (new_pos - old_pos) / delta
-		window.position = Vector2i(new_pos)
-
-		if sprite.rotation != 0.0:
-			var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)
-			sprite.rotation = lerp_angle(sprite.rotation, 0.0, t)
-			if abs(sprite.rotation) < 0.001:
-				sprite.rotation = 0.0
-			_on_rotation_changed(sprite.rotation)
-
+	if state == State.DRAGGING:
+		_process_dragging(delta, window)
 		return
 
-	_process_non_dragging(delta, window)
+	_run_state_physics(delta, window)
 
 
-func _process_non_dragging(delta: float, window: Window) -> void:
+func _run_state_physics(delta: float, window: Window) -> void:
+	match state:
+		State.THROWN:
+			_process_thrown(delta, window)
+		State.IDLE:
+			_process_idle_base(delta, window)
+
+
+func _process_dragging(delta: float, window: Window) -> void:
+	var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)
+	var old_pos := Vector2(window.position)
+	var follow_t := 1.0
+	if delta > 0.0:
+		var follow_rate := BASE_FOLLOW_RATE / mass
+		follow_t = 1.0 - exp(-follow_rate * delta)
+	var new_pos := old_pos.lerp(target_pos, follow_t)
+	if delta > 0.0:
+		velocity = (new_pos - old_pos) / delta
+	window.position = Vector2i(new_pos)
+
+	if sprite.rotation != 0.0:
+		var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)
+		sprite.rotation = lerp_angle(sprite.rotation, 0.0, t)
+		if abs(sprite.rotation) < 0.001:
+			sprite.rotation = 0.0
+		_on_rotation_changed(sprite.rotation)
+
+
+func _process_idle_base(_delta: float, _window: Window) -> void:
+	pass
+
+
+func _process_thrown(delta: float, window: Window) -> void:
 	if velocity == Vector2.ZERO:
+		_set_state(State.IDLE)
 		return
 
 	velocity.y += GRAVITY * delta
@@ -136,3 +170,6 @@ func _process_non_dragging(delta: float, window: Window) -> void:
 		_on_rotation_changed(sprite.rotation)
 
 	window.position = Vector2i(pos)
+
+	if velocity == Vector2.ZERO:
+		_set_state(State.IDLE)

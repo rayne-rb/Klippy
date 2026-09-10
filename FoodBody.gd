@@ -13,7 +13,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _check_feeding() -> void:
-	if klippy_window == null or stats == null or dragging:
+	if klippy_window == null or stats == null or state == State.DRAGGING:
 		return
 
 	var klippy_rect := Rect2i(klippy_window.position, klippy_window.size)

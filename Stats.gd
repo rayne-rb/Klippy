@@ -128,6 +128,24 @@ func apply_throw_damage() -> void:
 		died.emit()
 
 
+func debug_adjust_food(delta: float) -> void:
+	food = clamp(food + delta, 0.0, MAX_FOOD)
+	food_changed.emit(food)
+
+
+func debug_adjust_mood(delta: float) -> void:
+	mood = clamp(mood + delta, 0.0, MAX_MOOD)
+	mood_changed.emit(mood)
+
+
+func debug_adjust_health(delta: float) -> void:
+	health = clamp(health + delta, 0.0, MAX_HEALTH)
+	health_changed.emit(health)
+	if health <= 0.0 and not is_dead:
+		is_dead = true
+		died.emit()
+
+
 func revive() -> void:
 	if not is_dead:
 		return

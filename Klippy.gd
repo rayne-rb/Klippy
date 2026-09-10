@@ -9,10 +9,11 @@ const SETTINGS_ID := 2
 const FEED_ID := 3
 const STATUS_ID := 4
 const REVIVE_ID := 5
+const DEV_TOOLS_ID := 6
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
-const DAMAGE_SPEED_THRESHOLD := 800.0
+const DAMAGE_SPEED_THRESHOLD := 1200.0
 
 const COMPLAINT_CHANCE := 0.12
 const COMPLAINT_COOLDOWN := 4.0
@@ -26,7 +27,6 @@ const HUNGRY_BOUNCE_SPEED := 6.0
 
 var active_food_items: Array[Window] = []
 
-var idle_active := false
 var idle_base_y := 0
 var idle_phase := 0.0
 
@@ -34,6 +34,7 @@ var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
 var close_confirm_dialog: ConfirmationDialog
+var dev_tools_dialog: DevToolsDialog
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -51,6 +52,7 @@ var current_size := 200
 var show_food_value := false
 var show_mood_value := false
 var show_health_value := false
+var dev_tools_enabled := false
 
 
 func _ready() -> void:
@@ -79,6 +81,7 @@ func _ready() -> void:
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
 	show_health_value = settings_data.get("show_health_value", false)
+	dev_tools_enabled = settings_data.get("dev_tools_enabled", false)
 
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
@@ -91,17 +94,27 @@ func _ready() -> void:
 	_on_feeding_enabled_changed(stats.feeding_enabled)
 	stats.died.connect(_update_revive_item)
 	_update_revive_item()
+	_update_dev_tools_item()
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
 		_apply_size(saved_size)
 
+	idle_base_y = get_window().position.y
+
 	settings_window = SettingsPanel.new()
 	add_child(settings_window)
-	settings_window.setup(stats, show_food_value, show_mood_value, show_health_value, current_size, SIZE_STEPS)
+	settings_window.setup(stats, {
+		"show_food": show_food_value,
+		"show_mood": show_mood_value,
+		"show_health": show_health_value,
+		"dev_tools_enabled": dev_tools_enabled,
+		"size": current_size,
+	}, SIZE_STEPS)
 	settings_window.show_food_toggled.connect(_on_show_food_toggled)
 	settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
 	settings_window.show_health_toggled.connect(_on_show_health_toggled)
+	settings_window.dev_tools_toggled.connect(_on_dev_tools_toggled)
 	settings_window.size_selected.connect(_on_size_selected)
 	settings_window.hide()
 
@@ -112,6 +125,11 @@ func _ready() -> void:
 	status_dialog.set_show_mood_value(show_mood_value)
 	status_dialog.set_show_health_value(show_health_value)
 	status_dialog.hide()
+
+	dev_tools_dialog = DevToolsDialog.new()
+	add_child(dev_tools_dialog)
+	dev_tools_dialog.setup(stats)
+	dev_tools_dialog.hide()
 
 	close_confirm_dialog = ConfirmationDialog.new()
 	close_confirm_dialog.title = "Close Klippy"
@@ -146,6 +164,20 @@ func _on_show_health_toggled(enabled: bool) -> void:
 	status_dialog.set_show_health_value(enabled)
 
 
+func _on_dev_tools_toggled(enabled: bool) -> void:
+	dev_tools_enabled = enabled
+	_update_dev_tools_item()
+
+
+func _update_dev_tools_item() -> void:
+	var index := context_menu.get_item_index(DEV_TOOLS_ID)
+	if dev_tools_enabled:
+		if index == -1:
+			context_menu.add_item("Dev Tools", DEV_TOOLS_ID)
+	elif index != -1:
+		context_menu.remove_item(index)
+
+
 func _on_size_selected(new_size: int) -> void:
 	_apply_size(new_size)
 
@@ -164,6 +196,7 @@ func _save_state() -> void:
 			"show_food_value": show_food_value,
 			"show_mood_value": show_mood_value,
 			"show_health_value": show_health_value,
+			"dev_tools_enabled": dev_tools_enabled,
 		},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
@@ -246,6 +279,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		REVIVE_ID:
 			stats.revive()
 			_update_revive_item()
+		DEV_TOOLS_ID:
+			dev_tools_dialog.popup_centered()
 
 
 func _update_revive_item() -> void:
@@ -323,8 +358,10 @@ func _toggle_dvd_mode() -> void:
 	angular_velocity = 0.0
 	if dvd_mode:
 		velocity = Vector2(DVD_SPEED, 0.0).rotated(randf_range(0.0, TAU))
+		_set_state(State.THROWN)
 	else:
 		velocity = Vector2.ZERO
+		_set_state(State.IDLE)
 
 
 func _apply_size(new_size: int) -> void:
@@ -365,7 +402,6 @@ func _input(event: InputEvent) -> void:
 
 func _on_drag_started(event: InputEventMouseButton) -> void:
 	dvd_mode = false
-	idle_active = false
 	if event.double_click and not stats.is_dead:
 		speech_bubble.say(Dialogue.random_greeting(), get_window())
 
@@ -395,33 +431,26 @@ func _draw() -> void:
 	draw_polyline(points, Color.RED, 2.0)
 
 
-func _process_non_dragging(delta: float, window: Window) -> void:
+func _run_state_physics(delta: float, window: Window) -> void:
 	if dvd_mode:
-		idle_active = false
 		_process_dvd(delta, window)
 		return
-
-	if velocity == Vector2.ZERO:
-		_process_idle(delta, window)
-		return
-
-	idle_active = false
-	super._process_non_dragging(delta, window)
+	super._run_state_physics(delta, window)
 
 
-func _process_idle(delta: float, window: Window) -> void:
+func _on_state_enter(new_state: State) -> void:
+	if new_state == State.IDLE:
+		idle_base_y = get_window().position.y
+		idle_phase = 0.0
+
+
+func _process_idle_base(delta: float, window: Window) -> void:
 	var should_bounce := not stats.is_dead and stats.get_status() != "Full"
 
 	if not should_bounce:
-		if idle_active:
+		if window.position.y != idle_base_y:
 			window.position = Vector2i(window.position.x, idle_base_y)
-			idle_active = false
 		return
-
-	if not idle_active:
-		idle_active = true
-		idle_base_y = window.position.y
-		idle_phase = 0.0
 
 	idle_phase += delta * HUNGRY_BOUNCE_SPEED
 	var offset := int(round(sin(idle_phase) * HUNGRY_BOUNCE_AMPLITUDE))
