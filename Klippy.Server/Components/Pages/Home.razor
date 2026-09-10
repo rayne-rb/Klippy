@@ -1,7 +1,49 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer
+@using Klippy.Server.Common
+@using Klippy.Server.Features.Link
+@implements IDisposable
+@inject ServerIdentity Identity
+@inject LinkRegistry Registry
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Klippy</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>@Identity.Name</h1>
 
-Welcome to your new app.
+<p class="text-body-secondary">
+    This server holds Klippy together: it stores the data, runs the skills, and relays
+    events between the desktop companion and the phone.
+</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h6 text-body-secondary">Reachable at</h2>
+                <p class="mb-1"><code>@Identity.BaseUrl</code></p>
+                <p class="mb-0 small text-body-secondary">
+                    Devices on this network find that address by themselves. There is nothing to type in.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="h6 text-body-secondary">Connected</h2>
+                <p class="display-6 mb-0">@Registry.Connections.Count</p>
+                <p class="mb-0 small text-body-secondary">
+                    <a href="devices">Manage devices</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized() => Registry.ConnectionsChanged += OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Registry.ConnectionsChanged -= OnChanged;
+}

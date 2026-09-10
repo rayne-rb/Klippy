@@ -1,0 +1,171 @@
+@page "/pet"
+@rendermode InteractiveServer
+@using Klippy.Server.Features.Link
+@using Klippy.Shared.Link
+@using Klippy.Shared.Link.Payloads
+@implements IDisposable
+@inject PetStateStore Store
+@inject LinkRegistry Registry
+@inject IEventPublisher Publisher
+
+<PageTitle>Pet</PageTitle>
+
+<h1>Pet</h1>
+
+<section class="mb-4">
+    <h2 class="h4">Vitals</h2>
+
+    @if (_stats is null)
+    {
+        <p class="text-body-secondary">
+            Nothing reported yet. Vitals appear as soon as Klippy connects.
+        </p>
+    }
+    else
+    {
+        <div class="row g-3 mb-2">
+            <div class="col-sm-4">@Meter("Food", _stats.Food, 100, _stats.FoodStatus, "bg-success")</div>
+            <div class="col-sm-4">@Meter("Mood", _stats.Mood, 100, _stats.MoodStatus, "bg-info")</div>
+            <div class="col-sm-4">@Meter("Health", _stats.Health, 100, _stats.HealthStatus, "bg-danger")</div>
+        </div>
+
+        <p class="text-body-secondary small">
+            @if (_stats.IsDead)
+            {
+                <span class="badge text-bg-dark me-2">dead</span>
+            }
+            @if (!_stats.FeedingEnabled)
+            {
+                <span class="badge text-bg-warning me-2">feeding off</span>
+            }
+            Updated @(_updatedAt?.LocalDateTime.ToString("T") ?? "never")
+        </p>
+    }
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Poke it</h2>
+    <p class="text-body-secondary">
+        These publish the same events the phone sends, so they exercise the whole path.
+    </p>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+        <button class="btn btn-primary" @onclick="FeedAsync" disabled="@(!AnyCompanion)">Feed</button>
+        <button class="btn btn-outline-primary" @onclick="ToggleDvdAsync" disabled="@(!AnyCompanion)">
+            DVD @(_dvdOn ? "off" : "on")
+        </button>
+        <button class="btn btn-outline-secondary" @onclick="RefreshAsync" disabled="@(!AnyCompanion)">
+            Ask for vitals
+        </button>
+
+        <div class="input-group" style="max-width: 22rem;">
+            <input class="form-control" placeholder="Make it say something"
+                   @bind="_speech" @bind:event="oninput"
+                   @onkeydown="OnSpeechKeyDownAsync" />
+            <button class="btn btn-outline-primary" @onclick="SayAsync"
+                    disabled="@(!AnyCompanion || string.IsNullOrWhiteSpace(_speech))">Say</button>
+        </div>
+    </div>
+
+    @if (!AnyCompanion)
+    {
+        <p class="text-body-secondary small mt-2">Klippy is not connected, so there is nothing to poke.</p>
+    }
+</section>
+
+<section>
+    <h2 class="h4">Connected</h2>
+
+    @if (Registry.Connections.Count == 0)
+    {
+        <p class="text-body-secondary">Nothing connected.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var connection in Registry.Connections.OrderBy(c => c.DeviceKind))
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <strong>@connection.DeviceName</strong>
+                        <span class="badge text-bg-secondary ms-1">@connection.DeviceKind</span>
+                    </span>
+                    <span class="text-body-secondary small">
+                        since @connection.ConnectedAt.LocalDateTime.ToString("T")
+                    </span>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    private PetStatsPayload? _stats;
+    private DateTimeOffset? _updatedAt;
+    private string _speech = string.Empty;
+    private bool _dvdOn;
+
+    private bool AnyCompanion =>
+        Registry.Connections.Any(c => c.DeviceKind == DeviceKind.Companion);
+
+    protected override void OnInitialized()
+    {
+        Store.Changed += OnChanged;
+        Registry.ConnectionsChanged += OnChanged;
+        Read();
+    }
+
+    private void Read() => (_stats, _updatedAt) = Store.Current;
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private Task FeedAsync() =>
+        Publisher.PublishAsync(LinkEnvelope.Create(KlippyEvents.PetFeed, new FeedPayload { Count = 1 }));
+
+    private async Task ToggleDvdAsync()
+    {
+        _dvdOn = !_dvdOn;
+        await Publisher.PublishAsync(
+            LinkEnvelope.Create(KlippyEvents.PetDvdToggle, new TogglePayload { Enabled = _dvdOn }));
+    }
+
+    private Task RefreshAsync() =>
+        Publisher.PublishAsync(LinkEnvelope.Create(KlippyEvents.PetStatsRequest));
+
+    private Task OnSpeechKeyDownAsync(KeyboardEventArgs args) =>
+        args.Key == "Enter" ? SayAsync() : Task.CompletedTask;
+
+    private async Task SayAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_speech))
+        {
+            return;
+        }
+
+        await Publisher.PublishAsync(
+            LinkEnvelope.Create(KlippyEvents.PetSay, new SayPayload { Text = _speech.Trim() }));
+        _speech = string.Empty;
+    }
+
+    private RenderFragment Meter(string label, double value, double max, string? status, string colour) =>
+        @<div>
+            <div class="d-flex justify-content-between small">
+                <span class="fw-semibold">@label</span>
+                <span class="text-body-secondary">@(status ?? "") @value.ToString("0")</span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="@label"
+                 aria-valuenow="@((int)value)" aria-valuemin="0" aria-valuemax="@((int)max)">
+                <div class="progress-bar @colour" style="width: @((value / max * 100).ToString("0"))%"></div>
+            </div>
+        </div>;
+
+    public void Dispose()
+    {
+        Store.Changed -= OnChanged;
+        Registry.ConnectionsChanged -= OnChanged;
+    }
+}

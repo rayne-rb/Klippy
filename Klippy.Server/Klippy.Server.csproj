@@ -1,14 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <ItemGroup>
-    <ProjectReference Include="..\Klippy.Shared\Klippy.Shared.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Klippy.Shared\Klippy.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Data access: RepoDb over Npgsql, no ORM change-tracking layer. -->
+    <PackageReference Include="RepoDb.PostgreSql" Version="1.16.0" />
+    <!-- Explicit even though RepoDb/grate both pull it in: NpgsqlConnectionFactory
+         uses NpgsqlDataSource directly, so the version should not move with theirs. -->
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+    <!-- Schema migrations, run in-process at startup. -->
+    <PackageReference Include="grate.core" Version="2.1.6" />
+    <PackageReference Include="grate.postgresql" Version="2.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- grate reads these off disk at runtime, so they have to travel with the build. -->
+    <Content Include="db\**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>

@@ -3,12 +3,12 @@
     x:Class="Klippy.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Klippy.Mobile"
-    Title="Klippy.Mobile">
+    xmlns:pet="clr-namespace:Klippy.Mobile.Features.Pet"
+    Title="Klippy">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Klippy"
+        ContentTemplate="{DataTemplate pet:PetPage}"
+        Route="Pet" />
 
 </Shell>

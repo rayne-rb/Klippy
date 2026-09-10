@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Klippy.Mobile.Features.Pet.PetPage"
+             Title="Klippy">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="18">
+
+            <!-- Connection -->
+            <Border Padding="16" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="6">
+                    <Label x:Name="StatusLabel" FontSize="18" FontAttributes="Bold" Text="Starting up" />
+                    <Label x:Name="HintLabel" FontSize="13" Opacity="0.7"
+                           Text="Looking for a Klippy server on this network." />
+                    <Label x:Name="CodeLabel" FontSize="44" FontAttributes="Bold"
+                           HorizontalOptions="Center" Margin="0,10" IsVisible="False" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Vitals -->
+            <VerticalStackLayout x:Name="VitalsSection" Spacing="12" IsVisible="False">
+                <Label Text="How Klippy is doing" FontSize="16" FontAttributes="Bold" />
+
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="FoodLabel" FontSize="13" Text="Food" />
+                    <ProgressBar x:Name="FoodBar" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="MoodLabel" FontSize="13" Text="Mood" />
+                    <ProgressBar x:Name="MoodBar" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="2">
+                    <Label x:Name="HealthLabel" FontSize="13" Text="Health" />
+                    <ProgressBar x:Name="HealthBar" />
+                </VerticalStackLayout>
+
+                <Label x:Name="SeenLabel" FontSize="11" Opacity="0.6" Text="" />
+            </VerticalStackLayout>
+
+            <!-- Controls -->
+            <VerticalStackLayout x:Name="ControlsSection" Spacing="12" IsVisible="False">
+                <Label Text="Poke it" FontSize="16" FontAttributes="Bold" />
+
+                <HorizontalStackLayout Spacing="10">
+                    <Button x:Name="FeedButton" Text="Feed" Clicked="OnFeedClicked" />
+                    <Button x:Name="DvdButton" Text="DVD on" Clicked="OnDvdClicked" />
+                    <Button x:Name="RefreshButton" Text="Refresh" Clicked="OnRefreshClicked" />
+                </HorizontalStackLayout>
+
+                <Entry x:Name="SpeechEntry" Placeholder="Make Klippy say something"
+                       ReturnType="Send" Completed="OnSayClicked" />
+                <Button Text="Say it" Clicked="OnSayClicked" />
+            </VerticalStackLayout>
+
+            <!-- Activity -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="Recent" FontSize="16" FontAttributes="Bold" />
+                <Label x:Name="ActivityLabel" FontSize="12" Opacity="0.75" Text="Nothing yet." />
+            </VerticalStackLayout>
+
+            <Button x:Name="UnpairButton" Text="Forget this server" Clicked="OnUnpairClicked"
+                    Margin="0,20,0,0" IsVisible="False" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

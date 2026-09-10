@@ -11,3 +11,6 @@ export_presets.cfg
 bin/
 obj/
 *.user
+
+# Claude Code personal overrides
+.claude/settings.local.json

@@ -68,10 +68,17 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<!-- Local cache: which server we are paired with, and the last vitals we saw. -->
+		<PackageReference Include="RepoDb.Sqlite.Microsoft" Version="1.16.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Klippy.Shared\Klippy.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- MAUI's implicit usings leave this out, and every slice logs. -->
+		<Using Include="Microsoft.Extensions.Logging" />
 	</ItemGroup>
 
 </Project>

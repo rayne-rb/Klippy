@@ -1,0 +1,26 @@
+# Local-only Postgres for Klippy development.
+# Runs on 5433 so it never collides with a native postgres on 5432.
+#   docker compose up -d db     # start
+#   docker compose down         # stop, keep data
+#   docker compose down -v      # stop and wipe data
+services:
+  db:
+    image: postgres:17
+    container_name: klippy-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: klippy
+      POSTGRES_PASSWORD: klippy
+      POSTGRES_DB: klippy
+    ports:
+      - "5433:5432"
+    volumes:
+      - klippy-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U klippy -d klippy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  klippy-pgdata:
