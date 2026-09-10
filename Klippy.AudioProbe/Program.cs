@@ -32,6 +32,7 @@ try
         "capture" => await CaptureCommand.RunAsync(args, loggerFactory, stopping.Token),
         "codec" => await CodecCommand.RunAsync(args, loggerFactory, stopping.Token),
         "stream" => await StreamCommand.RunAsync(args, loggerFactory, stopping.Token),
+        "cast" => await CastCommand.RunAsync(args, loggerFactory, stopping.Token),
         _ => Help(),
     };
 }
@@ -65,6 +66,11 @@ static int Help()
               Step 3b. The whole server chain end to end - capture through the
               broadcaster, out as encoded frames, decoded back to a WAV. Pass
               --listeners 2 to check that N listeners share one capture.
+
+          cast [--server URL] [--seconds N] [--channels 1|2] [--out PATH] [--play]
+              Step 4 against a running server: pair, ask over the Link, prove the
+              ephemeral key over UDP, decode what comes back. Does what a phone
+              does. Defaults to --server http://localhost:5068.
 
         WAVs are IEEE float (format tag 3). Play them with pw-play, paplay, VLC or
         Audacity; a strictly-integer-PCM reader will refuse a perfectly good file.

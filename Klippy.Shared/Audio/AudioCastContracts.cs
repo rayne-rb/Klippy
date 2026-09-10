@@ -41,6 +41,34 @@ public static class AudioCastFormat
     public static bool IsSupportedChannelCount(int channels) => channels is 1 or 2;
 }
 
+/// <summary>How the media socket behaves. Both ends agree on this without negotiating it.</summary>
+public static class AudioCastTransport
+{
+    /// <summary>
+    /// A fixed default so a firewall rule can be written once. The port actually bound
+    /// is still told to each listener in its offer, so an ephemeral fallback costs
+    /// nothing if this one is taken.
+    /// </summary>
+    public const int DefaultUdpPort = 43117;
+
+    /// <summary>128 bits of ephemeral, per-listener secret. Long enough that guessing is not a strategy.</summary>
+    public const int StreamKeyBytes = 16;
+
+    /// <summary>
+    /// How often a listener repeats its hello. Also the mechanism that keeps the stream
+    /// self-healing: the server takes the endpoint from whatever address the hello
+    /// arrived from, so a phone that changes IP simply reappears.
+    /// </summary>
+    public static readonly TimeSpan HelloInterval = TimeSpan.FromSeconds(2);
+
+    /// <summary>
+    /// Silence longer than this and the listener is considered gone. Generous against
+    /// the interval: dropping a live listener over one lost datagram would be worse
+    /// than streaming a few seconds into the void.
+    /// </summary>
+    public static readonly TimeSpan HelloTimeout = TimeSpan.FromSeconds(8);
+}
+
 /// <summary>Sequence and timing for one encoded frame, as it appears on the wire.</summary>
 public readonly record struct AudioCastPacketHeader(uint Sequence, uint TimestampMs);
 
