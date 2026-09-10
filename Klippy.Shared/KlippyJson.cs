@@ -10,13 +10,23 @@ namespace Klippy.Shared;
 /// </summary>
 public static class KlippyJson
 {
-    public static readonly JsonSerializerOptions Options = new()
+    public static readonly JsonSerializerOptions Options = Apply(new JsonSerializerOptions());
+
+    /// <summary>
+    /// Stamps the wire settings onto options owned by someone else, so hosts that
+    /// bring their own instance still serialize identically. ASP.NET Core's HTTP
+    /// JSON options are the case in point: minimal-API results ignore
+    /// <see cref="Options"/> entirely, and their default is to write nulls, which
+    /// GDScript's <c>Dictionary.get(key, default)</c> does not substitute for.
+    /// </summary>
+    public static JsonSerializerOptions Apply(JsonSerializerOptions options)
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        NumberHandling = JsonNumberHandling.AllowReadingFromString,
-    };
+        options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.PropertyNameCaseInsensitive = true;
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.NumberHandling = JsonNumberHandling.AllowReadingFromString;
+        return options;
+    }
 
     public static string Serialize<T>(T value) => JsonSerializer.Serialize(value, Options);
 

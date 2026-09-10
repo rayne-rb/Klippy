@@ -127,6 +127,16 @@ func _on_request_created(response_code: int, payload: Dictionary) -> void:
 	code_ready.emit(payload.get("code", "??????"))
 
 
+## Reads a string field that the server may legitimately have no value for.
+##
+## Dictionary.get() falls back to its default only when the key is *missing*, and a
+## server that writes nulls sends the key with a null value instead, which then fails
+## to assign to a String. Anything that is not a string reads as absent.
+static func _text(payload: Dictionary, key: String) -> String:
+	var value: Variant = payload.get(key)
+	return value if value is String else ""
+
+
 func _on_poll_result(response_code: int, payload: Dictionary) -> void:
 	if response_code != 200:
 		_polling = false
@@ -140,13 +150,13 @@ func _on_poll_result(response_code: int, payload: Dictionary) -> void:
 		"approved":
 			_polling = false
 			set_process(false)
-			var token: String = payload.get("token", "")
+			var token := _text(payload, "token")
 			if token == "":
 				# Approved, but the one-shot token was already collected or the
 				# server restarted before we polled. Nothing usable; start over.
 				failed.emit("the pairing was approved but the token was lost; try again")
 			else:
-				paired.emit(payload.get("deviceId", ""), token)
+				paired.emit(_text(payload, "deviceId"), token)
 		"denied":
 			_polling = false
 			set_process(false)

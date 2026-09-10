@@ -5,6 +5,7 @@ using Klippy.Server.Features.Discovery;
 using Klippy.Server.Features.Link;
 using Klippy.Server.Features.Pairing;
 using Klippy.Server.Features.PetState;
+using Klippy.Shared;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using MudBlazor.Services;
@@ -13,6 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Minimal-API results serialize with these rather than KlippyJson.Options, so the
+// shared wire settings have to be stamped on here or HTTP responses drift from what
+// the sockets send — notably by writing nulls the Companion does not expect.
+builder.Services.ConfigureHttpJsonOptions(options => KlippyJson.Apply(options.SerializerOptions));
 
 // Dialogs, snackbars and popovers are served by providers in MainLayout.
 builder.Services.AddMudServices();
