@@ -27,6 +27,7 @@ public static class MauiProgram
 		// Feature slices.
 		builder.Services.AddSingleton<PairedServerStore>();
 		builder.Services.AddSingleton<ServerLocator>();
+		builder.Services.AddSingleton<ManualAddressStore>();
 		builder.Services.AddSingleton<MobilePairingClient>();
 		builder.Services.AddSingleton<KlippyLinkClient>();
 		builder.Services.AddSingleton<PetPage>();

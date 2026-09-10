@@ -8,11 +8,15 @@ using Klippy.Server.Features.Pairing;
 using Klippy.Server.Features.PetState;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Dialogs, snackbars and popovers are served by providers in MainLayout.
+builder.Services.AddMudServices();
 
 // Shared plumbing.
 builder.Services.AddSingleton<ServerIdentity>();
@@ -52,6 +56,7 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+app.MapDiscoveryEndpoints();
 app.MapPairingEndpoints();
 app.MapLinkEndpoints();
 app.MapPetStateEndpoints();

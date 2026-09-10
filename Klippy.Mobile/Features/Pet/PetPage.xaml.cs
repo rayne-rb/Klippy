@@ -29,6 +29,17 @@ public partial class PetPage : ContentPage
 
         OnStateChanged(_link.State);
         _link.Start();
+
+        _ = ShowSavedAddressAsync();
+    }
+
+    private async Task ShowSavedAddressAsync()
+    {
+        var saved = await _link.GetManualAddressAsync();
+        if (!string.IsNullOrEmpty(saved))
+        {
+            Dispatcher.Dispatch(() => AddressEntry.Text = saved);
+        }
     }
 
     private void OnStateChanged(LinkState state) => Dispatcher.Dispatch(() =>
@@ -64,6 +75,9 @@ public partial class PetPage : ContentPage
         var live = state == LinkState.Connected;
         ControlsSection.IsVisible = live;
         UnpairButton.IsVisible = state is LinkState.Connected or LinkState.Offline;
+
+        // Only worth offering once automatic discovery has visibly not worked.
+        ManualSection.IsVisible = state is LinkState.Offline or LinkState.Searching;
     });
 
     private void OnPairingCodeReady(string code) => Dispatcher.Dispatch(() =>
@@ -146,6 +160,25 @@ public partial class PetPage : ContentPage
         }
 
         ActivityLabel.Text = string.Join("\n", _activity.Reverse());
+    }
+
+    private async void OnAddressSubmitted(object? sender, EventArgs e)
+    {
+        var typed = AddressEntry.Text?.Trim();
+        if (string.IsNullOrEmpty(typed))
+        {
+            return;
+        }
+
+        // Reject it here rather than letting the link loop fail on it silently.
+        if (Discovery.ServerLocator.NormaliseAddress(typed) is null)
+        {
+            Note($"'{typed}' is not an address I can use.");
+            return;
+        }
+
+        Note($"Trying {typed}");
+        await _link.SetManualAddressAsync(typed);
     }
 
     private void OnFeedClicked(object? sender, EventArgs e) =>

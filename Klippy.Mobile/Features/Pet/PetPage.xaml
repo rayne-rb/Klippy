@@ -18,6 +18,18 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!-- Where the server is, when it cannot be found automatically -->
+            <Border x:Name="ManualSection" Padding="16" StrokeShape="RoundRectangle 12" IsVisible="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Can't find the server?" FontAttributes="Bold" />
+                    <Label FontSize="12" Opacity="0.7"
+                           Text="Automatic discovery only works on the same Wi-Fi. Over a VPN, mobile data, or an emulator, type the address instead." />
+                    <Entry x:Name="AddressEntry" Placeholder="192.168.1.42  or  10.0.2.2:5068"
+                           Keyboard="Url" ReturnType="Go" Completed="OnAddressSubmitted" />
+                    <Button Text="Use this address" Clicked="OnAddressSubmitted" />
+                </VerticalStackLayout>
+            </Border>
+
             <!-- Vitals -->
             <VerticalStackLayout x:Name="VitalsSection" Spacing="12" IsVisible="False">
                 <Label Text="How Klippy is doing" FontSize="16" FontAttributes="Bold" />

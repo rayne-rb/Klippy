@@ -20,13 +20,12 @@ public sealed class PairedServerStore(MobileDatabase database)
 
         // One server at a time: replace rather than accumulate stale pairings.
         await connection.ExecuteNonQueryAsync("delete from paired_server", cancellationToken: ct);
-        await connection.ExecuteNonQueryAsync(
-            """
-            insert into paired_server (server_id, name, base_url, ws_url, device_id, token, paired_at)
-            values (@ServerId, @Name, @BaseUrl, @WsUrl, @DeviceId, @Token, @PairedAt)
-            """,
-            row,
-            cancellationToken: ct);
+
+        // RepoDb's typed insert, not hand-written SQL: the column names live on the
+        // row's [Map] attributes, and when a mapped entity is handed to a raw
+        // statement RepoDb names the parameters after the columns - so "@ServerId"
+        // never gets bound and the insert throws instead of saving the pairing.
+        await connection.InsertAsync(row, cancellationToken: ct);
     }
 
     /// <summary>Keeps the stored address current when the server turns up on a new IP.</summary>

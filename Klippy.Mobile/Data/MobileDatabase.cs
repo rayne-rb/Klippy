@@ -14,7 +14,7 @@ namespace Klippy.Mobile.Data;
 /// </summary>
 public sealed class MobileDatabase
 {
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = 2;
 
     private readonly string _connectionString;
     private bool _ready;
@@ -79,6 +79,20 @@ public sealed class MobileDatabase
                     mood_status  text,
                     health_status text,
                     seen_at      text not null
+                );
+                """,
+                cancellationToken: ct);
+        }
+
+        if (current < 2)
+        {
+            // Small key/value bag for user settings. The first is the manually entered
+            // server address, used when multicast discovery cannot reach the server.
+            await connection.ExecuteNonQueryAsync(
+                """
+                create table if not exists app_settings (
+                    key   text primary key,
+                    value text not null
                 );
                 """,
                 cancellationToken: ct);

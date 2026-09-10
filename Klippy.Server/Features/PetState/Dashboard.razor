@@ -1,5 +1,4 @@
 @page "/pet"
-@rendermode InteractiveServer
 @using Klippy.Server.Features.Link
 @using Klippy.Shared.Link
 @using Klippy.Shared.Link.Payloads
@@ -10,94 +9,128 @@
 
 <PageTitle>Pet</PageTitle>
 
-<h1>Pet</h1>
+<MudText Typo="Typo.h4" GutterBottom="true">Pet</MudText>
 
-<section class="mb-4">
-    <h2 class="h4">Vitals</h2>
+<MudText Typo="Typo.h6" Class="mt-6">Vitals</MudText>
 
-    @if (_stats is null)
-    {
-        <p class="text-body-secondary">
-            Nothing reported yet. Vitals appear as soon as Klippy connects.
-        </p>
-    }
-    else
-    {
-        <div class="row g-3 mb-2">
-            <div class="col-sm-4">@Meter("Food", _stats.Food, 100, _stats.FoodStatus, "bg-success")</div>
-            <div class="col-sm-4">@Meter("Mood", _stats.Mood, 100, _stats.MoodStatus, "bg-info")</div>
-            <div class="col-sm-4">@Meter("Health", _stats.Health, 100, _stats.HealthStatus, "bg-danger")</div>
-        </div>
+@if (_stats is null)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing reported yet. Vitals appear as soon as Klippy connects.
+    </MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mt-1">
+        <MudItem xs="12" sm="4">
+            @Meter("Food", _stats.Food, 100, _stats.FoodStatus, Color.Success)
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            @Meter("Mood", _stats.Mood, 100, _stats.MoodStatus, Color.Info)
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            @Meter("Health", _stats.Health, 100, _stats.HealthStatus, Color.Error)
+        </MudItem>
+    </MudGrid>
 
-        <p class="text-body-secondary small">
-            @if (_stats.IsDead)
-            {
-                <span class="badge text-bg-dark me-2">dead</span>
-            }
-            @if (!_stats.FeedingEnabled)
-            {
-                <span class="badge text-bg-warning me-2">feeding off</span>
-            }
+    <div class="d-flex align-center flex-wrap gap-2 mt-3">
+        @if (_stats.IsDead)
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Dark" Variant="Variant.Filled">dead</MudChip>
+        }
+        @if (!_stats.FeedingEnabled)
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled">feeding off</MudChip>
+        }
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
             Updated @(_updatedAt?.LocalDateTime.ToString("T") ?? "never")
-        </p>
-    }
-</section>
-
-<section class="mb-4">
-    <h2 class="h4">Poke it</h2>
-    <p class="text-body-secondary">
-        These publish the same events the phone sends, so they exercise the whole path.
-    </p>
-
-    <div class="d-flex flex-wrap gap-2 align-items-center">
-        <button class="btn btn-primary" @onclick="FeedAsync" disabled="@(!AnyCompanion)">Feed</button>
-        <button class="btn btn-outline-primary" @onclick="ToggleDvdAsync" disabled="@(!AnyCompanion)">
-            DVD @(_dvdOn ? "off" : "on")
-        </button>
-        <button class="btn btn-outline-secondary" @onclick="RefreshAsync" disabled="@(!AnyCompanion)">
-            Ask for vitals
-        </button>
-
-        <div class="input-group" style="max-width: 22rem;">
-            <input class="form-control" placeholder="Make it say something"
-                   @bind="_speech" @bind:event="oninput"
-                   @onkeydown="OnSpeechKeyDownAsync" />
-            <button class="btn btn-outline-primary" @onclick="SayAsync"
-                    disabled="@(!AnyCompanion || string.IsNullOrWhiteSpace(_speech))">Say</button>
-        </div>
+        </MudText>
     </div>
+}
 
-    @if (!AnyCompanion)
-    {
-        <p class="text-body-secondary small mt-2">Klippy is not connected, so there is nothing to poke.</p>
-    }
-</section>
+<MudText Typo="Typo.h6" Class="mt-8">Poke it</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">
+    These publish the same events the phone sends, so they exercise the whole path.
+</MudText>
 
-<section>
-    <h2 class="h4">Connected</h2>
+<div class="d-flex flex-wrap align-center gap-2">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Restaurant"
+               Disabled="@(!AnyCompanion)"
+               OnClick="FeedAsync">
+        Feed
+    </MudButton>
 
-    @if (Registry.Connections.Count == 0)
-    {
-        <p class="text-body-secondary">Nothing connected.</p>
-    }
-    else
-    {
-        <ul class="list-group">
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Movie"
+               Disabled="@(!AnyCompanion)"
+               OnClick="ToggleDvdAsync">
+        DVD @(_dvdOn ? "off" : "on")
+    </MudButton>
+
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Default"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               Disabled="@(!AnyCompanion)"
+               OnClick="RefreshAsync">
+        Ask for vitals
+    </MudButton>
+</div>
+
+<MudTextField @bind-Value="_speech"
+              Immediate="true"
+              Label="Make it say something"
+              Variant="Variant.Outlined"
+              Margin="Margin.Dense"
+              Class="mt-3"
+              Style="max-width: 26rem;"
+              Disabled="@(!AnyCompanion)"
+              OnKeyDown="OnSpeechKeyDownAsync"
+              Adornment="Adornment.End"
+              AdornmentIcon="@Icons.Material.Filled.Send"
+              AdornmentAriaLabel="Say"
+              OnAdornmentClick="SayAsync" />
+
+@if (!AnyCompanion)
+{
+    <MudText Typo="Typo.caption" Class="mud-text-secondary d-block mt-2">
+        Klippy is not connected, so there is nothing to poke.
+    </MudText>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Connected</MudText>
+
+@if (Registry.Connections.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing connected.
+    </MudAlert>
+}
+else
+{
+    <MudPaper Outlined="true" Class="mt-2">
+        <MudList T="string" ReadOnly="true">
             @foreach (var connection in Registry.Connections.OrderBy(c => c.DeviceKind))
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
-                        <strong>@connection.DeviceName</strong>
-                        <span class="badge text-bg-secondary ms-1">@connection.DeviceKind</span>
-                    </span>
-                    <span class="text-body-secondary small">
-                        since @connection.ConnectedAt.LocalDateTime.ToString("T")
-                    </span>
-                </li>
+                <MudListItem T="string">
+                    <div class="d-flex align-center justify-space-between">
+                        <span>
+                            <strong>@connection.DeviceName</strong>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">
+                                @connection.DeviceKind
+                            </MudChip>
+                        </span>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            since @connection.ConnectedAt.LocalDateTime.ToString("T")
+                        </MudText>
+                    </div>
+                </MudListItem>
             }
-        </ul>
-    }
-</section>
+        </MudList>
+    </MudPaper>
+}
 
 @code {
     private PetStatsPayload? _stats;
@@ -141,7 +174,7 @@
 
     private async Task SayAsync()
     {
-        if (string.IsNullOrWhiteSpace(_speech))
+        if (string.IsNullOrWhiteSpace(_speech) || !AnyCompanion)
         {
             return;
         }
@@ -151,17 +184,23 @@
         _speech = string.Empty;
     }
 
-    private RenderFragment Meter(string label, double value, double max, string? status, string colour) =>
-        @<div>
-            <div class="d-flex justify-content-between small">
-                <span class="fw-semibold">@label</span>
-                <span class="text-body-secondary">@(status ?? "") @value.ToString("0")</span>
+    private RenderFragment Meter(string label, double value, double max, string? status, Color colour) =>
+        @<MudPaper Outlined="true" Class="pa-3">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.subtitle2">@label</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    @(status ?? "") @value.ToString("0")
+                </MudText>
             </div>
-            <div class="progress" role="progressbar" aria-label="@label"
-                 aria-valuenow="@((int)value)" aria-valuemin="0" aria-valuemax="@((int)max)">
-                <div class="progress-bar @colour" style="width: @((value / max * 100).ToString("0"))%"></div>
-            </div>
-        </div>;
+            <MudProgressLinear Color="colour"
+                               Value="value"
+                               Min="0"
+                               Max="max"
+                               Rounded="true"
+                               Size="Size.Medium"
+                               Class="mt-2"
+                               aria-label="@label" />
+        </MudPaper>;
 
     public void Dispose()
     {
