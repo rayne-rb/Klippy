@@ -48,7 +48,7 @@ func _on_rotation_changed(_angle: float) -> void:
 	pass
 
 
-func _on_energetic_bounce() -> void:
+func _on_energetic_bounce(_impact_speed: float) -> void:
 	pass
 
 
@@ -98,26 +98,30 @@ func _process_non_dragging(delta: float, window: Window) -> void:
 
 	if pos.x < min_x:
 		pos.x = min_x
+		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * BOUNCE_DAMPING
 		angular_velocity += -velocity.y / roll_radius
-		_on_energetic_bounce()
+		_on_energetic_bounce(impact_speed)
 	elif pos.x > max_x:
 		pos.x = max_x
+		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * BOUNCE_DAMPING
 		angular_velocity += -velocity.y / roll_radius
-		_on_energetic_bounce()
+		_on_energetic_bounce(impact_speed)
 
 	if pos.y < min_y:
 		pos.y = min_y
+		var impact_speed := velocity.length()
 		velocity.y = -velocity.y * BOUNCE_DAMPING
 		angular_velocity += velocity.x / roll_radius
-		_on_energetic_bounce()
+		_on_energetic_bounce(impact_speed)
 	elif pos.y >= floor_y:
 		pos.y = floor_y
 		if abs(velocity.y) > REST_SPEED:
+			var impact_speed := velocity.length()
 			velocity.y = -velocity.y * BOUNCE_DAMPING
 			angular_velocity += velocity.x / roll_radius
-			_on_energetic_bounce()
+			_on_energetic_bounce(impact_speed)
 		else:
 			velocity.y = 0.0
 			velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)

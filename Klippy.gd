@@ -12,6 +12,7 @@ const REVIVE_ID := 5
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
+const DAMAGE_SPEED_THRESHOLD := 400.0
 
 const COMPLAINT_CHANCE := 0.12
 const COMPLAINT_COOLDOWN := 4.0
@@ -20,7 +21,14 @@ const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
 const MAX_FOOD_ITEMS := 25
 
+const HUNGRY_BOUNCE_AMPLITUDE := 5.0
+const HUNGRY_BOUNCE_SPEED := 6.0
+
 var active_food_items: Array[Window] = []
+
+var idle_active := false
+var idle_base_y := 0
+var idle_phase := 0.0
 
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
@@ -357,6 +365,7 @@ func _input(event: InputEvent) -> void:
 
 func _on_drag_started(event: InputEventMouseButton) -> void:
 	dvd_mode = false
+	idle_active = false
 	if event.double_click and not stats.is_dead:
 		speech_bubble.say(Dialogue.random_greeting(), get_window())
 
@@ -367,8 +376,9 @@ func _on_rotation_changed(angle: float) -> void:
 		queue_redraw()
 
 
-func _on_energetic_bounce() -> void:
-	stats.apply_throw_damage()
+func _on_energetic_bounce(impact_speed: float) -> void:
+	if impact_speed >= DAMAGE_SPEED_THRESHOLD:
+		stats.apply_throw_damage()
 	_maybe_complain()
 
 
@@ -387,9 +397,35 @@ func _draw() -> void:
 
 func _process_non_dragging(delta: float, window: Window) -> void:
 	if dvd_mode:
+		idle_active = false
 		_process_dvd(delta, window)
 		return
+
+	if velocity == Vector2.ZERO:
+		_process_idle(delta, window)
+		return
+
+	idle_active = false
 	super._process_non_dragging(delta, window)
+
+
+func _process_idle(delta: float, window: Window) -> void:
+	var should_bounce := not stats.is_dead and stats.get_status() != "Full"
+
+	if not should_bounce:
+		if idle_active:
+			window.position = Vector2i(window.position.x, idle_base_y)
+			idle_active = false
+		return
+
+	if not idle_active:
+		idle_active = true
+		idle_base_y = window.position.y
+		idle_phase = 0.0
+
+	idle_phase += delta * HUNGRY_BOUNCE_SPEED
+	var offset := int(round(sin(idle_phase) * HUNGRY_BOUNCE_AMPLITUDE))
+	window.position = Vector2i(window.position.x, idle_base_y + offset)
 
 
 func _process_dvd(delta: float, window: Window) -> void:
