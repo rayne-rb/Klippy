@@ -54,4 +54,35 @@ public static class KlippyEvents
 
     /// <summary>Reply to <see cref="LinkPing"/>. No payload.</summary>
     public const string LinkPong = "link.pong";
+
+    // ---- Audio cast control ---------------------------------------------------
+    //
+    // Control only. The audio itself never touches this socket: events here are
+    // persisted, capped at 64 KB, text-framed, and queued DropOldest — all correct
+    // for state, all wrong for a stream. The bytes go over UDP; see
+    // Klippy.Shared.Audio.
+
+    /// <summary>
+    /// Phone to server: begin casting to me. Payload:
+    /// <see cref="Audio.AudioCastStartPayload"/>. Answered with <see cref="AudioCastOffer"/>.
+    /// </summary>
+    public const string AudioCastStart = "audio.cast.start";
+
+    /// <summary>Phone to server: stop casting to me. No payload.</summary>
+    public const string AudioCastStop = "audio.cast.stop";
+
+    /// <summary>
+    /// Server to one listener: the UDP port and the ephemeral key to prove itself
+    /// with. Payload: <see cref="Audio.AudioCastOfferPayload"/>.
+    ///
+    /// Always addressed with a Target. It carries the stream key, so unlike
+    /// <see cref="AudioCastState"/> it must never be broadcast.
+    /// </summary>
+    public const string AudioCastOffer = "audio.cast.offer";
+
+    /// <summary>
+    /// Server to everyone: what is casting and to whom. Payload:
+    /// <see cref="Audio.AudioCastStatePayload"/>. Carries no key.
+    /// </summary>
+    public const string AudioCastState = "audio.cast.state";
 }
