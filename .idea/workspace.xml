@@ -11,9 +11,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/FoodBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/project.godot" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -47,23 +44,23 @@
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.000102648296664" />
-      <entry key="S2" value="1.2892347764741388" />
-      <entry key="S5" value="2.7012041669431834" />
-      <entry key="S10" value="4.219946563663521" />
-      <entry key="S30" value="7.951789569077739" />
-      <entry key="S60" value="14.063374894649993" />
-      <entry key="M2" value="23.42890070022012" />
-      <entry key="M5" value="35.277531650037545" />
-      <entry key="M10" value="41.30847995954459" />
-      <entry key="M15" value="43.661163814425095" />
-      <entry key="M30" value="46.21716941459828" />
-      <entry key="H1" value="47.57863269412582" />
-      <entry key="H2" value="48.281616086598724" />
-      <entry key="H4" value="48.63885562386054" />
-      <entry key="D1" value="48.939535740103956" />
-      <entry key="W1" value="48.99135551882016" />
+      <entry key="MS100" value="1.007868726955717" />
+      <entry key="MS500" value="1.678217246929178" />
+      <entry key="S2" value="3.4287701940281146" />
+      <entry key="S5" value="4.261419629162555" />
+      <entry key="S10" value="4.60915101085949" />
+      <entry key="S30" value="4.864580771329474" />
+      <entry key="S60" value="4.931627857096099" />
+      <entry key="M2" value="4.975382877925945" />
+      <entry key="M5" value="6.552926845059041" />
+      <entry key="M10" value="13.69841426961005" />
+      <entry key="M15" value="20.45715300470076" />
+      <entry key="M30" value="32.50101511918871" />
+      <entry key="H1" value="41.701955104720575" />
+      <entry key="H2" value="47.40541665198181" />
+      <entry key="H4" value="50.58304379467094" />
+      <entry key="D1" value="53.41313437332092" />
+      <entry key="W1" value="53.91572641653542" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -85,23 +82,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9659363289248456" />
-      <entry key="MS500" value="0.9931944155256378" />
-      <entry key="S2" value="1.2869077810290297" />
-      <entry key="S5" value="2.6988784422168064" />
-      <entry key="S10" value="4.2179549446323765" />
-      <entry key="S30" value="7.950567941711417" />
-      <entry key="S60" value="14.062389357671142" />
-      <entry key="M2" value="23.42812558836723" />
-      <entry key="M5" value="35.2770767854832" />
-      <entry key="M10" value="41.3082151231187" />
-      <entry key="M15" value="43.66097746209264" />
-      <entry key="M30" value="46.21707089699879" />
-      <entry key="H1" value="47.578582008412674" />
-      <entry key="H2" value="48.28159037477025" />
-      <entry key="H4" value="48.63884267411948" />
-      <entry key="D1" value="48.93953356864529" />
-      <entry key="W1" value="48.99135520828742" />
+      <entry key="MS100" value="0.9803084989736149" />
+      <entry key="MS500" value="1.6687964309536956" />
+      <entry key="S2" value="3.4236912995415127" />
+      <entry key="S5" value="4.258851481273996" />
+      <entry key="S10" value="4.607753832610337" />
+      <entry key="S30" value="4.864087239996835" />
+      <entry key="S60" value="4.931377434867619" />
+      <entry key="M2" value="4.975256416517812" />
+      <entry key="M5" value="6.552855963788776" />
+      <entry key="M10" value="13.698333080483867" />
+      <entry key="M15" value="20.45707008478859" />
+      <entry key="M30" value="32.50094802486577" />
+      <entry key="H1" value="41.70191176989871" />
+      <entry key="H2" value="47.405391951462555" />
+      <entry key="H4" value="50.583030599531526" />
+      <entry key="D1" value="53.41313204872269" />
+      <entry key="W1" value="53.91572608126837" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -196,7 +193,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="34538000" />
+      <workItem from="1788947224616" duration="34877000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -542,7 +539,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789030767377</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs.">
+      <option name="closed" value="true" />
+      <created>1789031631085</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1789031631085</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -563,7 +568,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based" />
     <MESSAGE value="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels." />
     <MESSAGE value="Add confirmation dialog for closing Klippy&#10;&#10;- Replaced direct close action with a confirmation dialog in the context menu.&#10;- Updated context menu item text to &quot;Close Klippy&quot; for clarity.&#10;- Implemented confirmation dialog with &quot;Close Klippy?&quot; prompt and connected it to the quit logic." />
     <MESSAGE value="Introduce `PetBody` base class and `FoodBody` feeding mechanic  &#10;&#10;- Added `PetBody` class to standardize physics interactions and dragging logic for all pet-related objects.  &#10;- Implemented `FoodBody` to handle window-based feeding mechanics, interacting with `PetStats` via collision.  &#10;- Refactored `Klippy` to inherit from `PetBody`, centralizing common physics and interaction logic.  &#10;- Adjusted `Stats.gd` to use dynamic feeding amounts instead of a fixed value." />
@@ -588,7 +592,8 @@
     <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
     <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
+    <MESSAGE value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
