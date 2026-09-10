@@ -5,7 +5,7 @@ using Klippy.Server.Features.AudioCast;
 using Klippy.Shared.Audio;
 using Microsoft.Extensions.Logging;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>
 /// Puts a known signal through the real encoder configuration and back.

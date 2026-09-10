@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>
 /// Writes float32 PCM to a WAV file, patching the two length fields on close.

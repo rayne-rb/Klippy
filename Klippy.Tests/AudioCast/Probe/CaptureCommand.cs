@@ -3,7 +3,7 @@ using Klippy.Server.Features.AudioCast;
 using Klippy.Shared.Audio;
 using Microsoft.Extensions.Logging;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>
 /// Step 1 on its own: capture the system mix to a WAV, with no codec and no network in

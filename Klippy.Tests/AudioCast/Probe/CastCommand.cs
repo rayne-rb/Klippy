@@ -11,7 +11,7 @@ using Klippy.Shared.Link;
 using Klippy.Shared.Pairing;
 using Microsoft.Extensions.Logging;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>
 /// Step 4 end to end against a running server: pair, ask over the Link, prove the

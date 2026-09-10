@@ -1,7 +1,7 @@
 using Klippy.Shared.Audio;
 using Microsoft.Extensions.Logging;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>
 /// Drives <see cref="AdaptiveJitterBuffer"/> through synthetic arrival traces.

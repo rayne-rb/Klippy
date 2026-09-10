@@ -1,4 +1,4 @@
-using Klippy.AudioProbe;
+using Klippy.Tests.AudioCast.Probe;
 using Microsoft.Extensions.Logging;
 
 // A bench harness for the AudioCast pipeline, run by hand.

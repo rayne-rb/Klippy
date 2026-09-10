@@ -9,6 +9,7 @@ app that can reach it.
 | [Klippy.Server](Klippy.Server/README.md) | ASP.NET Core server and config UI — owns the data and the heavy lifting |
 | Klippy.Mobile | .NET MAUI app — pairs to the server so Klippy is reachable from a phone |
 | Klippy.Shared | The contracts that cross the wire |
+| Klippy.Tests | Every test in the solution, plus the hand-run AudioCast bench probe |
 
 ## How the three fit together
 
@@ -79,6 +80,17 @@ python3 tools/regen-solution.py
 ## Checks
 
 ```sh
-dotnet build Klippy.sln              # server, shared, mobile
+dotnet build Klippy.sln              # server, shared, mobile, tests
+dotnet test Klippy.sln               # everything in Klippy.Tests
 Klippy.Companion/tools/check.sh      # companion, headless
+```
+
+All .NET test code lives in `Klippy.Tests`, one project for the whole solution, laid
+out by slice to mirror the code it covers. The same project doubles as the AudioCast
+bench probe — timing bugs are proven stage by stage rather than in aggregate, so each
+stage has a command you run by hand:
+
+```sh
+dotnet run --project Klippy.Tests            # what the probe can do
+dotnet run --project Klippy.Tests -- devices # the outputs this machine can capture
 ```

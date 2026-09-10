@@ -1,7 +1,7 @@
 using Klippy.Server.Features.AudioCast;
 using Microsoft.Extensions.Logging;
 
-namespace Klippy.AudioProbe;
+namespace Klippy.Tests.AudioCast.Probe;
 
 /// <summary>Just enough argument handling for a hand-run bench tool.</summary>
 internal static class ProbeArgs
