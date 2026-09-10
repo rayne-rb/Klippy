@@ -25,6 +25,7 @@ const MAX_FOOD_ITEMS := 25
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
 const HUNGRY_BOUNCES_PER_BURST := 5
+const HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE := 0.35
 const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
@@ -468,6 +469,13 @@ func _get_bounce_burst_interval() -> float:
 			return 0.0
 
 
+func _bounce_envelope(cycle_index: int) -> float:
+	if HUNGRY_BOUNCES_PER_BURST <= 1:
+		return 1.0
+	var t := float(cycle_index) / float(HUNGRY_BOUNCES_PER_BURST - 1)
+	return HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE + (1.0 - HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE) * sin(PI * t)
+
+
 func trigger_bounce_now() -> void:
 	if state != State.IDLE or bouncing:
 		return
@@ -490,7 +498,8 @@ func _process_idle_base(delta: float, window: Window) -> void:
 				_reset_bounce()
 				return
 
-		var offset := int(round(sin(bounce_phase) * HUNGRY_BOUNCE_AMPLITUDE))
+		var amplitude := HUNGRY_BOUNCE_AMPLITUDE * _bounce_envelope(bounce_cycles_done)
+		var offset := int(round(sin(bounce_phase) * amplitude))
 		window.position = Vector2i(window.position.x, idle_base_y + offset)
 		return
 

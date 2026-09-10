@@ -10,11 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
-    </list>
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -136,7 +132,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="29141000" />
+      <workItem from="1788947224616" duration="29441000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -402,7 +398,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789025554599</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Add bounce trigger button and adjust mood/health mechanics&#10;&#10;- Added `bounce_triggered` signal and UI button to manually trigger idle bounce behavior in `DevToolsDialog`.&#10;- Updated mood/health rates in `Stats.gd` for improved progression balance.&#10;- Refined idle bounce logic to integrate manual triggers and reset behavior dynamically.">
+      <option name="closed" value="true" />
+      <created>1789026374380</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1789026374380</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -423,8 +427,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add smooth dragging and dynamic physical properties to Klippy&#10;&#10;- Introduced `_recompute_physical_properties` for mass and roll radius adjustments based on size.&#10;- Enhanced dragging mechanics with velocity smoothing and mass-dependent follow rate.&#10;- Refactored size update logic to incorporate physical property recalculations." />
-    <MESSAGE value="Add DVD mode and settings window to Klippy&#10;&#10;- Added DVD mode with bouncing window mechanics.&#10;- Implemented settings window with basic popup functionality.&#10;- Extended context menu with options for DVD mode and settings access.&#10;- Adjusted input and dragging logic to integrate new features." />
     <MESSAGE value="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions. &#10;- Included probabilistic logic and cooldown system for complaint generation." />
     <MESSAGE value="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions.&#10;- Included probabilistic logic and cooldown system for complaint generation." />
     <MESSAGE value="Add feeding system with stats management to Klippy&#10;&#10;- Introduced `PetStats` to track and emit hunger and feeding states.&#10;- Added `SettingsPanel` with toggles for feeding and hunger visibility.&#10;- Enabled feeding through context menu with dynamic state management.&#10;- Integrated hunger updates with real-time UI feedback." />
@@ -448,7 +450,9 @@
     <MESSAGE value="Increase impact speed threshold for damage calculation&#10;&#10;- Updated `DAMAGE_SPEED_THRESHOLD` in `Klippy.gd` from 400.0 to 800.0." />
     <MESSAGE value="Add developer tools dialog and state system refactor&#10;&#10;- Introduced `DevToolsDialog` to allow manual adjustment of pet stats with UI controls.&#10;- Added `state` property and `State` enum to replace `dragging` boolean in `PetBody`.&#10;- Refactored physics and input handling to accommodate state transitions (`IDLE`, `DRAGGING`, `THROWN`).&#10;- Updated `SettingsPanel` and context menu to toggle developer tools visibility.&#10;- Implemented debug methods in `Stats.gd` for direct stat modification." />
     <MESSAGE value="Update idle bounce mechanics and health regeneration logic&#10;&#10;- Refactored idle bounce behavior for hungry pets with configurable burst intervals and cycles.&#10;- Added stricter type annotation for health regeneration in `Stats.gd`." />
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="Adjust mood and health mechanics, increase bounce intensity&#10;&#10;- Updated `MOOD_INCREASE_RATE` and `MOOD_DECREASE_RATE` to balance mood changes.&#10;- Reduced `THROW_HEALTH_LOSS` for less severe penalties.&#10;- Increased `HUNGRY_BOUNCE_AMPLITUDE` and `HUNGRY_BOUNCE_SPEED` for more dynamic animations." />
+    <MESSAGE value="Add bounce trigger button and adjust mood/health mechanics&#10;&#10;- Added `bounce_triggered` signal and UI button to manually trigger idle bounce behavior in `DevToolsDialog`.&#10;- Updated mood/health rates in `Stats.gd` for improved progression balance.&#10;- Refined idle bounce logic to integrate manual triggers and reset behavior dynamically." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add bounce trigger button and adjust mood/health mechanics&#10;&#10;- Added `bounce_triggered` signal and UI button to manually trigger idle bounce behavior in `DevToolsDialog`.&#10;- Updated mood/health rates in `Stats.gd` for improved progression balance.&#10;- Refined idle bounce logic to integrate manual triggers and reset behavior dynamically." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
