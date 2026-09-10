@@ -30,13 +30,18 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/per_pixel_transparency/allowed=true
 
+[audio]
+
+driver/driver="Dummy"
+
 [physics]
 
 common/physics_ticks_per_second=30
+2d/physics_engine="Dummy"
+3d/physics_engine="Dummy"
 
 [rendering]
 
-rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
 viewport/transparent_background=true

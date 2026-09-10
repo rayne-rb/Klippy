@@ -20,7 +20,7 @@ const COMPLAINT_COOLDOWN := 4.0
 
 const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
-const MAX_FOOD_ITEMS := 25
+const MAX_FOOD_ITEMS := 8
 
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
@@ -34,6 +34,7 @@ const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
 
 var active_food_items: Array[Window] = []
+var food_window_pool: Array[Window] = []
 
 var idle_base_y := 0
 var bounce_timer := 0.0
@@ -121,50 +122,6 @@ func _ready() -> void:
 
 	idle_base_y = get_window().position.y
 
-	settings_window = SettingsPanel.new()
-	add_child(settings_window)
-	settings_window.setup(stats, {
-		"show_food": show_food_value,
-		"show_mood": show_mood_value,
-		"show_health": show_health_value,
-		"dev_tools_enabled": dev_tools_enabled,
-		"size": current_size,
-		"vsync_enabled": vsync_enabled,
-		"fps": target_fps,
-	}, SIZE_STEPS)
-	settings_window.show_food_toggled.connect(_on_show_food_toggled)
-	settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
-	settings_window.show_health_toggled.connect(_on_show_health_toggled)
-	settings_window.dev_tools_toggled.connect(_on_dev_tools_toggled)
-	settings_window.size_selected.connect(_on_size_selected)
-	settings_window.vsync_toggled.connect(_on_vsync_toggled)
-	settings_window.fps_selected.connect(_on_fps_selected)
-	settings_window.hide()
-
-	status_dialog = StatusDialog.new()
-	add_child(status_dialog)
-	status_dialog.setup(stats)
-	status_dialog.set_show_food_value(show_food_value)
-	status_dialog.set_show_mood_value(show_mood_value)
-	status_dialog.set_show_health_value(show_health_value)
-	status_dialog.hide()
-
-	dev_tools_dialog = DevToolsDialog.new()
-	add_child(dev_tools_dialog)
-	dev_tools_dialog.setup(stats)
-	dev_tools_dialog.bounce_triggered.connect(trigger_bounce_now)
-	dev_tools_dialog.hide()
-
-	close_confirm_dialog = ConfirmationDialog.new()
-	close_confirm_dialog.title = "Close Klippy"
-	close_confirm_dialog.dialog_text = "Close Klippy?"
-	close_confirm_dialog.confirmed.connect(_on_quit_requested)
-	add_child(close_confirm_dialog)
-	close_confirm_dialog.hide()
-
-	speech_bubble = SpeechBubble.new()
-	add_child(speech_bubble)
-
 	complaint_cooldown_timer = Timer.new()
 	complaint_cooldown_timer.one_shot = true
 	complaint_cooldown_timer.wait_time = COMPLAINT_COOLDOWN
@@ -175,17 +132,20 @@ func _ready() -> void:
 
 func _on_show_food_toggled(enabled: bool) -> void:
 	show_food_value = enabled
-	status_dialog.set_show_food_value(enabled)
+	if status_dialog:
+		status_dialog.set_show_food_value(enabled)
 
 
 func _on_show_mood_toggled(enabled: bool) -> void:
 	show_mood_value = enabled
-	status_dialog.set_show_mood_value(enabled)
+	if status_dialog:
+		status_dialog.set_show_mood_value(enabled)
 
 
 func _on_show_health_toggled(enabled: bool) -> void:
 	show_health_value = enabled
-	status_dialog.set_show_health_value(enabled)
+	if status_dialog:
+		status_dialog.set_show_health_value(enabled)
 
 
 func _on_dev_tools_toggled(enabled: bool) -> void:
@@ -200,6 +160,92 @@ func _update_dev_tools_item() -> void:
 			context_menu.add_item("Dev Tools", DEV_TOOLS_ID)
 	elif index != -1:
 		context_menu.remove_item(index)
+
+
+func _open_settings() -> void:
+	if settings_window == null:
+		settings_window = SettingsPanel.new()
+		add_child(settings_window)
+		settings_window.setup(stats, {
+			"show_food": show_food_value,
+			"show_mood": show_mood_value,
+			"show_health": show_health_value,
+			"dev_tools_enabled": dev_tools_enabled,
+			"size": current_size,
+			"vsync_enabled": vsync_enabled,
+			"fps": target_fps,
+		}, SIZE_STEPS)
+		settings_window.show_food_toggled.connect(_on_show_food_toggled)
+		settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
+		settings_window.show_health_toggled.connect(_on_show_health_toggled)
+		settings_window.dev_tools_toggled.connect(_on_dev_tools_toggled)
+		settings_window.size_selected.connect(_on_size_selected)
+		settings_window.vsync_toggled.connect(_on_vsync_toggled)
+		settings_window.fps_selected.connect(_on_fps_selected)
+		settings_window.close_requested.connect(_on_settings_closed)
+	settings_window.popup_centered()
+
+
+func _on_settings_closed() -> void:
+	settings_window.queue_free()
+	settings_window = null
+
+
+func _open_status() -> void:
+	if status_dialog == null:
+		status_dialog = StatusDialog.new()
+		add_child(status_dialog)
+		status_dialog.setup(stats)
+		status_dialog.set_show_food_value(show_food_value)
+		status_dialog.set_show_mood_value(show_mood_value)
+		status_dialog.set_show_health_value(show_health_value)
+		status_dialog.close_requested.connect(_on_status_closed)
+	status_dialog.popup_centered()
+
+
+func _on_status_closed() -> void:
+	status_dialog.queue_free()
+	status_dialog = null
+
+
+func _open_dev_tools() -> void:
+	if dev_tools_dialog == null:
+		dev_tools_dialog = DevToolsDialog.new()
+		add_child(dev_tools_dialog)
+		dev_tools_dialog.setup(stats)
+		dev_tools_dialog.bounce_triggered.connect(trigger_bounce_now)
+		dev_tools_dialog.close_requested.connect(_on_dev_tools_closed)
+	dev_tools_dialog.popup_centered()
+
+
+func _on_dev_tools_closed() -> void:
+	dev_tools_dialog.queue_free()
+	dev_tools_dialog = null
+
+
+func _open_close_confirm() -> void:
+	if close_confirm_dialog == null:
+		close_confirm_dialog = ConfirmationDialog.new()
+		close_confirm_dialog.title = "Close Klippy"
+		close_confirm_dialog.dialog_text = "Close Klippy?"
+		close_confirm_dialog.confirmed.connect(_on_quit_requested)
+		close_confirm_dialog.canceled.connect(_on_close_confirm_closed)
+		close_confirm_dialog.close_requested.connect(_on_close_confirm_closed)
+		add_child(close_confirm_dialog)
+	close_confirm_dialog.popup_centered()
+
+
+func _on_close_confirm_closed() -> void:
+	if close_confirm_dialog:
+		close_confirm_dialog.queue_free()
+		close_confirm_dialog = null
+
+
+func _get_speech_bubble() -> SpeechBubble:
+	if speech_bubble == null:
+		speech_bubble = SpeechBubble.new()
+		add_child(speech_bubble)
+	return speech_bubble
 
 
 func _on_vsync_toggled(enabled: bool) -> void:
@@ -254,7 +300,7 @@ func _maybe_complain() -> void:
 	if stats.is_dead or not complaint_cooldown_timer.is_stopped():
 		return
 	if randf() < COMPLAINT_CHANCE:
-		speech_bubble.say(Dialogue.random_complaint(), get_window())
+		_get_speech_bubble().say(Dialogue.random_complaint(), get_window())
 		complaint_cooldown_timer.start()
 
 
@@ -310,11 +356,11 @@ func _update_passthrough_mask(angle: float) -> void:
 func _on_context_menu_id_pressed(id: int) -> void:
 	match id:
 		CLOSE_ID:
-			close_confirm_dialog.popup_centered()
+			_open_close_confirm()
 		SETTINGS_ID:
-			settings_window.popup_centered()
+			_open_settings()
 		STATUS_ID:
-			status_dialog.popup_centered()
+			_open_status()
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
@@ -323,7 +369,7 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			stats.revive()
 			_update_revive_item()
 		DEV_TOOLS_ID:
-			dev_tools_dialog.popup_centered()
+			_open_dev_tools()
 
 
 func _update_revive_item() -> void:
@@ -348,39 +394,61 @@ func _spawn_food_item() -> void:
 	if active_food_items.size() >= MAX_FOOD_ITEMS:
 		return
 
-	var window := Window.new()
-	window.borderless = true
-	window.transparent = true
-	window.always_on_top = true
-	window.unfocusable = false
-	var window_size := Vector2i(FOOD_WINDOW_SIZE, FOOD_WINDOW_SIZE)
-	window.size = window_size
-	window.content_scale_size = window_size
+	var window: Window
+	var body: FoodBody
 
-	var body := FoodBody.new()
-	body.position = Vector2(window_size) / 2.0
+	if not food_window_pool.is_empty():
+		window = food_window_pool.pop_back()
+		body = window.get_child(0) as FoodBody
+	else:
+		window = Window.new()
+		window.borderless = true
+		window.transparent = true
+		window.always_on_top = true
+		window.unfocusable = false
+		var window_size := Vector2i(FOOD_WINDOW_SIZE, FOOD_WINDOW_SIZE)
+		window.size = window_size
+		window.content_scale_size = window_size
+
+		body = FoodBody.new()
+		body.position = Vector2(window_size) / 2.0
+		body.roll_radius = FOOD_WINDOW_SIZE * 0.45
+
+		var sprite2d := Sprite2D.new()
+		sprite2d.texture = _make_food_texture()
+		body.add_child(sprite2d)
+		window.add_child(body)
+
+		add_child(window)
+		body.consumed.connect(_on_food_item_consumed.bind(window))
+
 	body.mass = FOOD_MASS
-	body.roll_radius = FOOD_WINDOW_SIZE * 0.45
 	body.stats = stats
 	body.klippy_window = get_window()
-
-	var sprite2d := Sprite2D.new()
-	sprite2d.texture = _make_food_texture()
-	body.add_child(sprite2d)
-	window.add_child(body)
-
-	add_child(window)
+	body.velocity = Vector2.ZERO
+	body.angular_velocity = 0.0
+	body.drag_spin_target = 0.0
+	body.state = PetBody.State.IDLE
+	body.sprite.rotation = 0.0
+	body.set_physics_process(true)
 
 	var klippy_window := get_window()
 	window.position = klippy_window.position + Vector2i(klippy_window.size.x + 10, 0)
+	window.show()
 
 	active_food_items.append(window)
-	window.tree_exited.connect(_on_food_item_removed.bind(window))
 	_update_feed_menu_state()
 
 
-func _on_food_item_removed(window: Window) -> void:
+func _on_food_item_consumed(window: Window) -> void:
+	var body := window.get_child(0) as FoodBody
+	body.set_physics_process(false)
+	window.hide()
 	active_food_items.erase(window)
+	if food_window_pool.size() < MAX_FOOD_ITEMS:
+		food_window_pool.append(window)
+	else:
+		window.queue_free()
 	_update_feed_menu_state()
 
 
@@ -446,7 +514,7 @@ func _input(event: InputEvent) -> void:
 func _on_drag_started(event: InputEventMouseButton) -> void:
 	dvd_mode = false
 	if event.double_click and not stats.is_dead:
-		speech_bubble.say(Dialogue.random_greeting(), get_window())
+		_get_speech_bubble().say(Dialogue.random_greeting(), get_window())
 
 
 func _on_rotation_changed(angle: float) -> void:

@@ -1,6 +1,8 @@
 class_name FoodBody
 extends PetBody
 
+signal consumed
+
 const FEED_AMOUNT := 5.0
 
 var stats: PetStats
@@ -21,4 +23,4 @@ func _check_feeding() -> void:
 
 	if klippy_rect.intersects(food_rect):
 		stats.feed(FEED_AMOUNT)
-		get_window().queue_free()
+		consumed.emit()

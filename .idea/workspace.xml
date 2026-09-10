@@ -10,7 +10,12 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/project.godot" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -191,7 +196,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="33558000" />
+      <workItem from="1788947224616" duration="34538000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -529,7 +534,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789030535801</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics.">
+      <option name="closed" value="true" />
+      <created>1789030767377</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1789030767377</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -550,7 +563,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add `StatusDialog` for real-time food and mood tracking&#10;&#10;- Introduced `StatusDialog` to display pet's food and mood levels.&#10;- Replaced `StatusTooltip` with `StatusDialog` for improved user interaction.&#10;- Connected `food_changed` and `mood_changed` signals to update status dynamically.&#10;- Updated `Klippy` context menu with a &quot;Status&quot; option to access `StatusDialog`." />
     <MESSAGE value="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based" />
     <MESSAGE value="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels." />
     <MESSAGE value="Add confirmation dialog for closing Klippy&#10;&#10;- Replaced direct close action with a confirmation dialog in the context menu.&#10;- Updated context menu item text to &quot;Close Klippy&quot; for clarity.&#10;- Implemented confirmation dialog with &quot;Close Klippy?&quot; prompt and connected it to the quit logic." />
@@ -575,7 +587,8 @@
     <MESSAGE value="Add VSync toggle and FPS selection to settings panel&#10;&#10;- Introduced `vsync_toggled` and `fps_selected` signals in `SettingsPanel`.&#10;- Added VSync checkbox and FPS selection dropdown to the settings UI.&#10;- Integrated new settings with `Klippy.gd` to apply changes dynamically using `_apply_display_settings`.&#10;- Extended save/load system to persist VSync and FPS settings." />
     <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
+    <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
