@@ -17,6 +17,9 @@ const COMPLAINT_COOLDOWN := 4.0
 
 const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
+const MAX_FOOD_ITEMS := 25
+
+var active_food_items: Array[Window] = []
 
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
@@ -219,11 +222,19 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_spawn_food_item()
 
 
-func _on_feeding_enabled_changed(enabled: bool) -> void:
-	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not enabled)
+func _on_feeding_enabled_changed(_enabled: bool) -> void:
+	_update_feed_menu_state()
+
+
+func _update_feed_menu_state() -> void:
+	var can_feed := stats.feeding_enabled and active_food_items.size() < MAX_FOOD_ITEMS
+	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not can_feed)
 
 
 func _spawn_food_item() -> void:
+	if active_food_items.size() >= MAX_FOOD_ITEMS:
+		return
+
 	var window := Window.new()
 	window.borderless = true
 	window.transparent = true
@@ -249,6 +260,15 @@ func _spawn_food_item() -> void:
 
 	var klippy_window := get_window()
 	window.position = klippy_window.position + Vector2i(klippy_window.size.x + 10, 0)
+
+	active_food_items.append(window)
+	window.tree_exited.connect(_on_food_item_removed.bind(window))
+	_update_feed_menu_state()
+
+
+func _on_food_item_removed(window: Window) -> void:
+	active_food_items.erase(window)
+	_update_feed_menu_state()
 
 
 func _make_food_texture() -> ImageTexture:
