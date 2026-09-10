@@ -10,10 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/PetBody.gd" afterDir="false" />
-    </list>
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -135,7 +132,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="26253000" />
+      <workItem from="1788947224616" duration="26600000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -369,7 +366,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789022348194</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Add bounce impact speed handling and idle animations for pets&#10;&#10;- Added `impact_speed` parameter to `_on_energetic_bounce` to apply throw damage only at high speeds.&#10;- Introduced idle bouncing animation for hungry pets.&#10;- Adjusted idle and DVD modes to handle animations dynamically.">
+      <option name="closed" value="true" />
+      <created>1789023184557</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1789023184558</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -390,7 +395,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Remove Klippy resources, project files, and configurations" />
     <MESSAGE value="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings." />
     <MESSAGE value="Fix type in `Bitmap` creation and adjust window settings&#10;&#10;- Corrected `Bitmap` to `BitMap` in `Klippy.gd`.&#10;- Updated `project.godot` window configuration:&#10;  - Disabled resizable window.&#10;  - Ensured per-pixel transparency is allowed." />
     <MESSAGE value="Add context menu and resize functionality to Klippy&#10;&#10;- Implemented context menu with resize and close options.&#10;- Added dynamic resize functionality based on predefined size steps.&#10;- Updated hitbox and passthrough mask calculations to reflect size changes." />
@@ -415,7 +419,8 @@
     <MESSAGE value="Prevent feeding logic from executing while dragging" />
     <MESSAGE value="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state." />
     <MESSAGE value="Add health mechanics and integrate with UI and stats system&#10;&#10;- Introduced `health` property with decay, regeneration, and status thresholds.&#10;- Added `health_changed` signal for real-time updates.&#10;- Enhanced `StatusDialog` and `SettingsPanel` with health value toggles and displays.&#10;- Adjusted mood logic to consider health status.&#10;- Updated save/load system to persist health state." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add health mechanics and integrate with UI and stats system&#10;&#10;- Introduced `health` property with decay, regeneration, and status thresholds.&#10;- Added `health_changed` signal for real-time updates.&#10;- Enhanced `StatusDialog` and `SettingsPanel` with health value toggles and displays.&#10;- Adjusted mood logic to consider health status.&#10;- Updated save/load system to persist health state." />
+    <MESSAGE value="Add bounce impact speed handling and idle animations for pets&#10;&#10;- Added `impact_speed` parameter to `_on_energetic_bounce` to apply throw damage only at high speeds.&#10;- Introduced idle bouncing animation for hungry pets.&#10;- Adjusted idle and DVD modes to handle animations dynamically." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add bounce impact speed handling and idle animations for pets&#10;&#10;- Added `impact_speed` parameter to `_on_energetic_bounce` to apply throw damage only at high speeds.&#10;- Introduced idle bouncing animation for hungry pets.&#10;- Adjusted idle and DVD modes to handle animations dynamically." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
