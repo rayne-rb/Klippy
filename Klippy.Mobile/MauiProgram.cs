@@ -1,4 +1,5 @@
 using Klippy.Mobile.Data;
+using Klippy.Mobile.Features.AudioCast;
 using Klippy.Mobile.Features.Discovery;
 using Klippy.Mobile.Features.Link;
 using Klippy.Mobile.Features.Pairing;
@@ -29,6 +30,13 @@ public static class MauiProgram
 		builder.Services.AddSingleton<MobilePairingClient>();
 		builder.Services.AddSingleton<KlippyLinkClient>();
 		builder.Services.AddSingleton<PetPage>();
+
+#if ANDROID
+		// The audio sink is the one part of the cast that is platform-specific; the client
+		// above it only knows IAudioSink.
+		builder.Services.AddSingleton<IAudioSink, Platforms.Android.AudioTrackSink>();
+		builder.Services.AddSingleton<AudioCastClient>();
+#endif
 
 #if DEBUG
 		builder.Logging.AddDebug();

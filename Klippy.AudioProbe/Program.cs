@@ -33,6 +33,7 @@ try
         "codec" => await CodecCommand.RunAsync(args, loggerFactory, stopping.Token),
         "stream" => await StreamCommand.RunAsync(args, loggerFactory, stopping.Token),
         "cast" => await CastCommand.RunAsync(args, loggerFactory, stopping.Token),
+        "jitter" => await JitterCommand.RunAsync(args, loggerFactory, stopping.Token),
         _ => Help(),
     };
 }
@@ -71,6 +72,12 @@ static int Help()
               Step 4 against a running server: pair, ask over the Link, prove the
               ephemeral key over UDP, decode what comes back. Does what a phone
               does. Defaults to --server http://localhost:5068.
+
+          jitter [--seconds N]
+              Step 6. Replay synthetic arrival traces - clean LAN, WiFi, WiFi
+              with retransmit spikes, spikes plus loss - through the adaptive
+              jitter buffer and against fixed buffers, and report what each
+              costs in dropouts and latency. No phone needed.
 
         WAVs are IEEE float (format tag 3). Play them with pw-play, paplay, VLC or
         Audacity; a strictly-integer-PCM reader will refuse a perfectly good file.

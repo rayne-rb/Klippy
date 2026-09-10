@@ -70,6 +70,9 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<!-- Local cache: which server we are paired with, and the last vitals we saw. -->
 		<PackageReference Include="RepoDb.Sqlite.Microsoft" Version="1.16.0" />
+		<!-- Opus, for decoding the audio cast. Same version as the server so both ends
+		     of the stream are the same codec. -->
+		<PackageReference Include="Concentus" Version="2.2.2" />
 	</ItemGroup>
 
 	<ItemGroup>
