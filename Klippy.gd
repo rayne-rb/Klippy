@@ -31,7 +31,7 @@ const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
 const PLAY_MIN_HEALTH := 60.0
 const PLAY_DISTANCE_THRESHOLD := 400.0
-const PLAY_MOOD_BOOST := 3.0
+const PLAY_MOOD_BOOST := 1.5
 
 var active_food_items: Array[Window] = []
 

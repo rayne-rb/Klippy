@@ -11,9 +11,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +134,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="30268000" />
+      <workItem from="1788947224616" duration="30607000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -426,7 +424,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789026647933</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Add play tracking and mood boost mechanics&#10;&#10;- Introduced `apply_play_boost` method in `Stats.gd` to adjust mood based on play activity.&#10;- Added play tracking logic using distance thresholds in `Klippy.gd`.&#10;- Integrated health and mood conditions to trigger the play mood boost.">
+      <option name="closed" value="true" />
+      <created>1789027272288</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1789027272288</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -447,7 +453,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `" />
     <MESSAGE value=" detection to dynamically show status tooltips on mouse interaction." />
     <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.&#10;-" />
     <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior." />
@@ -472,7 +477,8 @@
     <MESSAGE value=" configurable scaling." />
     <MESSAGE value="Refine hungry bounce logic with envelope scaling&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
     <MESSAGE value="Improved bouncing&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improved bouncing&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
+    <MESSAGE value="Add play tracking and mood boost mechanics&#10;&#10;- Introduced `apply_play_boost` method in `Stats.gd` to adjust mood based on play activity.&#10;- Added play tracking logic using distance thresholds in `Klippy.gd`.&#10;- Integrated health and mood conditions to trigger the play mood boost." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add play tracking and mood boost mechanics&#10;&#10;- Introduced `apply_play_boost` method in `Stats.gd` to adjust mood based on play activity.&#10;- Added play tracking logic using distance thresholds in `Klippy.gd`.&#10;- Integrated health and mood conditions to trigger the play mood boost." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
