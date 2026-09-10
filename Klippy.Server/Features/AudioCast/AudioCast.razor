@@ -1,0 +1,244 @@
+@page "/audio"
+@rendermode InteractiveServer
+@using Klippy.Shared.Audio
+@implements IDisposable
+@inject IAudioSourceCatalog Catalog
+@inject AudioCastSessions Sessions
+@inject AudioCastPreferences Preferences
+@inject AudioBroadcaster Broadcaster
+@inject OpusEncoderPool Encoders
+@inject AudioCastUdpServer Udp
+
+<PageTitle>Audio</PageTitle>
+
+<h1>Audio</h1>
+
+<p class="text-body-secondary">
+    Streams this machine's system audio — every application plus system sounds — to a
+    paired phone over UDP, at @AudioCastFormat.FrameMilliseconds ms per frame.
+</p>
+
+<section class="mb-4">
+    <h2 class="h4">Codec</h2>
+
+    @{
+        var codec = Encoders.Diagnostics;
+        var native = codec.NativeLibraryLoaded;
+    }
+
+    <p class="mb-2">
+        <span class="badge @(native ? "text-bg-success" : "text-bg-warning") me-2">
+            @(native ? "native libopus" : "managed port")
+        </span>
+        <span class="text-body-secondary">@codec.Version</span>
+    </p>
+
+    @if (!native)
+    {
+        <div class="alert alert-warning">
+            <p class="mb-1">
+                Opus fell back to the pure-C# port, which allocates
+                <strong>@codec.AllocatedBytesPerSecond.ToString("N0") bytes a second</strong>
+                while casting. It is fast enough — encoding costs about 1% of a frame —
+                but that much steady allocation is what eventually costs a listener a
+                dropout to a garbage collection.
+            </p>
+            <p class="mb-0 small">
+                Install <code>libopus-dev</code> for the unversioned <code>libopus.so</code>
+                symlink that Concentus probes for, or add the <code>Concentus.Native</code>
+                package. Nothing announces this fallback on its own, which is why it is
+                checked at startup.
+            </p>
+        </div>
+    }
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Output to capture</h2>
+
+    @if (_devices is null)
+    {
+        <p class="text-body-secondary">Looking...</p>
+    }
+    else if (_devices.Count == 0)
+    {
+        <p class="text-body-secondary">
+            Nothing capturable was found. On Linux that usually means PulseAudio or
+            PipeWire is not running.
+        </p>
+    }
+    else
+    {
+        <div class="list-group mb-2">
+            <button type="button"
+                    class="list-group-item list-group-item-action @(Preferences.PreferredOutputDeviceId is null ? "active" : "")"
+                    @onclick="() => Choose(null)">
+                Platform default
+                <span class="d-block small opacity-75">Follow whatever this machine calls its default output</span>
+            </button>
+
+            @foreach (var device in _devices)
+            {
+                <button type="button"
+                        class="list-group-item list-group-item-action @(Preferences.PreferredOutputDeviceId == device.Id ? "active" : "")"
+                        @onclick="() => Choose(device.Id)">
+                    @device.Name
+                    @if (device.IsDefault)
+                    {
+                        <span class="badge text-bg-secondary ms-2">default</span>
+                    }
+                    <span class="d-block small opacity-75 font-monospace">@device.Id</span>
+                </button>
+            }
+        </div>
+
+        <p class="text-body-secondary small mb-0">
+            Used when a phone does not ask for a particular output. Held in memory, so it
+            resets when the server restarts.
+        </p>
+    }
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Listeners</h2>
+
+    @if (_state.Listeners.Count == 0)
+    {
+        <p class="text-body-secondary">
+            Nobody is listening. A cast is started from the phone — the server has nowhere
+            to send audio until something asks for it — so there is no button here.
+        </p>
+    }
+    else
+    {
+        <table class="table table-sm align-middle">
+            <thead>
+            <tr>
+                <th>Device</th>
+                <th>Channels</th>
+                <th>State</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var listener in _state.Listeners)
+            {
+                <tr>
+                    <td>@listener.DeviceName</td>
+                    <td>@(listener.Channels == 1 ? "mono" : "stereo")</td>
+                    <td>
+                        @if (listener.IsReceiving)
+                        {
+                            <span class="badge text-bg-success">receiving</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">offered</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger"
+                                @onclick="() => StopAsync(listener.DeviceId)">
+                            Stop
+                        </button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</section>
+
+<section class="mb-4">
+    <h2 class="h4">Captures</h2>
+
+    @{
+        var active = Broadcaster.Active;
+    }
+
+    @if (active.Count == 0)
+    {
+        <p class="text-body-secondary">Nothing is being captured.</p>
+    }
+    else
+    {
+        <ul class="list-unstyled mb-2">
+            @foreach (var capture in active)
+            {
+                <li>
+                    <strong>@capture.SourceName</strong>
+                    <span class="text-body-secondary">
+                        — @(capture.Channels == 1 ? "mono" : "stereo"),
+                        @capture.Listeners listener@(capture.Listeners == 1 ? "" : "s")
+                    </span>
+                </li>
+            }
+        </ul>
+
+        <p class="text-body-secondary small mb-0">
+            One capture is shared by every listener on the same output, so two phones mean
+            one <code>parec</code> and one encoder rather than two of each.
+        </p>
+    }
+</section>
+
+<section>
+    <h2 class="h4">Transport</h2>
+    <p class="text-body-secondary mb-1">
+        Media is on UDP port <strong>@(Udp.Port == 0 ? "(not bound yet)" : Udp.Port.ToString())</strong>.
+        Control travels the Link; only the bytes come this way, because a retransmit would
+        stall the stream to deliver audio that is already too late to play.
+    </p>
+    <p class="text-body-secondary small mb-0">
+        A slow Bluetooth codec costs more latency than everything in this pipeline
+        combined — 200-300 ms for LDAC against 20-40 ms for LC3 — but only the phone can
+        read which codec is active, so that warning has to be shown there rather than
+        here.
+    </p>
+</section>
+
+@code {
+    private IReadOnlyList<AudioOutputDevice>? _devices;
+    private AudioCastStatePayload _state = Empty;
+
+    private static readonly AudioCastStatePayload Empty = new()
+    {
+        IsCasting = false,
+        Listeners = [],
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sessions.Changed += OnChanged;
+        Preferences.Changed += OnChanged;
+
+        _state = Sessions.Snapshot();
+        _devices = await Catalog.ListAsync(CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Raised from a UDP receive loop or a sweep timer, so it has to hop back onto the
+    /// renderer's context before touching component state.
+    /// </summary>
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        _state = Sessions.Snapshot();
+        StateHasChanged();
+    });
+
+    private void Choose(string? deviceId) => Preferences.SetPreferredOutput(deviceId);
+
+    private async Task StopAsync(string deviceId)
+    {
+        if (Guid.TryParse(deviceId, out var parsed))
+        {
+            await Sessions.StopAsync(parsed);
+        }
+    }
+
+    public void Dispose()
+    {
+        Sessions.Changed -= OnChanged;
+        Preferences.Changed -= OnChanged;
+    }
+}

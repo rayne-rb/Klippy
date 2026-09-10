@@ -9,6 +9,7 @@ public static class AudioCastRegistration
         services.AddSingleton<OpusEncoderPool>();
         services.AddSingleton<AudioBroadcaster>();
         services.AddSingleton<AudioCastSessions>();
+        services.AddSingleton<AudioCastPreferences>();
 
         // Registered twice on purpose: the hosted service owns the socket, and the event
         // handler needs the same instance to read the port it actually bound.

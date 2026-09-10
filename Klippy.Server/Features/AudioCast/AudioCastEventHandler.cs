@@ -15,6 +15,7 @@ namespace Klippy.Server.Features.AudioCast;
 public sealed class AudioCastEventHandler(
     AudioBroadcaster broadcaster,
     AudioCastSessions sessions,
+    AudioCastPreferences preferences,
     AudioCastUdpServer udp,
     LinkRegistry registry,
     ILogger<AudioCastEventHandler> logger) : IKlippyEventHandler
@@ -53,13 +54,17 @@ public sealed class AudioCastEventHandler(
         var deviceName = registry.Connections.FirstOrDefault(c => c.DeviceId == deviceId)?.DeviceName
             ?? deviceId.ToString();
 
+        // The listener's choice wins; the server's preference is only what to do when it
+        // has no opinion, which is the common case.
+        var outputDeviceId = request.DeviceId ?? preferences.PreferredOutputDeviceId;
+
         // Deliberately unguarded: a capture that cannot open throws, the dispatcher
         // contains and logs it, and the requester's wait for an offer times out. Worth
         // improving once there is a place to put a targeted failure.
-        var subscription = await broadcaster.SubscribeAsync(request.DeviceId, request.Channels, cancellationToken);
+        var subscription = await broadcaster.SubscribeAsync(outputDeviceId, request.Channels, cancellationToken);
 
         var session = sessions.Create(
-            deviceId, deviceName, subscription, request.DeviceId, subscription.Format.SourceName);
+            deviceId, deviceName, subscription, outputDeviceId, subscription.Format.SourceName);
 
         var offer = LinkEnvelope.Create(
             KlippyEvents.AudioCastOffer,
