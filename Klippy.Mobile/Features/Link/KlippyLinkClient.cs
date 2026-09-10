@@ -1,6 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Channels;
+using Klippy.Shared.Discovery;
 using Klippy.Shared.Link;
 using Klippy.Mobile.Features.Discovery;
 using Klippy.Mobile.Features.Pairing;
@@ -24,6 +25,13 @@ public sealed class KlippyLinkClient(
 {
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan DiscoveryTimeout = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// How long a typed address gets before we settle for what multicast found.
+    /// Generous enough for a relayed tailnet round trip on a link that has just woken,
+    /// short enough that a stale address is not felt as a hang.
+    /// </summary>
+    private static readonly TimeSpan TypedAddressTimeout = TimeSpan.FromSeconds(4);
 
     private readonly Channel<LinkEnvelope> _outbound =
         Channel.CreateBounded<LinkEnvelope>(new BoundedChannelOptions(64)
@@ -149,17 +157,8 @@ public sealed class KlippyLinkClient(
 
         SetState(LinkState.Searching);
 
-        // A typed address is tried before multicast, not after it. It is an explicit
-        // choice, and in the cases that call for one - a tailnet, mobile data, an
-        // emulator behind user-mode NAT - multicast can never succeed, so probing
-        // first would burn the discovery timeout ahead of every connection attempt.
         var typed = await manualAddress.GetAsync(ct);
-        var beacon = typed is { Length: > 0 }
-            ? await locator.ResolveAsync(typed, ct)
-            : null;
-
-        // Multicast handles the ordinary case: same Wi-Fi, nothing configured.
-        beacon ??= await locator.FindAsync(DiscoveryTimeout, ct);
+        var beacon = await LocateAsync(typed, ct);
 
         if (stored is not null)
         {
@@ -213,6 +212,61 @@ public sealed class KlippyLinkClient(
         finally
         {
             pairing.CodeReady -= Forward;
+        }
+    }
+
+    /// <summary>
+    /// Finds the server, by a typed address and by multicast at the same time.
+    ///
+    /// A typed address still wins whenever it answers: it is an explicit choice, and in
+    /// the cases that call for one - a tailnet, mobile data, an emulator behind
+    /// user-mode NAT - multicast can never succeed. But such an address is usually
+    /// stale rather than wrong, the phone having come back to the Wi-Fi the server is
+    /// on with the VPN off. Running the probe alongside it rather than after it means
+    /// that case costs the typed address's timeout instead of that plus a whole fresh
+    /// discovery window, and the fallback is already in hand the moment it is needed.
+    /// </summary>
+    private async Task<ServerBeacon?> LocateAsync(string? typed, CancellationToken ct)
+    {
+        // The ordinary case: same Wi-Fi, nothing configured.
+        if (string.IsNullOrEmpty(typed))
+        {
+            return await locator.FindAsync(DiscoveryTimeout, ct);
+        }
+
+        using var probeCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+
+        // Started first so it is already listening while the HTTP round trip runs.
+        var probing = locator.FindAsync(DiscoveryTimeout, probeCts.Token);
+
+        try
+        {
+            // Bounded here rather than inside the locator: the wait is only worth
+            // cutting short because there is a probe running behind it.
+            using var typedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            typedCts.CancelAfter(TypedAddressTimeout);
+
+            var resolved = await locator.ResolveAsync(typed, typedCts.Token);
+            if (resolved is not null)
+            {
+                return resolved;
+            }
+
+            // ResolveAsync reports a cancelled token as "nothing there", which is the
+            // right answer for its own deadline but not for the app shutting down.
+            ct.ThrowIfCancellationRequested();
+
+            logger.LogInformation(
+                "Nothing answered at '{Typed}'; falling back to what multicast found", typed);
+
+            return await probing;
+        }
+        finally
+        {
+            await probeCts.CancelAsync();
+
+            // Let the probe unwind before its socket goes out of scope.
+            await probing;
         }
     }
 
