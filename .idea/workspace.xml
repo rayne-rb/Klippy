@@ -10,7 +10,9 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,6 +42,65 @@
     <urls />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.000102648296664" />
+      <entry key="S2" value="1.2892347764741388" />
+      <entry key="S5" value="2.7012041669431834" />
+      <entry key="S10" value="4.219946563663521" />
+      <entry key="S30" value="7.951789569077739" />
+      <entry key="S60" value="14.063374894649993" />
+      <entry key="M2" value="23.42890070022012" />
+      <entry key="M5" value="35.277531650037545" />
+      <entry key="M10" value="41.30847995954459" />
+      <entry key="M15" value="43.661163814425095" />
+      <entry key="M30" value="46.21716941459828" />
+      <entry key="H1" value="47.57863269412582" />
+      <entry key="H2" value="48.281616086598724" />
+      <entry key="H4" value="48.63885562386054" />
+      <entry key="D1" value="48.939535740103956" />
+      <entry key="W1" value="48.99135551882016" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9659363289248456" />
+      <entry key="MS500" value="0.9931944155256378" />
+      <entry key="S2" value="1.2869077810290297" />
+      <entry key="S5" value="2.6988784422168064" />
+      <entry key="S10" value="4.2179549446323765" />
+      <entry key="S30" value="7.950567941711417" />
+      <entry key="S60" value="14.062389357671142" />
+      <entry key="M2" value="23.42812558836723" />
+      <entry key="M5" value="35.2770767854832" />
+      <entry key="M10" value="41.3082151231187" />
+      <entry key="M15" value="43.66097746209264" />
+      <entry key="M30" value="46.21707089699879" />
+      <entry key="H1" value="47.578582008412674" />
+      <entry key="H2" value="48.28159037477025" />
+      <entry key="H4" value="48.63884267411948" />
+      <entry key="D1" value="48.93953356864529" />
+      <entry key="W1" value="48.99135520828742" />
+    </decayedShown>
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3,
   &quot;fromUser&quot;: false
@@ -132,7 +193,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
-      <workItem from="1788947224616" duration="31602000" />
+      <workItem from="1788947224616" duration="33244000" />
     </task>
     <task id="LOCAL-00001" summary="**Add initial setup for Klippy project.**&#10;&#10;Includes:&#10;- .editorconfig for formatting consistency.&#10;- .gitattributes for normalized EOL handling.&#10;- export_presets.cfg for Godot export settings.&#10;- Godot project resources and configuration files (Klippy.cs, icon.svg, Klippy.tscn).&#10;- Initial C# script for Klippy behavior.">
       <option name="closed" value="true" />
@@ -446,7 +507,23 @@
       <option name="project" value="LOCAL" />
       <updated>1789028273339</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Add VSync toggle and FPS selection to settings panel&#10;&#10;- Introduced `vsync_toggled` and `fps_selected` signals in `SettingsPanel`.&#10;- Added VSync checkbox and FPS selection dropdown to the settings UI.&#10;- Integrated new settings with `Klippy.gd` to apply changes dynamically using `_apply_display_settings`.&#10;- Extended save/load system to persist VSync and FPS settings.">
+      <option name="closed" value="true" />
+      <created>1789028749385</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1789028749385</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Add initial README with project overview, requirements, features, and export instructions">
+      <option name="closed" value="true" />
+      <created>1789030306212</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1789030306212</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -467,8 +544,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior." />
-    <MESSAGE value="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity" />
     <MESSAGE value="Add mood tracking and integrate with food mechanics&#10;&#10;- Introduced `mood` property with decay and improvement rates based on food levels.&#10;- Added `mood_changed` signal for real-time updates.&#10;- Implemented `_update_mood` to adjust mood dynamically with food thresholds.&#10;- Refactored offline decay to apply both food and mood changes during inactivity.&#10;- Enhanced save/load system to persist mood state." />
     <MESSAGE value="Add `StatusDialog` for real-time food and mood tracking&#10;&#10;- Introduced `StatusDialog` to display pet's food and mood levels.&#10;- Replaced `StatusTooltip` with `StatusDialog` for improved user interaction.&#10;- Connected `food_changed` and `mood_changed` signals to update status dynamically.&#10;- Updated `Klippy` context menu with a &quot;Status&quot; option to access `StatusDialog`." />
     <MESSAGE value="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based" />
@@ -492,7 +567,9 @@
     <MESSAGE value="Add play tracking and mood boost mechanics&#10;&#10;- Introduced `apply_play_boost` method in `Stats.gd` to adjust mood based on play activity.&#10;- Added play tracking logic using distance thresholds in `Klippy.gd`.&#10;- Integrated health and mood conditions to trigger the play mood boost." />
     <MESSAGE value="Adjust play mood boost scaling&#10;&#10;- Reduced `PLAY_MOOD_BOOST` constant in `Klippy.gd` from 3.0 to 1.5 for better balancing." />
     <MESSAGE value="Limit FPS to 30 and adjust physics tick rate for performance optimization" />
-    <option name="LAST_COMMIT_MESSAGE" value="Limit FPS to 30 and adjust physics tick rate for performance optimization" />
+    <MESSAGE value="Add VSync toggle and FPS selection to settings panel&#10;&#10;- Introduced `vsync_toggled` and `fps_selected` signals in `SettingsPanel`.&#10;- Added VSync checkbox and FPS selection dropdown to the settings UI.&#10;- Integrated new settings with `Klippy.gd` to apply changes dynamically using `_apply_display_settings`.&#10;- Extended save/load system to persist VSync and FPS settings." />
+    <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add initial README with project overview, requirements, features, and export instructions" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
