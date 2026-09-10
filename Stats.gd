@@ -12,6 +12,7 @@ const FOOD_DECAY_RATE := (MAX_FOOD * 0.1) / 3600.0
 
 const MAX_HEALTH := 100.0
 const THROW_HEALTH_LOSS := 0.1
+const THROW_MOOD_LOSS := 2.0
 const STARVATION_HEALTH_DECAY_RATE := 20.0 / 3600.0
 const HEALING_FOOD_THRESHOLD := 50.0
 const HEALTH_REGEN_RATE := 20.0 / 3600.0
@@ -123,6 +124,8 @@ func apply_throw_damage() -> void:
 		return
 	health = max(health - THROW_HEALTH_LOSS, 0.0)
 	health_changed.emit(health)
+	mood = max(mood - THROW_MOOD_LOSS, 0.0)
+	mood_changed.emit(mood)
 	if health <= 0.0:
 		is_dead = true
 		died.emit()

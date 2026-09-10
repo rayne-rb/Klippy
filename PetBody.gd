@@ -48,7 +48,7 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			velocity = Vector2.ZERO
 			angular_velocity = 0.0
-			drag_spin_target = 0.0
+			drag_spin_target = sprite.rotation
 			drag_offset = DisplayServer.mouse_get_position() - get_window().position
 			_set_state(State.DRAGGING)
 			_on_drag_started(event)
