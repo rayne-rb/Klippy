@@ -80,6 +80,14 @@ func _update_mood(delta: float) -> void:
 	mood_changed.emit(mood)
 
 
+func revive() -> void:
+	if not is_dead:
+		return
+	is_dead = false
+	food = MAX_FOOD
+	food_changed.emit(food)
+
+
 func feed(amount: float) -> void:
 	if is_dead:
 		return

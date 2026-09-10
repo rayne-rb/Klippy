@@ -8,6 +8,7 @@ const DVD_ID := 1
 const SETTINGS_ID := 2
 const FEED_ID := 3
 const STATUS_ID := 4
+const REVIVE_ID := 5
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -77,6 +78,8 @@ func _ready() -> void:
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	add_child(context_menu)
 	_on_feeding_enabled_changed(stats.feeding_enabled)
+	stats.died.connect(_update_revive_item)
+	_update_revive_item()
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
@@ -152,7 +155,7 @@ func _on_quit_requested() -> void:
 
 
 func _maybe_complain() -> void:
-	if not complaint_cooldown_timer.is_stopped():
+	if stats.is_dead or not complaint_cooldown_timer.is_stopped():
 		return
 	if randf() < COMPLAINT_CHANCE:
 		speech_bubble.say(Dialogue.random_complaint(), get_window())
@@ -220,6 +223,18 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_toggle_dvd_mode()
 		FEED_ID:
 			_spawn_food_item()
+		REVIVE_ID:
+			stats.revive()
+			_update_revive_item()
+
+
+func _update_revive_item() -> void:
+	var index := context_menu.get_item_index(REVIVE_ID)
+	if stats.is_dead:
+		if index == -1:
+			context_menu.add_item("Revive", REVIVE_ID)
+	elif index != -1:
+		context_menu.remove_item(index)
 
 
 func _on_feeding_enabled_changed(_enabled: bool) -> void:
@@ -330,7 +345,7 @@ func _input(event: InputEvent) -> void:
 
 func _on_drag_started(event: InputEventMouseButton) -> void:
 	dvd_mode = false
-	if event.double_click:
+	if event.double_click and not stats.is_dead:
 		speech_bubble.say(Dialogue.random_greeting(), get_window())
 
 
