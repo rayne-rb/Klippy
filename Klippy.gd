@@ -22,13 +22,19 @@ const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
 const MAX_FOOD_ITEMS := 25
 
-const HUNGRY_BOUNCE_AMPLITUDE := 5.0
-const HUNGRY_BOUNCE_SPEED := 6.0
+const HUNGRY_BOUNCE_AMPLITUDE := 14.0
+const HUNGRY_BOUNCE_SPEED := 8.0
+const HUNGRY_BOUNCES_PER_BURST := 3
+const HUNGRY_BURST_INTERVAL := 300.0
+const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
 var active_food_items: Array[Window] = []
 
 var idle_base_y := 0
-var idle_phase := 0.0
+var bounce_timer := 0.0
+var bouncing := false
+var bounce_phase := 0.0
+var bounce_cycles_done := 0
 
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
@@ -441,19 +447,55 @@ func _run_state_physics(delta: float, window: Window) -> void:
 func _on_state_enter(new_state: State) -> void:
 	if new_state == State.IDLE:
 		idle_base_y = get_window().position.y
-		idle_phase = 0.0
+		_reset_bounce()
+
+
+func _reset_bounce() -> void:
+	bounce_timer = 0.0
+	bouncing = false
+	bounce_phase = 0.0
+	bounce_cycles_done = 0
+
+
+func _get_bounce_burst_interval() -> float:
+	match stats.get_status():
+		"Hungry":
+			return HUNGRY_BURST_INTERVAL
+		"Very Hungry":
+			return VERY_HUNGRY_BURST_INTERVAL
+		_:
+			return 0.0
 
 
 func _process_idle_base(delta: float, window: Window) -> void:
-	var should_bounce := not stats.is_dead and stats.get_status() != "Full"
-
-	if not should_bounce:
-		if window.position.y != idle_base_y:
-			window.position = Vector2i(window.position.x, idle_base_y)
+	if stats.is_dead:
 		return
 
-	idle_phase += delta * HUNGRY_BOUNCE_SPEED
-	var offset := int(round(sin(idle_phase) * HUNGRY_BOUNCE_AMPLITUDE))
+	var burst_interval := _get_bounce_burst_interval()
+	if burst_interval <= 0.0:
+		if bouncing or window.position.y != idle_base_y:
+			window.position = Vector2i(window.position.x, idle_base_y)
+			_reset_bounce()
+		return
+
+	if not bouncing:
+		bounce_timer += delta
+		if bounce_timer >= burst_interval:
+			bouncing = true
+			bounce_phase = 0.0
+			bounce_cycles_done = 0
+		return
+
+	bounce_phase += delta * HUNGRY_BOUNCE_SPEED
+	if bounce_phase >= TAU:
+		bounce_phase -= TAU
+		bounce_cycles_done += 1
+		if bounce_cycles_done >= HUNGRY_BOUNCES_PER_BURST:
+			window.position = Vector2i(window.position.x, idle_base_y)
+			_reset_bounce()
+			return
+
+	var offset := int(round(sin(bounce_phase) * HUNGRY_BOUNCE_AMPLITUDE))
 	window.position = Vector2i(window.position.x, idle_base_y + offset)
 
 

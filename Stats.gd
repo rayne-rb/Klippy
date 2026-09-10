@@ -76,7 +76,7 @@ func _apply_healing(delta: float) -> void:
 	if food_percent <= HEALING_FOOD_THRESHOLD or health >= MAX_HEALTH:
 		return
 
-	var health_gain := min(HEALTH_REGEN_RATE * delta, MAX_HEALTH - health)
+	var health_gain: float = min(HEALTH_REGEN_RATE * delta, MAX_HEALTH - health)
 	if health_gain <= 0.0:
 		return
 
