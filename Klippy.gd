@@ -67,6 +67,8 @@ var show_food_value := false
 var show_mood_value := false
 var show_health_value := false
 var dev_tools_enabled := false
+var vsync_enabled := true
+var target_fps := 30
 
 
 func _ready() -> void:
@@ -96,6 +98,9 @@ func _ready() -> void:
 	show_mood_value = settings_data.get("show_mood_value", false)
 	show_health_value = settings_data.get("show_health_value", false)
 	dev_tools_enabled = settings_data.get("dev_tools_enabled", false)
+	vsync_enabled = settings_data.get("vsync_enabled", true)
+	target_fps = settings_data.get("target_fps", 30)
+	_apply_display_settings()
 
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
@@ -124,12 +129,16 @@ func _ready() -> void:
 		"show_health": show_health_value,
 		"dev_tools_enabled": dev_tools_enabled,
 		"size": current_size,
+		"vsync_enabled": vsync_enabled,
+		"fps": target_fps,
 	}, SIZE_STEPS)
 	settings_window.show_food_toggled.connect(_on_show_food_toggled)
 	settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
 	settings_window.show_health_toggled.connect(_on_show_health_toggled)
 	settings_window.dev_tools_toggled.connect(_on_dev_tools_toggled)
 	settings_window.size_selected.connect(_on_size_selected)
+	settings_window.vsync_toggled.connect(_on_vsync_toggled)
+	settings_window.fps_selected.connect(_on_fps_selected)
 	settings_window.hide()
 
 	status_dialog = StatusDialog.new()
@@ -193,6 +202,23 @@ func _update_dev_tools_item() -> void:
 		context_menu.remove_item(index)
 
 
+func _on_vsync_toggled(enabled: bool) -> void:
+	vsync_enabled = enabled
+	_apply_display_settings()
+
+
+func _on_fps_selected(fps: int) -> void:
+	target_fps = fps
+	_apply_display_settings()
+
+
+func _apply_display_settings() -> void:
+	DisplayServer.window_set_vsync_mode(
+		DisplayServer.VSYNC_ENABLED if vsync_enabled else DisplayServer.VSYNC_DISABLED
+	)
+	Engine.max_fps = target_fps
+
+
 func _on_size_selected(new_size: int) -> void:
 	_apply_size(new_size)
 
@@ -212,6 +238,8 @@ func _save_state() -> void:
 			"show_mood_value": show_mood_value,
 			"show_health_value": show_health_value,
 			"dev_tools_enabled": dev_tools_enabled,
+			"vsync_enabled": vsync_enabled,
+			"target_fps": target_fps,
 		},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})

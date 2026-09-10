@@ -6,6 +6,10 @@ signal show_mood_toggled(enabled: bool)
 signal show_health_toggled(enabled: bool)
 signal dev_tools_toggled(enabled: bool)
 signal size_selected(size: int)
+signal vsync_toggled(enabled: bool)
+signal fps_selected(fps: int)
+
+const FPS_OPTIONS := [30, 60, 120]
 
 var stats: PetStats
 var size_steps: Array
@@ -13,7 +17,7 @@ var size_steps: Array
 
 func _ready() -> void:
 	title = "Settings"
-	size = Vector2i(300, 280)
+	size = Vector2i(300, 340)
 	close_requested.connect(hide)
 
 
@@ -78,6 +82,27 @@ func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	size_option.item_selected.connect(_on_size_selected)
 	size_row.add_child(size_option)
 
+	var vsync_check := CheckBox.new()
+	vsync_check.text = "Enable VSync"
+	vsync_check.set_pressed_no_signal(initial.get("vsync_enabled", true))
+	vsync_check.toggled.connect(_on_vsync_toggled)
+	vbox.add_child(vsync_check)
+
+	var fps_row := HBoxContainer.new()
+	fps_row.add_theme_constant_override("separation", 8)
+	vbox.add_child(fps_row)
+
+	var fps_label := Label.new()
+	fps_label.text = "FPS"
+	fps_row.add_child(fps_label)
+
+	var fps_option := OptionButton.new()
+	for i in FPS_OPTIONS.size():
+		fps_option.add_item(str(FPS_OPTIONS[i]), i)
+	fps_option.select(maxi(FPS_OPTIONS.find(initial.get("fps", 30)), 0))
+	fps_option.item_selected.connect(_on_fps_selected)
+	fps_row.add_child(fps_option)
+
 
 func _on_feeding_toggled(enabled: bool) -> void:
 	stats.set_feeding_enabled(enabled)
@@ -101,3 +126,11 @@ func _on_dev_tools_toggled(enabled: bool) -> void:
 
 func _on_size_selected(index: int) -> void:
 	size_selected.emit(size_steps[index])
+
+
+func _on_vsync_toggled(enabled: bool) -> void:
+	vsync_toggled.emit(enabled)
+
+
+func _on_fps_selected(index: int) -> void:
+	fps_selected.emit(FPS_OPTIONS[index])
