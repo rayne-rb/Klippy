@@ -14,6 +14,8 @@ config/name="Klippy"
 run/main_scene="res://Klippy.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+run/max_fps=30
+run/low_processor_mode=true
 
 [display]
 
@@ -27,6 +29,10 @@ window/subwindows/embed_subwindows=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/per_pixel_transparency/allowed=true
+
+[physics]
+
+common/physics_ticks_per_second=30
 
 [rendering]
 
