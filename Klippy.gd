@@ -1,11 +1,5 @@
-extends Node2D
-
-const GRAVITY := 2200.0
-const BOUNCE_DAMPING := 0.45
-const REST_SPEED := 80.0
-const FRICTION := 800.0
-const AIR_SPIN_DAMPING := 0.1
-const SPIN_RECOVERY_RATE := 10.0
+class_name Klippy
+extends PetBody
 
 const TEXTURE_SIZE := 400.0
 const SIZE_STEPS := [100, 200, 300, 400]
@@ -16,13 +10,14 @@ const FEED_ID := 3
 const STATUS_ID := 4
 
 const REFERENCE_SIZE := 200.0
-const BASE_FOLLOW_RATE := 25.0
 const DVD_SPEED := 220.0
 
 const COMPLAINT_CHANCE := 0.12
 const COMPLAINT_COOLDOWN := 4.0
 
-var sprite: Sprite2D
+const FOOD_WINDOW_SIZE := 60
+const FOOD_MASS := 0.3
+
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
@@ -37,22 +32,16 @@ var dvd_mode := false
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
 
-var dragging := false
-var drag_offset := Vector2i.ZERO
-var velocity := Vector2.ZERO
-var angular_velocity := 0.0
 var show_hitbox := false
 
 var current_size := 200
-var roll_radius := 90.0
-var mass := 1.0
 
 var show_food_value := false
 var show_mood_value := false
 
 
 func _ready() -> void:
-	sprite = $Sprite2D
+	super._ready()
 	_build_click_through_mask()
 	_recompute_physical_properties()
 
@@ -227,11 +216,51 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
-			stats.feed()
+			_spawn_food_item()
 
 
 func _on_feeding_enabled_changed(enabled: bool) -> void:
 	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not enabled)
+
+
+func _spawn_food_item() -> void:
+	var window := Window.new()
+	window.borderless = true
+	window.transparent = true
+	window.always_on_top = true
+	window.unfocusable = false
+	var window_size := Vector2i(FOOD_WINDOW_SIZE, FOOD_WINDOW_SIZE)
+	window.size = window_size
+	window.content_scale_size = window_size
+
+	var body := FoodBody.new()
+	body.position = Vector2(window_size) / 2.0
+	body.mass = FOOD_MASS
+	body.roll_radius = FOOD_WINDOW_SIZE * 0.45
+	body.stats = stats
+	body.klippy_window = get_window()
+
+	var sprite2d := Sprite2D.new()
+	sprite2d.texture = _make_food_texture()
+	body.add_child(sprite2d)
+	window.add_child(body)
+
+	add_child(window)
+
+	var klippy_window := get_window()
+	window.position = klippy_window.position + Vector2i(klippy_window.size.x + 10, 0)
+
+
+func _make_food_texture() -> ImageTexture:
+	var diameter := 40
+	var image := Image.create_empty(diameter, diameter, false, Image.FORMAT_RGBA8)
+	var radius := diameter / 2.0
+	var center := Vector2(radius, radius)
+	for y in diameter:
+		for x in diameter:
+			var dist := Vector2(x + 0.5, y + 0.5).distance_to(center)
+			image.set_pixel(x, y, Color(0.85, 0.2, 0.2, 1.0) if dist <= radius else Color(0, 0, 0, 0))
+	return ImageTexture.create_from_image(image)
 
 
 func _toggle_dvd_mode() -> void:
@@ -269,23 +298,30 @@ func _recompute_physical_properties() -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			dragging = true
-			dvd_mode = false
-			velocity = Vector2.ZERO
-			angular_velocity = 0.0
-			drag_offset = DisplayServer.mouse_get_position() - get_window().position
-			if event.double_click:
-				speech_bubble.say(Dialogue.random_greeting(), get_window())
-		else:
-			dragging = false
-	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+	super._input(event)
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		context_menu.position = DisplayServer.mouse_get_position()
 		context_menu.popup()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1:
 		show_hitbox = not show_hitbox
 		queue_redraw()
+
+
+func _on_drag_started(event: InputEventMouseButton) -> void:
+	dvd_mode = false
+	if event.double_click:
+		speech_bubble.say(Dialogue.random_greeting(), get_window())
+
+
+func _on_rotation_changed(angle: float) -> void:
+	_update_passthrough_mask(angle)
+	if show_hitbox:
+		queue_redraw()
+
+
+func _on_energetic_bounce() -> void:
+	_maybe_complain()
 
 
 func _draw() -> void:
@@ -301,90 +337,11 @@ func _draw() -> void:
 	draw_polyline(points, Color.RED, 2.0)
 
 
-func _physics_process(delta: float) -> void:
-	var window := get_window()
-
-	if dragging:
-		var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)
-		var old_pos := Vector2(window.position)
-		var follow_t := 1.0
-		if delta > 0.0:
-			var follow_rate := BASE_FOLLOW_RATE / mass
-			follow_t = 1.0 - exp(-follow_rate * delta)
-		var new_pos := old_pos.lerp(target_pos, follow_t)
-		if delta > 0.0:
-			velocity = (new_pos - old_pos) / delta
-		window.position = Vector2i(new_pos)
-
-		if sprite.rotation != 0.0:
-			var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)
-			sprite.rotation = lerp_angle(sprite.rotation, 0.0, t)
-			if abs(sprite.rotation) < 0.001:
-				sprite.rotation = 0.0
-			_update_passthrough_mask(sprite.rotation)
-			if show_hitbox:
-				queue_redraw()
-
-		return
-
+func _process_non_dragging(delta: float, window: Window) -> void:
 	if dvd_mode:
 		_process_dvd(delta, window)
 		return
-
-	if velocity == Vector2.ZERO:
-		return
-
-	velocity.y += GRAVITY * delta
-
-	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
-	var size := Vector2(window.size)
-	var pos := Vector2(window.position) + velocity * delta
-
-	var min_x := float(bounds.position.x)
-	var max_x := bounds.position.x + bounds.size.x - size.x
-	var min_y := float(bounds.position.y)
-	var floor_y := bounds.position.y + bounds.size.y - size.y
-
-	var direct_roll := false
-
-	if pos.x < min_x:
-		pos.x = min_x
-		velocity.x = -velocity.x * BOUNCE_DAMPING
-		angular_velocity += -velocity.y / roll_radius
-		_maybe_complain()
-	elif pos.x > max_x:
-		pos.x = max_x
-		velocity.x = -velocity.x * BOUNCE_DAMPING
-		angular_velocity += -velocity.y / roll_radius
-		_maybe_complain()
-
-	if pos.y < min_y:
-		pos.y = min_y
-		velocity.y = -velocity.y * BOUNCE_DAMPING
-		angular_velocity += velocity.x / roll_radius
-		_maybe_complain()
-	elif pos.y >= floor_y:
-		pos.y = floor_y
-		if abs(velocity.y) > REST_SPEED:
-			velocity.y = -velocity.y * BOUNCE_DAMPING
-			angular_velocity += velocity.x / roll_radius
-			_maybe_complain()
-		else:
-			velocity.y = 0.0
-			velocity.x = move_toward(velocity.x, 0.0, FRICTION * delta)
-			angular_velocity = velocity.x / roll_radius
-			direct_roll = true
-
-	if not direct_roll:
-		angular_velocity *= max(0.0, 1.0 - AIR_SPIN_DAMPING * delta)
-
-	if angular_velocity != 0.0:
-		sprite.rotation += angular_velocity * delta
-		_update_passthrough_mask(sprite.rotation)
-		if show_hitbox:
-			queue_redraw()
-
-	window.position = Vector2i(pos)
+	super._process_non_dragging(delta, window)
 
 
 func _process_dvd(delta: float, window: Window) -> void:

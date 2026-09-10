@@ -8,7 +8,6 @@ signal died
 
 const MAX_FOOD := 100.0
 const FOOD_DECAY_RATE := (MAX_FOOD * 0.1) / 3600.0
-const FEED_AMOUNT := 40.0
 
 const MAX_MOOD := 100.0
 const MOOD_MID := 50.0
@@ -81,10 +80,10 @@ func _update_mood(delta: float) -> void:
 	mood_changed.emit(mood)
 
 
-func feed() -> void:
+func feed(amount: float) -> void:
 	if is_dead:
 		return
-	food = min(food + FEED_AMOUNT, MAX_FOOD)
+	food = min(food + amount, MAX_FOOD)
 	food_changed.emit(food)
 
 
