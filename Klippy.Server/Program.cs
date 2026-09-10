@@ -1,6 +1,7 @@
 using Klippy.Server.Common;
 using Klippy.Server.Components;
 using Klippy.Server.Data;
+using Klippy.Server.Features.AudioCast;
 using Klippy.Server.Features.Discovery;
 using Klippy.Server.Features.Link;
 using Klippy.Server.Features.Pairing;
@@ -32,11 +33,17 @@ builder.Services.AddPairingFeature();
 builder.Services.AddLinkFeature();
 builder.Services.AddDiscoveryFeature();
 builder.Services.AddPetStateFeature();
+builder.Services.AddAudioCastFeature();
 
 var app = builder.Build();
 
 // Bring the schema up to date before anything can query it.
 await app.Services.GetRequiredService<DatabaseMigrator>().MigrateAsync();
+
+// Resolved eagerly so the codec reports what it actually resolved to at startup rather
+// than on the first cast. Whether Opus landed on the native or the managed path is the
+// difference between zero and ~11 MB/s of allocation, and the fallback is silent.
+app.Services.GetRequiredService<OpusEncoderPool>();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -59,6 +66,7 @@ app.MapDiscoveryEndpoints();
 app.MapPairingEndpoints();
 app.MapLinkEndpoints();
 app.MapPetStateEndpoints();
+app.MapAudioCastEndpoints();
 
 // Start before advertising: the beacon has to carry the port Kestrel actually bound,
 // which is only knowable once it has.

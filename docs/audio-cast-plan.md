@@ -452,31 +452,71 @@ is an audible dropout — hence the buffer must be adaptive.
 
 ## Build order
 
+**Built 2026-09-10 on `feature/audio-cast`.** All seven steps are implemented. Steps 1,
+3, 4, 6 and 7 are verified by measurement on this machine; steps 2 (Windows) and 5
+(Android) are compile-verified only, because there is no Windows box and no phone
+attached here. See [Status](#status--what-is-verified-and-what-is-not).
+
+
 Each step is independently verifiable. This matters because every failure mode here
 is timing-related and miserable to debug in aggregate.
 
-- [ ] **1. `IAudioCaptureSource` + `ParecCaptureSource`** → write float32 to a `.wav`
+- [x] **1. `IAudioCaptureSource` + `ParecCaptureSource`** → write float32 to a `.wav`
       on disk. Proves system-audio capture in isolation. *Independent of every
       Bluetooth question.* Use **`--latency-msec=5`** (section 7) — one read is then
       exactly one 240-sample Opus frame, so no reframing buffer is needed anywhere
       downstream. Assert the read size is 1920 B.
-- [ ] **2. `WasapiCaptureSource`** behind the same interface, **including the
+- [x] **2. `WasapiCaptureSource`** behind the same interface, **including the
       silence-injection fix** (section 7).
-- [ ] **3. `AudioBroadcaster` + `OpusEncoderPool`** with a **desktop .NET test
+- [x] **3. `AudioBroadcaster` + `OpusEncoderPool`** with a **desktop .NET test
       client** that decodes and plays. Takes the phone out of the equation entirely.
       **Pass a `messageLogger` to `CreateEncoder`/`CreateDecoder` and fail loudly if
       the native library did not load** (section 5) — otherwise a missing symlink
       silently costs you 9.6 MB/s of allocation. Log allocated-bytes-per-frame here;
       it should be ~0, not ~49,420.
-- [ ] **4. `AudioCastUdpServer`** + `audio.cast.*` control events over the Link +
+- [x] **4. `AudioCastUdpServer`** + `audio.cast.*` control events over the Link +
       ephemeral stream-key auth.
-- [ ] **5. Android `AudioTrackSink`** with a deliberately **fat fixed buffer**. Get
+- [x] **5. Android `AudioTrackSink`** with a deliberately **fat fixed buffer**. Get
       sound out of the phone before optimising anything.
-- [ ] **6. `AdaptiveJitterBuffer`** replacing the fixed buffer, built on
+- [x] **6. `AdaptiveJitterBuffer`** replacing the fixed buffer, built on
       `GetTimestamp()`, with the BT-aware shrink. **This is where the latency number
       is actually won, and it is the highest-risk component.**
-- [ ] **7. Blazor config page** — pick output device, see connected listeners, toggle
+- [x] **7. Blazor config page** — pick output device, see connected listeners, toggle
       cast, warn on a slow BT codec.
+
+---
+
+## Status — what is verified and what is not
+
+Implemented on `feature/audio-cast`, 0 warnings across the solution.
+
+| step | state | how far it has been proven |
+|---|---|---|
+| 1 capture (Linux) | **verified** | 600 frames, byte-exact, p99 gap 5.38 ms, every frame in a single read |
+| 2 capture (Windows) | **compile only** | no Windows machine here; silence injection is the part most likely wrong |
+| 3 broadcast + encode | **verified** | 2 listeners on 1 capture, 81 B packets, 120 B worst datagram, 0.97 round-trip correlation |
+| 4 UDP + control + auth | **verified** | 2400 datagrams over 12 s, 0 lost, 0 malformed, p99 arrival 5.47 ms |
+| 5 Android sink | **compile only** | no device attached; buffer sizing and route mapping are the parts to distrust |
+| 6 jitter buffer | **verified in simulation** | rode out 4 synthetic traces with no starvation where a fixed 10 ms buffer took 56-87 |
+| 7 Blazor page | **verified** | renders, lists outputs, shows a live listener mid-cast |
+
+**Still open, in the order it matters:**
+
+1. **Run it to a real phone.** Steps 2 and 5 have never executed. Everything between
+   them is measured, which means the remaining unknowns are concentrated at the two ends.
+2. **Do the click test.** Every latency figure here is a component measurement. The
+   end-to-end number is still the one in
+   [How to measure](#how-to-measure--do-this-rather-than-trusting-the-ranges-above),
+   and nothing above substitutes for it.
+3. **Decide on NetEq.** The jitter buffer adapts its *initial* depth and recovers from
+   starvation, but does not add depth to a stream already playing — so it conceals the
+   same frames a fixed 30 ms buffer would. Closing that needs time-stretching. The
+   measurement to justify the decision now exists.
+4. **Install `libopus-dev` or add `Concentus.Native`.** The managed path allocates
+   11.3 MB/s while casting. It is fast enough, but a 15.65 ms mid-stream arrival gap was
+   observed at 12 s, which is what a collection in the audio path looks like.
+5. **Windows 44.1 kHz endpoints** are detected and refused rather than resampled.
+6. **The BT codec warning** needs the phone: only it can read the active codec.
 
 ---
 
