@@ -23,6 +23,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Opus for the audio cast. Pure C# port, so it needs no native binary to ship;
+         it will transparently use a system libopus when one is loadable, which is
+         worth having for the allocation it avoids rather than for speed. -->
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <!-- WASAPI loopback, the Windows half of audio capture. Referenced unconditionally
+         on purpose: it restores and compiles fine on Linux, so a Windows build produced
+         on a Linux machine still gets capture. Only the calls are Windows-only, and
+         they sit behind OperatingSystem.IsWindows() guards. -->
+    <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- grate reads these off disk at runtime, so they have to travel with the build. -->
     <Content Include="db\**\*.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
