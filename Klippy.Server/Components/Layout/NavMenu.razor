@@ -1,29 +1,5 @@
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Klippy.Server</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="devices">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Devices
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="pet">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Pet
-            </NavLink>
-        </div>
-    </nav>
-</div>
+﻿<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink Href="devices" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Devices">Devices</MudNavLink>
+    <MudNavLink Href="pet" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Pets">Pet</MudNavLink>
+</MudNavMenu>

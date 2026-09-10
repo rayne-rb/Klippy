@@ -1,5 +1,4 @@
 @page "/devices"
-@rendermode InteractiveServer
 @using Klippy.Server.Features.Link
 @implements IDisposable
 @inject PairingService Pairing
@@ -8,111 +7,120 @@
 
 <PageTitle>Devices</PageTitle>
 
-<h1>Devices</h1>
+<MudText Typo="Typo.h4" GutterBottom="true">Devices</MudText>
 
-<section class="mb-5">
-    <h2 class="h4">Waiting to pair</h2>
+<MudText Typo="Typo.h6" Class="mt-6">Waiting to pair</MudText>
 
-    @if (_pending.Count == 0)
-    {
-        <p class="text-body-secondary">
-            Nothing is asking to pair. Launch Klippy or the phone app on this network and it
-            will show up here on its own.
-        </p>
-    }
-    else
-    {
-        <p class="text-body-secondary">
-            Check the code below matches the one on the device before approving it.
-        </p>
+@if (_pending.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing is asking to pair. Launch Klippy or the phone app on this network and it
+        will show up here on its own.
+    </MudAlert>
+}
+else
+{
+    <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1 mb-2">
+        Check the code below matches the one on the device before approving it.
+    </MudText>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Device</th>
-                    <th>Platform</th>
-                    <th>Expires</th>
-                    <th class="text-end">Decision</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var request in _pending)
-                {
-                    <tr>
-                        <td><code class="fs-4 fw-bold">@request.Code</code></td>
-                        <td>
-                            <strong>@request.DeviceName</strong>
-                            <span class="badge text-bg-secondary ms-1">@request.DeviceKind</span>
-                        </td>
-                        <td class="text-body-secondary">@request.Platform</td>
-                        <td class="text-body-secondary">@Remaining(request.ExpiresAt)</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-success"
-                                    @onclick="() => ApproveAsync(request.RequestId)">Approve</button>
-                            <button class="btn btn-sm btn-outline-danger ms-1"
-                                    @onclick="() => DenyAsync(request.RequestId)">Deny</button>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-</section>
+    <MudTable Items="_pending" Dense="true" Hover="true" Elevation="0" Outlined="true"
+              Breakpoint="Breakpoint.Sm" T="PairingRequestRow">
+        <HeaderContent>
+            <MudTh>Code</MudTh>
+            <MudTh>Device</MudTh>
+            <MudTh>Platform</MudTh>
+            <MudTh>Expires</MudTh>
+            <MudTh Style="text-align: right">Decision</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Code">
+                <MudText Typo="Typo.h6"><code>@context.Code</code></MudText>
+            </MudTd>
+            <MudTd DataLabel="Device">
+                <strong>@context.DeviceName</strong>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">
+                    @context.DeviceKind
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Platform" Class="mud-text-secondary">@context.Platform</MudTd>
+            <MudTd DataLabel="Expires" Class="mud-text-secondary">@Remaining(context.ExpiresAt)</MudTd>
+            <MudTd DataLabel="Decision" Style="text-align: right">
+                <MudButton Size="Size.Small"
+                           Variant="Variant.Filled"
+                           Color="Color.Success"
+                           OnClick="() => ApproveAsync(context.RequestId)">
+                    Approve
+                </MudButton>
+                <MudButton Size="Size.Small"
+                           Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           Class="ml-1"
+                           OnClick="() => DenyAsync(context.RequestId)">
+                    Deny
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
 
-<section>
-    <h2 class="h4">Paired</h2>
+<MudText Typo="Typo.h6" Class="mt-8">Paired</MudText>
 
-    @if (_devices.Count == 0)
-    {
-        <p class="text-body-secondary">No devices paired yet.</p>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th>Device</th>
-                    <th>Platform</th>
-                    <th>Paired</th>
-                    <th>Last seen</th>
-                    <th class="text-end"></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var device in _devices)
-                {
-                    var online = Registry.IsConnected(device.DeviceId);
-                    <tr>
-                        <td>
-                            <span class="badge @(online ? "text-bg-success" : "text-bg-secondary")">
-                                @(online ? "online" : "offline")
-                            </span>
-                        </td>
-                        <td>
-                            <strong>@device.DeviceName</strong>
-                            <span class="badge text-bg-secondary ms-1">@device.DeviceKind</span>
-                        </td>
-                        <td class="text-body-secondary">@device.Platform</td>
-                        <td class="text-body-secondary">@device.PairedAt.LocalDateTime.ToString("g")</td>
-                        <td class="text-body-secondary">
-                            @(device.LastSeenAt?.LocalDateTime.ToString("g") ?? "never")
-                        </td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => RevokeAsync(device.DeviceId)">Unpair</button>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-    }
-</section>
+@if (_devices.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        No devices paired yet.
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="_devices" Dense="true" Hover="true" Elevation="0" Outlined="true"
+              Breakpoint="Breakpoint.Sm" Class="mt-2" T="PairedDeviceRow">
+        <HeaderContent>
+            <MudTh></MudTh>
+            <MudTh>Device</MudTh>
+            <MudTh>Platform</MudTh>
+            <MudTh>Paired</MudTh>
+            <MudTh>Last seen</MudTh>
+            <MudTh Style="text-align: right"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            @{
+                var online = Registry.IsConnected(context.DeviceId);
+            }
+            <MudTd DataLabel="Status">
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Variant="Variant.Filled"
+                         Color="@(online ? Color.Success : Color.Default)">
+                    @(online ? "online" : "offline")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Device">
+                <strong>@context.DeviceName</strong>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">
+                    @context.DeviceKind
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Platform" Class="mud-text-secondary">@context.Platform</MudTd>
+            <MudTd DataLabel="Paired" Class="mud-text-secondary">
+                @context.PairedAt.LocalDateTime.ToString("g")
+            </MudTd>
+            <MudTd DataLabel="Last seen" Class="mud-text-secondary">
+                @(context.LastSeenAt?.LocalDateTime.ToString("g") ?? "never")
+            </MudTd>
+            <MudTd DataLabel="" Style="text-align: right">
+                <MudButton Size="Size.Small"
+                           Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.LinkOff"
+                           OnClick="() => RevokeAsync(context.DeviceId)">
+                    Unpair
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
 
 @code {
     private IReadOnlyList<PairingRequestRow> _pending = [];

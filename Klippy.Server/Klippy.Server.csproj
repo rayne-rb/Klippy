@@ -12,6 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- UI component library. Supplies its own CSS/JS from _content/MudBlazor,
+         so the app carries no vendored stylesheet under wwwroot/lib. -->
+    <PackageReference Include="MudBlazor" Version="9.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Data access: RepoDb over Npgsql, no ORM change-tracking layer. -->
     <PackageReference Include="RepoDb.PostgreSql" Version="1.16.0" />
     <!-- Explicit even though RepoDb/grate both pull it in: NpgsqlConnectionFactory
