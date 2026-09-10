@@ -22,9 +22,9 @@ const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
 const MAX_FOOD_ITEMS := 25
 
-const HUNGRY_BOUNCE_AMPLITUDE := 14.0
-const HUNGRY_BOUNCE_SPEED := 8.0
-const HUNGRY_BOUNCES_PER_BURST := 3
+const HUNGRY_BOUNCE_AMPLITUDE := 28.0
+const HUNGRY_BOUNCE_SPEED := 10.0
+const HUNGRY_BOUNCES_PER_BURST := 5
 const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
@@ -135,6 +135,7 @@ func _ready() -> void:
 	dev_tools_dialog = DevToolsDialog.new()
 	add_child(dev_tools_dialog)
 	dev_tools_dialog.setup(stats)
+	dev_tools_dialog.bounce_triggered.connect(trigger_bounce_now)
 	dev_tools_dialog.hide()
 
 	close_confirm_dialog = ConfirmationDialog.new()
@@ -467,36 +468,42 @@ func _get_bounce_burst_interval() -> float:
 			return 0.0
 
 
+func trigger_bounce_now() -> void:
+	if state != State.IDLE or bouncing:
+		return
+	bouncing = true
+	bounce_phase = 0.0
+	bounce_cycles_done = 0
+
+
 func _process_idle_base(delta: float, window: Window) -> void:
 	if stats.is_dead:
 		return
 
+	if bouncing:
+		bounce_phase += delta * HUNGRY_BOUNCE_SPEED
+		if bounce_phase >= TAU:
+			bounce_phase -= TAU
+			bounce_cycles_done += 1
+			if bounce_cycles_done >= HUNGRY_BOUNCES_PER_BURST:
+				window.position = Vector2i(window.position.x, idle_base_y)
+				_reset_bounce()
+				return
+
+		var offset := int(round(sin(bounce_phase) * HUNGRY_BOUNCE_AMPLITUDE))
+		window.position = Vector2i(window.position.x, idle_base_y + offset)
+		return
+
 	var burst_interval := _get_bounce_burst_interval()
 	if burst_interval <= 0.0:
-		if bouncing or window.position.y != idle_base_y:
-			window.position = Vector2i(window.position.x, idle_base_y)
-			_reset_bounce()
+		bounce_timer = 0.0
 		return
 
-	if not bouncing:
-		bounce_timer += delta
-		if bounce_timer >= burst_interval:
-			bouncing = true
-			bounce_phase = 0.0
-			bounce_cycles_done = 0
-		return
-
-	bounce_phase += delta * HUNGRY_BOUNCE_SPEED
-	if bounce_phase >= TAU:
-		bounce_phase -= TAU
-		bounce_cycles_done += 1
-		if bounce_cycles_done >= HUNGRY_BOUNCES_PER_BURST:
-			window.position = Vector2i(window.position.x, idle_base_y)
-			_reset_bounce()
-			return
-
-	var offset := int(round(sin(bounce_phase) * HUNGRY_BOUNCE_AMPLITUDE))
-	window.position = Vector2i(window.position.x, idle_base_y + offset)
+	bounce_timer += delta
+	if bounce_timer >= burst_interval:
+		bouncing = true
+		bounce_phase = 0.0
+		bounce_cycles_done = 0
 
 
 func _process_dvd(delta: float, window: Window) -> void:

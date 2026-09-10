@@ -1,6 +1,8 @@
 class_name DevToolsDialog
 extends Window
 
+signal bounce_triggered
+
 const ADJUST_STEP := 10.0
 
 var stats: PetStats
@@ -8,7 +10,7 @@ var stats: PetStats
 
 func _ready() -> void:
 	title = "Dev Tools"
-	size = Vector2i(260, 190)
+	size = Vector2i(260, 230)
 	close_requested.connect(hide)
 
 
@@ -30,6 +32,11 @@ func setup(pet_stats: PetStats) -> void:
 	_add_stat_row(vbox, "Food", stats.debug_adjust_food)
 	_add_stat_row(vbox, "Mood", stats.debug_adjust_mood)
 	_add_stat_row(vbox, "Health", stats.debug_adjust_health)
+
+	var bounce_button := Button.new()
+	bounce_button.text = "Trigger Bounce"
+	bounce_button.pressed.connect(bounce_triggered.emit)
+	vbox.add_child(bounce_button)
 
 
 func _add_stat_row(parent: VBoxContainer, label_text: String, adjust: Callable) -> void:
