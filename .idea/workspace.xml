@@ -12,8 +12,8 @@
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/PetBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -549,7 +549,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789031631085</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="Add throw mood loss mechanic and refine drag spin behavior&#10;&#10;- Introduced `THROW_MOOD_LOSS` constant in `Stats.gd` to decrease mood when throwing.  &#10;- Emit `mood_changed` signal on mood updates.  &#10;- Updated `drag_spin_target` in `PetBody.gd` to align with sprite rotation for improved rotation behavior during dragging.">
+      <option name="closed" value="true" />
+      <created>1789042870596</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1789042870596</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -570,7 +578,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels." />
     <MESSAGE value="Add confirmation dialog for closing Klippy&#10;&#10;- Replaced direct close action with a confirmation dialog in the context menu.&#10;- Updated context menu item text to &quot;Close Klippy&quot; for clarity.&#10;- Implemented confirmation dialog with &quot;Close Klippy?&quot; prompt and connected it to the quit logic." />
     <MESSAGE value="Introduce `PetBody` base class and `FoodBody` feeding mechanic  &#10;&#10;- Added `PetBody` class to standardize physics interactions and dragging logic for all pet-related objects.  &#10;- Implemented `FoodBody` to handle window-based feeding mechanics, interacting with `PetStats` via collision.  &#10;- Refactored `Klippy` to inherit from `PetBody`, centralizing common physics and interaction logic.  &#10;- Adjusted `Stats.gd` to use dynamic feeding amounts instead of a fixed value." />
     <MESSAGE value="Limit feeding items to a maximum and update feed menu state dynamically&#10;&#10;- Introduced `MAX_FOOD_ITEMS` constant to cap the number of food items.&#10;- Added `active_food_items` array to track current food items.&#10;- Updated feeding logic to disable context menu option when limit is reached.&#10;- Implemented dynamic state updates for food spawning and removal using `_update_feed_menu_state`." />
@@ -595,7 +602,8 @@
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
     <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
     <MESSAGE value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
+    <MESSAGE value="Add throw mood loss mechanic and refine drag spin behavior&#10;&#10;- Introduced `THROW_MOOD_LOSS` constant in `Stats.gd` to decrease mood when throwing.  &#10;- Emit `mood_changed` signal on mood updates.  &#10;- Updated `drag_spin_target` in `PetBody.gd` to align with sprite rotation for improved rotation behavior during dragging." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add throw mood loss mechanic and refine drag spin behavior&#10;&#10;- Introduced `THROW_MOOD_LOSS` constant in `Stats.gd` to decrease mood when throwing.  &#10;- Emit `mood_changed` signal on mood updates.  &#10;- Updated `drag_spin_target` in `PetBody.gd` to align with sprite rotation for improved rotation behavior during dragging." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

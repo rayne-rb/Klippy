@@ -10,6 +10,7 @@ const FEED_ID := 3
 const STATUS_ID := 4
 const REVIVE_ID := 5
 const DEV_TOOLS_ID := 6
+const SUMMON_FOOD_ID := 7
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -50,6 +51,8 @@ var settings_window: SettingsPanel
 var status_dialog: StatusDialog
 var close_confirm_dialog: ConfirmationDialog
 var dev_tools_dialog: DevToolsDialog
+var food_bag: FoodBag
+var food_bag_dialog: FoodBagDialog
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -82,6 +85,7 @@ func _ready() -> void:
 	var stats_data: Dictionary = save_data.get("stats", {})
 	var settings_data: Dictionary = save_data.get("settings", {})
 	var meta_data: Dictionary = save_data.get("meta", {})
+	var food_bag_data: Dictionary = save_data.get("food_bag", {})
 
 	stats = PetStats.new()
 	add_child(stats)
@@ -95,6 +99,10 @@ func _ready() -> void:
 		stats.apply_offline_progress(elapsed)
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
 
+	food_bag = FoodBag.new()
+	add_child(food_bag)
+	food_bag.load_counts(food_bag_data)
+
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
 	show_health_value = settings_data.get("show_health_value", false)
@@ -105,6 +113,7 @@ func _ready() -> void:
 
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
+	context_menu.add_item("Summon Food", SUMMON_FOOD_ID)
 	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
@@ -223,6 +232,35 @@ func _on_dev_tools_closed() -> void:
 	dev_tools_dialog = null
 
 
+func _open_food_bag() -> void:
+	if food_bag_dialog == null:
+		food_bag_dialog = FoodBagDialog.new()
+		add_child(food_bag_dialog)
+		food_bag_dialog.setup(food_bag)
+		food_bag_dialog.take_requested.connect(_on_food_bag_take_requested)
+		food_bag_dialog.close_requested.connect(_on_food_bag_closed)
+	food_bag_dialog.popup_centered()
+	_set_food_bag_target(food_bag_dialog)
+
+
+func _on_food_bag_closed() -> void:
+	_set_food_bag_target(null)
+	food_bag_dialog.queue_free()
+	food_bag_dialog = null
+
+
+func _set_food_bag_target(target: Window) -> void:
+	for window in active_food_items:
+		(window.get_child(0) as FoodBody).bag_window = target
+
+
+func _on_food_bag_take_requested(food_type: String) -> void:
+	if active_food_items.size() >= MAX_FOOD_ITEMS:
+		return
+	if food_bag.retrieve(food_type):
+		_spawn_food_body(food_type)
+
+
 func _open_close_confirm() -> void:
 	if close_confirm_dialog == null:
 		close_confirm_dialog = ConfirmationDialog.new()
@@ -287,6 +325,7 @@ func _save_state() -> void:
 			"vsync_enabled": vsync_enabled,
 			"target_fps": target_fps,
 		},
+		"food_bag": food_bag.get_counts(),
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -364,12 +403,14 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
-			_spawn_food_item()
+			_open_food_bag()
 		REVIVE_ID:
 			stats.revive()
 			_update_revive_item()
 		DEV_TOOLS_ID:
 			_open_dev_tools()
+		SUMMON_FOOD_ID:
+			_summon_food()
 
 
 func _update_revive_item() -> void:
@@ -386,11 +427,16 @@ func _on_feeding_enabled_changed(_enabled: bool) -> void:
 
 
 func _update_feed_menu_state() -> void:
-	var can_feed := stats.feeding_enabled and active_food_items.size() < MAX_FOOD_ITEMS
-	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not can_feed)
+	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not stats.feeding_enabled)
+	var can_summon := stats.feeding_enabled and active_food_items.size() < MAX_FOOD_ITEMS
+	context_menu.set_item_disabled(context_menu.get_item_index(SUMMON_FOOD_ID), not can_summon)
 
 
-func _spawn_food_item() -> void:
+func _summon_food() -> void:
+	_spawn_food_body("standard")
+
+
+func _spawn_food_body(food_type: String) -> void:
 	if active_food_items.size() >= MAX_FOOD_ITEMS:
 		return
 
@@ -415,16 +461,19 @@ func _spawn_food_item() -> void:
 		body.roll_radius = FOOD_WINDOW_SIZE * 0.45
 
 		var sprite2d := Sprite2D.new()
-		sprite2d.texture = _make_food_texture()
+		sprite2d.texture = FoodBody.make_texture(food_type)
 		body.add_child(sprite2d)
 		window.add_child(body)
 
 		add_child(window)
 		body.consumed.connect(_on_food_item_consumed.bind(window))
+		body.stored.connect(_on_food_item_stored.bind(window))
 
 	body.mass = FOOD_MASS
 	body.stats = stats
 	body.klippy_window = get_window()
+	body.bag_window = food_bag_dialog if food_bag_dialog and food_bag_dialog.visible else null
+	body.food_type = food_type
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
 	body.drag_spin_target = 0.0
@@ -452,16 +501,18 @@ func _on_food_item_consumed(window: Window) -> void:
 	_update_feed_menu_state()
 
 
-func _make_food_texture() -> ImageTexture:
-	var diameter := 40
-	var image := Image.create_empty(diameter, diameter, false, Image.FORMAT_RGBA8)
-	var radius := diameter / 2.0
-	var center := Vector2(radius, radius)
-	for y in diameter:
-		for x in diameter:
-			var dist := Vector2(x + 0.5, y + 0.5).distance_to(center)
-			image.set_pixel(x, y, Color(0.85, 0.2, 0.2, 1.0) if dist <= radius else Color(0, 0, 0, 0))
-	return ImageTexture.create_from_image(image)
+func _on_food_item_stored(window: Window) -> void:
+	var body := window.get_child(0) as FoodBody
+	var food_type := body.food_type
+	body.set_physics_process(false)
+	window.hide()
+	active_food_items.erase(window)
+	if food_window_pool.size() < MAX_FOOD_ITEMS:
+		food_window_pool.append(window)
+	else:
+		window.queue_free()
+	food_bag.store(food_type)
+	_update_feed_menu_state()
 
 
 func _toggle_dvd_mode() -> void:
