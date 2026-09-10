@@ -51,17 +51,13 @@ var settings_window: SettingsPanel
 var status_dialog: StatusDialog
 var close_confirm_dialog: ConfirmationDialog
 var dev_tools_dialog: DevToolsDialog
-var food_bag: FoodBag
-var food_bag_dialog: FoodBagDialog
+var food_bag: FoodBagBody
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
 var stats: PetStats
 
 var dvd_mode := false
-
-var raw_polygon: PackedVector2Array = PackedVector2Array()
-var mask_points: PackedVector2Array = PackedVector2Array()
 
 var show_hitbox := false
 
@@ -99,10 +95,6 @@ func _ready() -> void:
 		stats.apply_offline_progress(elapsed)
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
 
-	food_bag = FoodBag.new()
-	add_child(food_bag)
-	food_bag.load_counts(food_bag_data)
-
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
 	show_health_value = settings_data.get("show_health_value", false)
@@ -124,6 +116,11 @@ func _ready() -> void:
 	stats.died.connect(_update_revive_item)
 	_update_revive_item()
 	_update_dev_tools_item()
+
+	_create_food_bag()
+	var stored_standard: int = int(food_bag_data.get("standard", 0))
+	for i in stored_standard:
+		_spawn_contained_food("standard", Vector2i(10 + 8 * i, 10 + 8 * i))
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
@@ -232,33 +229,49 @@ func _on_dev_tools_closed() -> void:
 	dev_tools_dialog = null
 
 
-func _open_food_bag() -> void:
-	if food_bag_dialog == null:
-		food_bag_dialog = FoodBagDialog.new()
-		add_child(food_bag_dialog)
-		food_bag_dialog.setup(food_bag)
-		food_bag_dialog.take_requested.connect(_on_food_bag_take_requested)
-		food_bag_dialog.close_requested.connect(_on_food_bag_closed)
-	food_bag_dialog.popup_centered()
-	_set_food_bag_target(food_bag_dialog)
+func _create_food_bag() -> void:
+	var window := Window.new()
+	window.borderless = true
+	window.transparent = true
+	window.always_on_top = true
+	window.unfocusable = false
+	var window_size := Vector2i(FoodBagBody.BAG_WINDOW_SIZE, FoodBagBody.BAG_WINDOW_SIZE)
+	window.size = window_size
+	window.content_scale_size = window_size
+
+	var body := FoodBagBody.new()
+	body.position = Vector2(window_size) / 2.0
+	body.roll_radius = FoodBagBody.BAG_WINDOW_SIZE * 0.45
+
+	var sprite2d := Sprite2D.new()
+	sprite2d.texture = FoodBagBody.make_texture()
+	body.add_child(sprite2d)
+	window.add_child(body)
+
+	add_child(window)
+
+	var klippy_window := get_window()
+	window.position = klippy_window.position + Vector2i(-window_size.x - 10, 0)
+	window.visible = false
+
+	body.grabbed.connect(_raise_contained_food)
+	food_bag = body
 
 
-func _on_food_bag_closed() -> void:
-	_set_food_bag_target(null)
-	food_bag_dialog.queue_free()
-	food_bag_dialog = null
+func _toggle_food_bag() -> void:
+	var window := food_bag.get_window()
+	if window.visible:
+		window.hide()
+	else:
+		window.show()
+		_raise_contained_food()
 
 
-func _set_food_bag_target(target: Window) -> void:
+func _raise_contained_food() -> void:
 	for window in active_food_items:
-		(window.get_child(0) as FoodBody).bag_window = target
-
-
-func _on_food_bag_take_requested(food_type: String) -> void:
-	if active_food_items.size() >= MAX_FOOD_ITEMS:
-		return
-	if food_bag.retrieve(food_type):
-		_spawn_food_body(food_type)
+		var body := window.get_child(0) as FoodBody
+		if body.contained_in == food_bag:
+			window.move_to_front()
 
 
 func _open_close_confirm() -> void:
@@ -308,6 +321,12 @@ func _on_size_selected(new_size: int) -> void:
 
 
 func _save_state() -> void:
+	var contained_standard := 0
+	for window in active_food_items:
+		var body := window.get_child(0) as FoodBody
+		if body.contained_in == food_bag and body.food_type == "standard":
+			contained_standard += 1
+
 	SaveData.save_data({
 		"klippy": {"size": current_size},
 		"stats": {
@@ -325,7 +344,7 @@ func _save_state() -> void:
 			"vsync_enabled": vsync_enabled,
 			"target_fps": target_fps,
 		},
-		"food_bag": food_bag.get_counts(),
+		"food_bag": {"standard": contained_standard},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -343,55 +362,6 @@ func _maybe_complain() -> void:
 		complaint_cooldown_timer.start()
 
 
-func _build_click_through_mask() -> void:
-	var texture := sprite.texture
-	if texture == null:
-		return
-
-	var image := texture.get_image()
-	var bitmap := BitMap.new()
-	bitmap.create_from_image_alpha(image, 0.1)
-
-	var polygons := bitmap.opaque_to_polygons(Rect2i(Vector2i.ZERO, image.get_size()), 2.0)
-	if polygons.is_empty():
-		return
-
-	var largest: PackedVector2Array = polygons[0]
-	for polygon in polygons:
-		if polygon.size() > largest.size():
-			largest = polygon
-
-	raw_polygon = largest
-	_rebuild_mask_points()
-	_update_passthrough_mask(0.0)
-
-
-func _rebuild_mask_points() -> void:
-	if raw_polygon.is_empty():
-		return
-
-	var center := Vector2(get_window().size) / 2.0
-	mask_points.resize(raw_polygon.size())
-	for i in raw_polygon.size():
-		mask_points[i] = raw_polygon[i] * sprite.scale - center
-
-
-func _rotated_mask_points(angle: float) -> PackedVector2Array:
-	var center := Vector2(get_window().size) / 2.0
-	var region := PackedVector2Array()
-	region.resize(mask_points.size())
-	for i in mask_points.size():
-		region[i] = mask_points[i].rotated(angle) + center
-	return region
-
-
-func _update_passthrough_mask(angle: float) -> void:
-	if mask_points.is_empty():
-		return
-
-	DisplayServer.window_set_mouse_passthrough(_rotated_mask_points(angle), 0)
-
-
 func _on_context_menu_id_pressed(id: int) -> void:
 	match id:
 		CLOSE_ID:
@@ -403,7 +373,7 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
-			_open_food_bag()
+			_toggle_food_bag()
 		REVIVE_ID:
 			stats.revive()
 			_update_revive_item()
@@ -467,12 +437,12 @@ func _spawn_food_body(food_type: String) -> void:
 
 		add_child(window)
 		body.consumed.connect(_on_food_item_consumed.bind(window))
-		body.stored.connect(_on_food_item_stored.bind(window))
 
 	body.mass = FOOD_MASS
 	body.stats = stats
 	body.klippy_window = get_window()
-	body.bag_window = food_bag_dialog if food_bag_dialog and food_bag_dialog.visible else null
+	body.bag = food_bag
+	body.contained_in = null
 	body.food_type = food_type
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
@@ -501,18 +471,24 @@ func _on_food_item_consumed(window: Window) -> void:
 	_update_feed_menu_state()
 
 
-func _on_food_item_stored(window: Window) -> void:
+func _spawn_contained_food(food_type: String, offset: Vector2i) -> void:
+	_spawn_food_body(food_type)
+	if active_food_items.is_empty():
+		return
+
+	var window: Window = active_food_items.back()
 	var body := window.get_child(0) as FoodBody
-	var food_type := body.food_type
-	body.set_physics_process(false)
-	window.hide()
-	active_food_items.erase(window)
-	if food_window_pool.size() < MAX_FOOD_ITEMS:
-		food_window_pool.append(window)
-	else:
-		window.queue_free()
-	food_bag.store(food_type)
-	_update_feed_menu_state()
+	var bag_window := food_bag.get_window()
+	var max_offset := bag_window.size - window.size
+	var clamped_offset := Vector2i(
+		clampi(offset.x, 0, max(max_offset.x, 0)),
+		clampi(offset.y, 0, max(max_offset.y, 0))
+	)
+
+	body.contained_in = food_bag
+	body.contained_offset = clamped_offset
+	window.position = bag_window.position + clamped_offset
+	window.visible = bag_window.visible
 
 
 func _toggle_dvd_mode() -> void:

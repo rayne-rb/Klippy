@@ -2,38 +2,66 @@ class_name FoodBody
 extends PetBody
 
 signal consumed
-signal stored
 
 const FEED_AMOUNT := 5.0
 
 var stats: PetStats
 var klippy_window: Window
-var bag_window: Window
+var bag: FoodBagBody
+var contained_in: FoodBagBody
+var contained_offset: Vector2i = Vector2i.ZERO
 var food_type: String = "standard"
 
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
-	if _check_storing():
+
+	if state == State.DRAGGING:
+		contained_in = null
 		return
+
+	if contained_in:
+		_follow_container()
+		return
+
+	_check_bag_containment()
 	_check_feeding()
 
 
-func _check_storing() -> bool:
-	if bag_window == null or not bag_window.visible or state == State.DRAGGING:
-		return false
+func _follow_container() -> void:
+	var bag_window := contained_in.get_window()
+	var food_window := get_window()
+	food_window.visible = bag_window.visible
+	if bag_window.visible:
+		food_window.position = bag_window.position + contained_offset
+	velocity = Vector2.ZERO
+	angular_velocity = 0.0
 
+
+func _check_bag_containment() -> void:
+	if bag == null or not bag.get_window().visible:
+		return
+
+	var bag_window := bag.get_window()
 	var bag_rect := Rect2i(bag_window.position, bag_window.size)
-	var food_rect := Rect2i(get_window().position, get_window().size)
+	var food_window := get_window()
+	var food_rect := Rect2i(food_window.position, food_window.size)
 
-	if bag_rect.intersects(food_rect):
-		stored.emit()
-		return true
-	return false
+	if not bag_rect.intersects(food_rect):
+		return
+
+	var offset := food_window.position - bag_window.position
+	var max_offset := bag_window.size - food_window.size
+	contained_offset = Vector2i(
+		clampi(offset.x, 0, max(max_offset.x, 0)),
+		clampi(offset.y, 0, max(max_offset.y, 0))
+	)
+	contained_in = bag
+	food_window.move_to_front()
 
 
 func _check_feeding() -> void:
-	if klippy_window == null or stats == null or state == State.DRAGGING:
+	if klippy_window == null or stats == null:
 		return
 
 	var klippy_rect := Rect2i(klippy_window.position, klippy_window.size)

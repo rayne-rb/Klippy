@@ -22,9 +22,61 @@ var drag_spin_target := 0.0
 var mass := 1.0
 var roll_radius := 90.0
 
+var raw_polygon: PackedVector2Array = PackedVector2Array()
+var mask_points: PackedVector2Array = PackedVector2Array()
+
 
 func _ready() -> void:
 	sprite = $Sprite2D
+
+
+func _build_click_through_mask() -> void:
+	var texture := sprite.texture
+	if texture == null:
+		return
+
+	var image := texture.get_image()
+	var bitmap := BitMap.new()
+	bitmap.create_from_image_alpha(image, 0.1)
+
+	var polygons := bitmap.opaque_to_polygons(Rect2i(Vector2i.ZERO, image.get_size()), 2.0)
+	if polygons.is_empty():
+		return
+
+	var largest: PackedVector2Array = polygons[0]
+	for polygon in polygons:
+		if polygon.size() > largest.size():
+			largest = polygon
+
+	raw_polygon = largest
+	_rebuild_mask_points()
+	_update_passthrough_mask(0.0)
+
+
+func _rebuild_mask_points() -> void:
+	if raw_polygon.is_empty():
+		return
+
+	var center := Vector2(get_window().size) / 2.0
+	mask_points.resize(raw_polygon.size())
+	for i in raw_polygon.size():
+		mask_points[i] = raw_polygon[i] * sprite.scale - center
+
+
+func _rotated_mask_points(angle: float) -> PackedVector2Array:
+	var center := Vector2(get_window().size) / 2.0
+	var region := PackedVector2Array()
+	region.resize(mask_points.size())
+	for i in mask_points.size():
+		region[i] = mask_points[i].rotated(angle) + center
+	return region
+
+
+func _update_passthrough_mask(angle: float) -> void:
+	if mask_points.is_empty():
+		return
+
+	DisplayServer.window_set_mouse_passthrough(_rotated_mask_points(angle), get_window().get_window_id())
 
 
 func _set_state(new_state: State) -> void:
@@ -70,8 +122,8 @@ func _on_drag_ended() -> void:
 	pass
 
 
-func _on_rotation_changed(_angle: float) -> void:
-	pass
+func _on_rotation_changed(angle: float) -> void:
+	_update_passthrough_mask(angle)
 
 
 func _on_energetic_bounce(_impact_speed: float) -> void:
