@@ -9,7 +9,6 @@ var stats: PetStats
 var klippy_window: Window
 var bag: FoodBagBody
 var contained_in: FoodBagBody
-var contained_offset: Vector2i = Vector2i.ZERO
 var food_type: String = "standard"
 
 
@@ -20,45 +19,38 @@ func _physics_process(delta: float) -> void:
 		contained_in = null
 		return
 
-	if contained_in:
-		_follow_container()
-		return
-
-	_check_bag_containment()
+	_check_bag()
 	_check_feeding()
 
 
-func _follow_container() -> void:
-	var bag_window := contained_in.get_window()
-	var food_window := get_window()
-	food_window.visible = bag_window.visible
-	if bag_window.visible:
-		food_window.position = bag_window.position + contained_offset
-	velocity = Vector2.ZERO
-	angular_velocity = 0.0
-
-
-func _check_bag_containment() -> void:
-	if bag == null or not bag.get_window().visible:
+## "Stored" is a live membership test against the bag's background art, not a
+## sticky flag: a food item only counts while it is actually sitting over the
+## background this frame, so one that has rolled back out is no longer saved
+## with the bag. The bag's walls are a real physical obstacle here (see
+## [method FoodBagBody.resolve_food_wall_collision]) rather than a place that
+## pins food in position, so a stored item keeps rolling/settling like any
+## other food — it's just confined to the bag's interior.
+func _check_bag() -> void:
+	contained_in = null
+	if bag == null:
 		return
 
 	var bag_window := bag.get_window()
-	var bag_rect := Rect2i(bag_window.position, bag_window.size)
 	var food_window := get_window()
-	var food_rect := Rect2i(food_window.position, food_window.size)
+	var local_center := Vector2(food_window.position - bag_window.position) + Vector2(food_window.size) / 2.0
+	var over_bag := Rect2(Vector2.ZERO, Vector2(bag_window.size)).has_point(local_center)
 
-	if not bag_rect.intersects(food_rect):
+	# A closed bag tucks away whatever is inside it; food sitting elsewhere on
+	# the desktop shouldn't vanish just because the bag elsewhere got closed.
+	food_window.visible = bag_window.visible or not over_bag
+	if not bag_window.visible:
 		return
 
-	var offset := food_window.position - bag_window.position
-	var margin := FoodBagBody.WINDOW_MARGIN
-	var max_offset := bag_window.size - Vector2i.ONE * margin - food_window.size
-	contained_offset = Vector2i(
-		clampi(offset.x, margin, max(max_offset.x, margin)),
-		clampi(offset.y, margin, max(max_offset.y, margin))
-	)
-	contained_in = bag
-	food_window.move_to_front()
+	bag.resolve_food_wall_collision(self)
+
+	if bag.contains_point(local_center):
+		contained_in = bag
+		food_window.move_to_foreground()
 
 
 func _check_feeding() -> void:

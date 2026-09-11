@@ -206,6 +206,18 @@ func _run_state_physics(delta: float, window: Window) -> void:
 
 
 func _process_dragging(delta: float, window: Window) -> void:
+	# _input() only ends the drag if THIS window's own click-through mask lets
+	# the release event reach it — miss that (easy with a thin/irregular mask,
+	# or another window overlapping at the release point) and the object would
+	# otherwise stay glued to the cursor forever, since everything above reads
+	# the live mouse position rather than waiting on another event. Checking
+	# the actual button state directly is routing-independent, so it can't
+	# be missed the same way.
+	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		_set_state(State.THROWN)
+		_on_drag_ended()
+		return
+
 	var target_pos := Vector2(DisplayServer.mouse_get_position() - drag_offset)
 	var old_pos := Vector2(window.position)
 	var follow_t := 1.0

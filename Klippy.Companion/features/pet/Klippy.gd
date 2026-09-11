@@ -137,9 +137,10 @@ func _ready() -> void:
 
 	_create_food_bag()
 	var stored_standard: int = int(food_bag_data.get("standard", 0))
+	var bag_center := Vector2i(food_bag.get_window().size) / 2
 	for i in stored_standard:
-		var stack_offset := FoodBagBody.WINDOW_MARGIN + 10 + 8 * i
-		_spawn_contained_food("standard", Vector2i(stack_offset, stack_offset))
+		var stagger := Vector2i(8 * i, 8 * i) - Vector2i.ONE * (4 * stored_standard)
+		_spawn_contained_food("standard", bag_center + stagger)
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
@@ -254,19 +255,17 @@ func _create_food_bag() -> void:
 	window.transparent = true
 	window.always_on_top = true
 	window.unfocusable = false
-	var bag_size := FoodBagBody.BAG_WINDOW_SIZE + FoodBagBody.WINDOW_MARGIN * 2
-	var window_size := Vector2i(bag_size, bag_size)
+
+	var art_scale := FoodBagBody.TARGET_HEIGHT / FoodBagBody.BACK_TEXTURE.get_size().y
+	var visual_size := Vector2(FoodBagBody.BACK_TEXTURE.get_size()) * art_scale
+	var window_size := Vector2i(visual_size) + Vector2i.ONE * (FoodBagBody.WINDOW_MARGIN * 2)
 	window.size = window_size
 	window.content_scale_size = window_size
 
 	var body := FoodBagBody.new()
 	body.position = Vector2(window_size) / 2.0
-	body.roll_radius = FoodBagBody.BAG_WINDOW_SIZE * 0.45
+	body.roll_radius = minf(visual_size.x, visual_size.y) * 0.45
 	body.klippy = self
-
-	var sprite2d := Sprite2D.new()
-	sprite2d.texture = FoodBagBody.make_texture()
-	body.add_child(sprite2d)
 	window.add_child(body)
 
 	add_child(window)
@@ -292,7 +291,7 @@ func _raise_contained_food() -> void:
 	for window in active_food_items:
 		var body := window.get_child(0) as FoodBody
 		if body.contained_in == food_bag:
-			window.move_to_front()
+			window.move_to_foreground()
 
 
 ## Says something out loud. Handed to RemoteControl so the phone can put words in
@@ -520,25 +519,18 @@ func _on_food_item_consumed(window: Window) -> void:
 	_update_feed_menu_state()
 
 
-func _spawn_contained_food(food_type: String, offset: Vector2i) -> void:
+## Drops a food item at [param local_position] (relative to the bag window's
+## top-left) and lets physics take it from there — whether it actually lands
+## in the "stored" zone is discovered on the next physics tick, same as if a
+## player had dropped it there by hand (see [method FoodBody._check_bag]).
+func _spawn_contained_food(food_type: String, local_position: Vector2i) -> void:
 	_spawn_food_body(food_type)
 	if active_food_items.is_empty():
 		return
 
 	var window: Window = active_food_items.back()
-	var body := window.get_child(0) as FoodBody
 	var bag_window := food_bag.get_window()
-	var margin := FoodBagBody.WINDOW_MARGIN
-	var max_offset := bag_window.size - Vector2i.ONE * margin - window.size
-	var clamped_offset := Vector2i(
-		clampi(offset.x, margin, max(max_offset.x, margin)),
-		clampi(offset.y, margin, max(max_offset.y, margin))
-	)
-
-	body.contained_in = food_bag
-	body.contained_offset = clamped_offset
-	window.position = bag_window.position + clamped_offset
-	window.visible = bag_window.visible
+	window.position = bag_window.position + local_position
 
 
 func _toggle_dvd_mode() -> void:
