@@ -1,0 +1,47 @@
+@page "/"
+@using Klippy.Server.Common
+@using Klippy.Server.Features.Link
+@implements IDisposable
+@inject ServerIdentity Identity
+@inject LinkRegistry Registry
+
+<PageTitle>Klippy</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">@Identity.Name</MudText>
+
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+    This server holds Klippy together: it stores the data, runs the skills, and relays
+    events between the desktop companion and the phone.
+</MudText>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" sm="6">
+        <MudPaper Class="pa-4 d-flex flex-column" Style="height: 100%" Outlined="true">
+            <MudText Typo="Typo.overline" Class="mud-text-secondary">Reachable at</MudText>
+            <MudText Typo="Typo.h6" Class="mt-1" Style="word-break: break-all;">
+                <code>@Identity.BaseUrl</code>
+            </MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary mt-auto pt-2">
+                Devices on this network find that address by themselves. There is nothing to type in.
+            </MudText>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" sm="6">
+        <MudPaper Class="pa-4 d-flex flex-column" Style="height: 100%" Outlined="true">
+            <MudText Typo="Typo.overline" Class="mud-text-secondary">Connected</MudText>
+            <MudText Typo="Typo.h3" Class="mt-1">@Registry.Connections.Count</MudText>
+            <div class="mt-auto pt-2">
+                <MudLink Href="devices" Typo="Typo.caption">Manage devices</MudLink>
+            </div>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    protected override void OnInitialized() => Registry.ConnectionsChanged += OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Registry.ConnectionsChanged -= OnChanged;
+}

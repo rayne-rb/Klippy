@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Klippy.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+
+    <!-- Every test in the solution lives here. Two ways in, one assembly:
+         `dotnet test` runs the automated tests, and `dotnet run` on this project runs
+         the AudioCast bench probe by hand. The probe needs a real entry point, so
+         the test SDK's generated one is turned off and Program.cs supplies it; the
+         VSTest host loads the assembly and never calls Main, so the two do not collide. -->
+    <OutputType>Exe</OutputType>
+    <GenerateProgramFile>false</GenerateProgramFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Klippy.Shared\Klippy.Shared.csproj" />
+    <!-- The code under test is the shipping code: the probe drives the server's real
+         AudioCast capture sources, and a harness with its own copy would prove nothing. -->
+    <ProjectReference Include="..\Klippy.Server\Klippy.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Needed to consume a Microsoft.NET.Sdk.Web project from a plain console app. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

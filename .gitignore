@@ -1,8 +1,18 @@
-# Godot 4+ specific ignores
+# Godot 4+ specific ignores (any project folder)
 .godot/
-/android/
+android/
 
 # Godot exports
 Release/
 Debug/
 export_presets.cfg
+
+# Rider / MSBuild artifacts
+bin/
+obj/
+*.user
+
+# Claude Code: personal overrides and its scratch worktrees under .claude/worktrees.
+# Deliberately the whole directory. If a shared settings.json or skills are ever worth
+# committing, un-ignore just those: !.claude/settings.json
+.claude/

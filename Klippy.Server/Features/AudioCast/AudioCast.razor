@@ -1,0 +1,256 @@
+@page "/audio"
+@using Klippy.Shared.Audio
+@implements IDisposable
+@inject IAudioSourceCatalog Catalog
+@inject AudioCastSessions Sessions
+@inject AudioCastPreferences Preferences
+@inject AudioBroadcaster Broadcaster
+@inject OpusEncoderPool Encoders
+@inject AudioCastUdpServer Udp
+
+<PageTitle>Audio</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Audio</MudText>
+
+<MudText Typo="Typo.body2" Class="mud-text-secondary">
+    Streams this machine's system audio — every application plus system sounds — to a
+    paired phone over UDP, at @AudioCastFormat.FrameMilliseconds ms per frame.
+</MudText>
+
+<MudText Typo="Typo.h6" Class="mt-8">Codec</MudText>
+
+@{
+    var codec = Encoders.Diagnostics;
+    var native = codec.NativeLibraryLoaded;
+}
+
+<div class="d-flex align-center flex-wrap gap-2 mt-2">
+    <MudChip T="string"
+             Size="Size.Small"
+             Variant="Variant.Filled"
+             Color="@(native ? Color.Success : Color.Warning)">
+        @(native ? "native libopus" : "managed port")
+    </MudChip>
+    <MudText Typo="Typo.caption" Class="mud-text-secondary">@codec.Version</MudText>
+</div>
+
+@if (!native)
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Class="mt-3">
+        <MudText Typo="Typo.body2">
+            Opus fell back to the pure-C# port, which allocates
+            <strong>@codec.AllocatedBytesPerSecond.ToString("N0") bytes a second</strong>
+            while casting. It is fast enough — encoding costs about 1% of a frame — but
+            that much steady allocation is what eventually costs a listener a dropout to a
+            garbage collection.
+        </MudText>
+        <MudText Typo="Typo.caption" Class="mt-1">
+            Install <code>libopus-dev</code> for the unversioned <code>libopus.so</code>
+            symlink that Concentus probes for, or add the <code>Concentus.Native</code>
+            package. Nothing announces this fallback on its own, which is why it is
+            checked at startup.
+        </MudText>
+    </MudAlert>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Output to capture</MudText>
+
+@if (_devices is null)
+{
+    <MudProgressLinear Indeterminate="true" Class="mt-3" />
+}
+else if (_devices.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing capturable was found. On Linux that usually means PulseAudio or PipeWire
+        is not running.
+    </MudAlert>
+}
+else
+{
+    <MudList T="string" Class="mt-2">
+        <MudListItem T="string"
+                     Icon="@Icons.Material.Filled.SettingsSuggest"
+                     OnClick="@(() => Choose(null))">
+            <MudText Typo="Typo.body1">
+                Platform default
+                @if (Preferences.PreferredOutputDeviceId is null)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="ml-2">chosen</MudChip>
+                }
+            </MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                Follow whatever this machine calls its default output
+            </MudText>
+        </MudListItem>
+
+        @foreach (var device in _devices)
+        {
+            <MudListItem T="string"
+                         Icon="@Icons.Material.Filled.Speaker"
+                         OnClick="@(() => Choose(device.Id))">
+                <MudText Typo="Typo.body1">
+                    @device.Name
+                    @if (device.IsDefault)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Default" Class="ml-2">default</MudChip>
+                    }
+                    @if (Preferences.PreferredOutputDeviceId == device.Id)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Primary" Class="ml-2">chosen</MudChip>
+                    }
+                </MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="font-family: monospace;">
+                    @device.Id
+                </MudText>
+            </MudListItem>
+        }
+    </MudList>
+
+    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+        Used when a phone does not ask for a particular output. Held in memory, so it
+        resets when the server restarts.
+    </MudText>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Listeners</MudText>
+
+@if (_state.Listeners.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nobody is listening. A cast is started from the phone — the server has nowhere to
+        send audio until something asks for it — so there is no button here.
+    </MudAlert>
+}
+else
+{
+    <MudSimpleTable Dense="true" Hover="true" Class="mt-2">
+        <thead>
+        <tr>
+            <th>Device</th>
+            <th>Channels</th>
+            <th>State</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var listener in _state.Listeners)
+        {
+            <tr>
+                <td>@listener.DeviceName</td>
+                <td>@(listener.Channels == 1 ? "mono" : "stereo")</td>
+                <td>
+                    <MudChip T="string"
+                             Size="Size.Small"
+                             Variant="Variant.Filled"
+                             Color="@(listener.IsReceiving ? Color.Success : Color.Default)">
+                        @(listener.IsReceiving ? "receiving" : "offered")
+                    </MudChip>
+                </td>
+                <td class="text-right">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Error"
+                               Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.Stop"
+                               OnClick="@(() => StopAsync(listener.DeviceId))">
+                        Stop
+                    </MudButton>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </MudSimpleTable>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Captures</MudText>
+
+@{
+    var active = Broadcaster.Active;
+}
+
+@if (active.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing is being captured.
+    </MudAlert>
+}
+else
+{
+    <MudList T="string" Dense="true" Class="mt-2">
+        @foreach (var capture in active)
+        {
+            <MudListItem T="string" Icon="@Icons.Material.Filled.GraphicEq">
+                <MudText Typo="Typo.body2">
+                    <strong>@capture.SourceName</strong>
+                    — @(capture.Channels == 1 ? "mono" : "stereo"),
+                    @capture.Listeners listener@(capture.Listeners == 1 ? "" : "s")
+                </MudText>
+            </MudListItem>
+        }
+    </MudList>
+
+    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+        One capture is shared by every listener on the same output, so two phones mean one
+        <code>parec</code> and one encoder rather than two of each.
+    </MudText>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Transport</MudText>
+
+<MudText Typo="Typo.body2" Class="mud-text-secondary">
+    Media is on UDP port <strong>@(Udp.Port == 0 ? "(not bound yet)" : Udp.Port.ToString())</strong>.
+    Control travels the Link; only the bytes come this way, because a retransmit would
+    stall the stream to deliver audio that is already too late to play.
+</MudText>
+
+<MudText Typo="Typo.caption" Class="mud-text-secondary">
+    A slow Bluetooth codec costs more latency than everything in this pipeline combined —
+    200-300 ms for LDAC against 20-40 ms for LC3 — but only the phone can read which codec
+    is active, so that warning has to be shown there rather than here.
+</MudText>
+
+@code {
+    private IReadOnlyList<AudioOutputDevice>? _devices;
+    private AudioCastStatePayload _state = Empty;
+
+    private static readonly AudioCastStatePayload Empty = new()
+    {
+        IsCasting = false,
+        Listeners = [],
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sessions.Changed += OnChanged;
+        Preferences.Changed += OnChanged;
+
+        _state = Sessions.Snapshot();
+        _devices = await Catalog.ListAsync(CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Raised from a UDP receive loop or a sweep timer, so it has to hop back onto the
+    /// renderer's context before touching component state.
+    /// </summary>
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        _state = Sessions.Snapshot();
+        StateHasChanged();
+    });
+
+    private void Choose(string? deviceId) => Preferences.SetPreferredOutput(deviceId);
+
+    private async Task StopAsync(string deviceId)
+    {
+        if (Guid.TryParse(deviceId, out var parsed))
+        {
+            await Sessions.StopAsync(parsed);
+        }
+    }
+
+    public void Dispose()
+    {
+        Sessions.Changed -= OnChanged;
+        Preferences.Changed -= OnChanged;
+    }
+}

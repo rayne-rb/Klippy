@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Klippy.Shared\Klippy.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- UI component library. Supplies its own CSS/JS from _content/MudBlazor,
+         so the app carries no vendored stylesheet under wwwroot/lib. -->
+    <PackageReference Include="MudBlazor" Version="9.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Data access: RepoDb over Npgsql, no ORM change-tracking layer. -->
+    <PackageReference Include="RepoDb.PostgreSql" Version="1.16.0" />
+    <!-- Explicit even though RepoDb/grate both pull it in: NpgsqlConnectionFactory
+         uses NpgsqlDataSource directly, so the version should not move with theirs. -->
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+    <!-- Schema migrations, run in-process at startup. -->
+    <PackageReference Include="grate.core" Version="2.1.6" />
+    <PackageReference Include="grate.postgresql" Version="2.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Opus for the audio cast. Pure C# port, so it needs no native binary to ship;
+         it will transparently use a system libopus when one is loadable, which is
+         worth having for the allocation it avoids rather than for speed. -->
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <!-- WASAPI loopback, the Windows half of audio capture. Referenced unconditionally
+         on purpose: it restores and compiles fine on Linux, so a Windows build produced
+         on a Linux machine still gets capture. Only the calls are Windows-only, and
+         they sit behind OperatingSystem.IsWindows() guards. -->
+    <PackageReference Include="NAudio.Wasapi" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- grate reads these off disk at runtime, so they have to travel with the build. -->
+    <Content Include="db\**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

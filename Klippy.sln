@@ -1,0 +1,150 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E0B1B101-BE2E-4787-8513-506B64344C9C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Klippy.Companion", "Klippy.Companion", "{A00FE578-4C1E-42ED-8EF1-FCC2BF257129}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\README.md = Klippy.Companion\README.md
+		Klippy.Companion\project.godot = Klippy.Companion\project.godot
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "Klippy.Companion\assets", "{1966912C-227D-4B72-A709-132BA58CF927}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\Klippy.png = Klippy.Companion\assets\Klippy.png
+		Klippy.Companion\assets\Klippy.png.import = Klippy.Companion\assets\Klippy.png.import
+		Klippy.Companion\assets\icon.svg = Klippy.Companion\assets\icon.svg
+		Klippy.Companion\assets\icon.svg.import = Klippy.Companion\assets\icon.svg.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "features", "Klippy.Companion\features", "{76D0D1E2-AD1B-4831-BCA8-08A19555FF15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devtools", "Klippy.Companion\features\devtools", "{B7496E33-34B9-45C4-B24E-64D5BAFAD5F0}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\devtools\DevToolsDialog.gd = Klippy.Companion\features\devtools\DevToolsDialog.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dialogue", "Klippy.Companion\features\dialogue", "{AB6B5681-43A5-4171-84DC-1372302DC6F0}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\dialogue\Dialogue.gd = Klippy.Companion\features\dialogue\Dialogue.gd
+		Klippy.Companion\features\dialogue\SpeechBubble.gd = Klippy.Companion\features\dialogue\SpeechBubble.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "discovery", "Klippy.Companion\features\discovery", "{193B533A-686B-4877-B7EB-809692DB8AF3}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\discovery\ServerDiscovery.gd = Klippy.Companion\features\discovery\ServerDiscovery.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "food", "Klippy.Companion\features\food", "{275CB29F-2B7E-4370-A45B-B06367076F0C}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\food\FoodBody.gd = Klippy.Companion\features\food\FoodBody.gd
+		Klippy.Companion\features\food\FoodSpawner.gd = Klippy.Companion\features\food\FoodSpawner.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "link", "Klippy.Companion\features\link", "{B0D5A9BD-D8C1-4706-98BB-62A0889BFAAF}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\link\KlippyLink.gd = Klippy.Companion\features\link\KlippyLink.gd
+		Klippy.Companion\features\link\LinkEvents.gd = Klippy.Companion\features\link\LinkEvents.gd
+		Klippy.Companion\features\link\LinkSettings.gd = Klippy.Companion\features\link\LinkSettings.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pairing", "Klippy.Companion\features\pairing", "{44E8F356-C5FE-4029-BCB6-7A7AE5064C7D}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\pairing\PairingClient.gd = Klippy.Companion\features\pairing\PairingClient.gd
+		Klippy.Companion\features\pairing\PairingDialog.gd = Klippy.Companion\features\pairing\PairingDialog.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pet", "Klippy.Companion\features\pet", "{569EE766-4C48-4663-A5DC-EA4DEF018EE1}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\pet\Klippy.gd = Klippy.Companion\features\pet\Klippy.gd
+		Klippy.Companion\features\pet\Klippy.tscn = Klippy.Companion\features\pet\Klippy.tscn
+		Klippy.Companion\features\pet\PetBody.gd = Klippy.Companion\features\pet\PetBody.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "remote", "Klippy.Companion\features\remote", "{AC6DC107-CB27-4E40-9DA7-69C1CF876918}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\remote\RemoteControl.gd = Klippy.Companion\features\remote\RemoteControl.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "settings", "Klippy.Companion\features\settings", "{C10FFF09-6167-4D2C-8A4B-805B7F1C5D9F}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\settings\SettingsPanel.gd = Klippy.Companion\features\settings\SettingsPanel.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stats", "Klippy.Companion\features\stats", "{831769FD-3F18-45E1-A856-53A306A507E6}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\stats\Stats.gd = Klippy.Companion\features\stats\Stats.gd
+		Klippy.Companion\features\stats\StatusDialog.gd = Klippy.Companion\features\stats\StatusDialog.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "Klippy.Companion\shared", "{649B1A7B-8D95-46C5-BDB9-F0362BF9A914}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\shared\SaveData.gd = Klippy.Companion\shared\SaveData.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "Klippy.Companion\tools", "{50F72840-8ADF-4951-B593-33DF30284D7B}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\tools\check.sh = Klippy.Companion\tools\check.sh
+		Klippy.Companion\tools\validate.gd = Klippy.Companion\tools\validate.gd
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klippy.Mobile", "Klippy.Mobile\Klippy.Mobile.csproj", "{DD4FCE95-9042-4F6A-9688-BC3649E60B56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klippy.Server", "Klippy.Server\Klippy.Server.csproj", "{0AB322FE-DCDC-4AC0-8D06-4E1D753558B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klippy.Shared", "Klippy.Shared\Klippy.Shared.csproj", "{15D4A90E-1C77-473F-8D5C-9428A361A7C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klippy.Tests", "Klippy.Tests\Klippy.Tests.csproj", "{34A80D23-EFCF-4680-8579-3E000200C78D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD4FCE95-9042-4F6A-9688-BC3649E60B56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD4FCE95-9042-4F6A-9688-BC3649E60B56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD4FCE95-9042-4F6A-9688-BC3649E60B56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD4FCE95-9042-4F6A-9688-BC3649E60B56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AB322FE-DCDC-4AC0-8D06-4E1D753558B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AB322FE-DCDC-4AC0-8D06-4E1D753558B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AB322FE-DCDC-4AC0-8D06-4E1D753558B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AB322FE-DCDC-4AC0-8D06-4E1D753558B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15D4A90E-1C77-473F-8D5C-9428A361A7C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15D4A90E-1C77-473F-8D5C-9428A361A7C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15D4A90E-1C77-473F-8D5C-9428A361A7C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15D4A90E-1C77-473F-8D5C-9428A361A7C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34A80D23-EFCF-4680-8579-3E000200C78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34A80D23-EFCF-4680-8579-3E000200C78D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34A80D23-EFCF-4680-8579-3E000200C78D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34A80D23-EFCF-4680-8579-3E000200C78D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1966912C-227D-4B72-A709-132BA58CF927} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+		{76D0D1E2-AD1B-4831-BCA8-08A19555FF15} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+		{B7496E33-34B9-45C4-B24E-64D5BAFAD5F0} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{AB6B5681-43A5-4171-84DC-1372302DC6F0} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{193B533A-686B-4877-B7EB-809692DB8AF3} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{275CB29F-2B7E-4370-A45B-B06367076F0C} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{B0D5A9BD-D8C1-4706-98BB-62A0889BFAAF} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{44E8F356-C5FE-4029-BCB6-7A7AE5064C7D} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{569EE766-4C48-4663-A5DC-EA4DEF018EE1} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{AC6DC107-CB27-4E40-9DA7-69C1CF876918} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{C10FFF09-6167-4D2C-8A4B-805B7F1C5D9F} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{831769FD-3F18-45E1-A856-53A306A507E6} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{649B1A7B-8D95-46C5-BDB9-F0362BF9A914} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+		{50F72840-8ADF-4951-B593-33DF30284D7B} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62864A42-0D49-4678-9990-58D32F7A9B30}
+	EndGlobalSection
+EndGlobal

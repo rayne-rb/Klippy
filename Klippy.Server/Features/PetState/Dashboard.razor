@@ -1,0 +1,210 @@
+@page "/pet"
+@using Klippy.Server.Features.Link
+@using Klippy.Shared.Link
+@using Klippy.Shared.Link.Payloads
+@implements IDisposable
+@inject PetStateStore Store
+@inject LinkRegistry Registry
+@inject IEventPublisher Publisher
+
+<PageTitle>Pet</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Pet</MudText>
+
+<MudText Typo="Typo.h6" Class="mt-6">Vitals</MudText>
+
+@if (_stats is null)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing reported yet. Vitals appear as soon as Klippy connects.
+    </MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mt-1">
+        <MudItem xs="12" sm="4">
+            @Meter("Food", _stats.Food, 100, _stats.FoodStatus, Color.Success)
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            @Meter("Mood", _stats.Mood, 100, _stats.MoodStatus, Color.Info)
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            @Meter("Health", _stats.Health, 100, _stats.HealthStatus, Color.Error)
+        </MudItem>
+    </MudGrid>
+
+    <div class="d-flex align-center flex-wrap gap-2 mt-3">
+        @if (_stats.IsDead)
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Dark" Variant="Variant.Filled">dead</MudChip>
+        }
+        @if (!_stats.FeedingEnabled)
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled">feeding off</MudChip>
+        }
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            Updated @(_updatedAt?.LocalDateTime.ToString("T") ?? "never")
+        </MudText>
+    </div>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Poke it</MudText>
+<MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">
+    These publish the same events the phone sends, so they exercise the whole path.
+</MudText>
+
+<div class="d-flex flex-wrap align-center gap-2">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Restaurant"
+               Disabled="@(!AnyCompanion)"
+               OnClick="FeedAsync">
+        Feed
+    </MudButton>
+
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Movie"
+               Disabled="@(!AnyCompanion)"
+               OnClick="ToggleDvdAsync">
+        DVD @(_dvdOn ? "off" : "on")
+    </MudButton>
+
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Default"
+               StartIcon="@Icons.Material.Filled.Refresh"
+               Disabled="@(!AnyCompanion)"
+               OnClick="RefreshAsync">
+        Ask for vitals
+    </MudButton>
+</div>
+
+<MudTextField @bind-Value="_speech"
+              Immediate="true"
+              Label="Make it say something"
+              Variant="Variant.Outlined"
+              Margin="Margin.Dense"
+              Class="mt-3"
+              Style="max-width: 26rem;"
+              Disabled="@(!AnyCompanion)"
+              OnKeyDown="OnSpeechKeyDownAsync"
+              Adornment="Adornment.End"
+              AdornmentIcon="@Icons.Material.Filled.Send"
+              AdornmentAriaLabel="Say"
+              OnAdornmentClick="SayAsync" />
+
+@if (!AnyCompanion)
+{
+    <MudText Typo="Typo.caption" Class="mud-text-secondary d-block mt-2">
+        Klippy is not connected, so there is nothing to poke.
+    </MudText>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">Connected</MudText>
+
+@if (Registry.Connections.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing connected.
+    </MudAlert>
+}
+else
+{
+    <MudPaper Outlined="true" Class="mt-2">
+        <MudList T="string" ReadOnly="true">
+            @foreach (var connection in Registry.Connections.OrderBy(c => c.DeviceKind))
+            {
+                <MudListItem T="string">
+                    <div class="d-flex align-center justify-space-between">
+                        <span>
+                            <strong>@connection.DeviceName</strong>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">
+                                @connection.DeviceKind
+                            </MudChip>
+                        </span>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            since @connection.ConnectedAt.LocalDateTime.ToString("T")
+                        </MudText>
+                    </div>
+                </MudListItem>
+            }
+        </MudList>
+    </MudPaper>
+}
+
+@code {
+    private PetStatsPayload? _stats;
+    private DateTimeOffset? _updatedAt;
+    private string _speech = string.Empty;
+    private bool _dvdOn;
+
+    private bool AnyCompanion =>
+        Registry.Connections.Any(c => c.DeviceKind == DeviceKind.Companion);
+
+    protected override void OnInitialized()
+    {
+        Store.Changed += OnChanged;
+        Registry.ConnectionsChanged += OnChanged;
+        Read();
+    }
+
+    private void Read() => (_stats, _updatedAt) = Store.Current;
+
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Read();
+        StateHasChanged();
+    });
+
+    private Task FeedAsync() =>
+        Publisher.PublishAsync(LinkEnvelope.Create(KlippyEvents.PetFeed, new FeedPayload { Count = 1 }));
+
+    private async Task ToggleDvdAsync()
+    {
+        _dvdOn = !_dvdOn;
+        await Publisher.PublishAsync(
+            LinkEnvelope.Create(KlippyEvents.PetDvdToggle, new TogglePayload { Enabled = _dvdOn }));
+    }
+
+    private Task RefreshAsync() =>
+        Publisher.PublishAsync(LinkEnvelope.Create(KlippyEvents.PetStatsRequest));
+
+    private Task OnSpeechKeyDownAsync(KeyboardEventArgs args) =>
+        args.Key == "Enter" ? SayAsync() : Task.CompletedTask;
+
+    private async Task SayAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_speech) || !AnyCompanion)
+        {
+            return;
+        }
+
+        await Publisher.PublishAsync(
+            LinkEnvelope.Create(KlippyEvents.PetSay, new SayPayload { Text = _speech.Trim() }));
+        _speech = string.Empty;
+    }
+
+    private RenderFragment Meter(string label, double value, double max, string? status, Color colour) =>
+        @<MudPaper Outlined="true" Class="pa-3">
+            <div class="d-flex justify-space-between align-center">
+                <MudText Typo="Typo.subtitle2">@label</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    @(status ?? "") @value.ToString("0")
+                </MudText>
+            </div>
+            <MudProgressLinear Color="colour"
+                               Value="value"
+                               Min="0"
+                               Max="max"
+                               Rounded="true"
+                               Size="Size.Medium"
+                               Class="mt-2"
+                               aria-label="@label" />
+        </MudPaper>;
+
+    public void Dispose()
+    {
+        Store.Changed -= OnChanged;
+        Registry.ConnectionsChanged -= OnChanged;
+    }
+}
