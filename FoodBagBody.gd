@@ -7,10 +7,18 @@ const BAG_WINDOW_SIZE := 110
 const CORNER_RADIUS := 16.0
 const WALL_THICKNESS := 14
 
+var klippy: Klippy
+
 
 func _ready() -> void:
 	super._ready()
 	_build_click_through_mask()
+
+
+func _physics_process(delta: float) -> void:
+	super._physics_process(delta)
+	if klippy:
+		_resolve_body_collision(klippy)
 
 
 func _on_drag_started(_event: InputEventMouseButton) -> void:

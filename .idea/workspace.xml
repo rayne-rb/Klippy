@@ -12,14 +12,9 @@
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBag.gd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBag.gd.uid" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBagDialog.gd" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBagDialog.gd.uid" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/FoodBagBody.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/PetBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Stats.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -579,7 +574,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789045077982</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="Refactor food bag implementation into `FoodBagBody`  &#10;&#10;- Removed `FoodBag` and `FoodBagDialog` in favor of a unified `FoodBagBody` class.  &#10;- Added `FoodBagBody` with window-based mechanics and visual consistency for the food bag.  &#10;- Updated `FoodBody` to handle physical containment and interaction with `FoodBagBody`.  &#10;- Simplified food saving/loading logic to track contained items directly.  &#10;- Adjusted `Klippy.gd` to manage and toggle the new food bag window implementation.">
+      <option name="closed" value="true" />
+      <created>1789047661705</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1789047661705</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -600,7 +603,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add UID files for `FoodBody` and `PetBody` classes" />
     <MESSAGE value="Prevent feeding logic from executing while dragging" />
     <MESSAGE value="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state." />
     <MESSAGE value="Add health mechanics and integrate with UI and stats system&#10;&#10;- Introduced `health` property with decay, regeneration, and status thresholds.&#10;- Added `health_changed` signal for real-time updates.&#10;- Enhanced `StatusDialog` and `SettingsPanel` with health value toggles and displays.&#10;- Adjusted mood logic to consider health status.&#10;- Updated save/load system to persist health state." />
@@ -625,7 +627,8 @@
     <MESSAGE value="Add food bag mechanics and food management system&#10;&#10;- Implemented `FoodBag` to store and retrieve food items with a signal for content updates.&#10;- Added `FoodBagDialog` to display food items using a list and provide take functionality.&#10;- Updated `FoodBody`" />
     <MESSAGE value="Add food bag mechanics and food management system&#10;&#10;- Implemented `FoodBag` to store and retrieve food items with a signal for content updates.&#10;- Added `FoodBagDialog` to display food items using a list and provide take functionality.&#10;- Updated `FoodBody` with logic to handle storing food when dropped into the bag.&#10;- Enhanced `Klippy.gd` context menu with &quot;Summon Food&quot;" />
     <MESSAGE value="Add food bag mechanics and food management system&#10;&#10;- Implemented `FoodBag` to store and retrieve food items with a signal for content updates.&#10;- Added `FoodBagDialog` to display food items using a list and provide take functionality.&#10;- Updated `FoodBody` with logic to handle storing food when dropped into the bag.&#10;- Enhanced `Klippy.gd` context menu with &quot;Summon Food&quot;&#10; interactions.&#10;- Integrated food saving/loading into the persistence system." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add food bag mechanics and food management system&#10;&#10;- Implemented `FoodBag` to store and retrieve food items with a signal for content updates.&#10;- Added `FoodBagDialog` to display food items using a list and provide take functionality.&#10;- Updated `FoodBody` with logic to handle storing food when dropped into the bag.&#10;- Enhanced `Klippy.gd` context menu with &quot;Summon Food&quot;&#10; interactions.&#10;- Integrated food saving/loading into the persistence system." />
+    <MESSAGE value="Refactor food bag implementation into `FoodBagBody`  &#10;&#10;- Removed `FoodBag` and `FoodBagDialog` in favor of a unified `FoodBagBody` class.  &#10;- Added `FoodBagBody` with window-based mechanics and visual consistency for the food bag.  &#10;- Updated `FoodBody` to handle physical containment and interaction with `FoodBagBody`.  &#10;- Simplified food saving/loading logic to track contained items directly.  &#10;- Adjusted `Klippy.gd` to manage and toggle the new food bag window implementation." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor food bag implementation into `FoodBagBody`  &#10;&#10;- Removed `FoodBag` and `FoodBagDialog` in favor of a unified `FoodBagBody` class.  &#10;- Added `FoodBagBody` with window-based mechanics and visual consistency for the food bag.  &#10;- Updated `FoodBody` to handle physical containment and interaction with `FoodBagBody`.  &#10;- Simplified food saving/loading logic to track contained items directly.  &#10;- Adjusted `Klippy.gd` to manage and toggle the new food bag window implementation." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

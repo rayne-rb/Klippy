@@ -126,6 +126,44 @@ func _on_rotation_changed(angle: float) -> void:
 	_update_passthrough_mask(angle)
 
 
+func _resolve_body_collision(other: PetBody) -> void:
+	if state == State.DRAGGING or other.state == State.DRAGGING:
+		return
+
+	var window := get_window()
+	var other_window := other.get_window()
+	var center := Vector2(window.position) + Vector2(window.size) / 2.0
+	var other_center := Vector2(other_window.position) + Vector2(other_window.size) / 2.0
+
+	var offset := center - other_center
+	var distance := offset.length()
+	var min_distance := roll_radius + other.roll_radius
+	if distance >= min_distance or distance <= 0.0:
+		return
+
+	var normal := offset / distance
+	var overlap := min_distance - distance
+	var total_mass := mass + other.mass
+
+	window.position += Vector2i(normal * overlap * (other.mass / total_mass))
+	other_window.position -= Vector2i(normal * overlap * (mass / total_mass))
+
+	var approach_speed := (velocity - other.velocity).dot(normal)
+	if approach_speed >= 0.0:
+		return
+
+	var impulse := -(1.0 + BOUNCE_DAMPING) * approach_speed / (1.0 / mass + 1.0 / other.mass)
+	var impulse_vector := impulse * normal
+
+	velocity += impulse_vector / mass
+	other.velocity -= impulse_vector / other.mass
+
+	if state != State.THROWN:
+		_set_state(State.THROWN)
+	if other.state != State.THROWN:
+		other._set_state(State.THROWN)
+
+
 func _on_energetic_bounce(_impact_speed: float) -> void:
 	pass
 

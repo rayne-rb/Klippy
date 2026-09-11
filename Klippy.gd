@@ -242,6 +242,7 @@ func _create_food_bag() -> void:
 	var body := FoodBagBody.new()
 	body.position = Vector2(window_size) / 2.0
 	body.roll_radius = FoodBagBody.BAG_WINDOW_SIZE * 0.45
+	body.klippy = self
 
 	var sprite2d := Sprite2D.new()
 	sprite2d.texture = FoodBagBody.make_texture()
