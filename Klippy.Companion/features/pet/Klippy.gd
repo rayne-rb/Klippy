@@ -254,7 +254,7 @@ func _create_food_bag() -> void:
 	window.borderless = true
 	window.transparent = true
 	window.always_on_top = true
-	window.unfocusable = false
+	window.unfocusable = true
 
 	var art_scale := FoodBagBody.TARGET_HEIGHT / FoodBagBody.BACK_TEXTURE.get_size().y
 	var visual_size := Vector2(FoodBagBody.BACK_TEXTURE.get_size()) * art_scale
@@ -469,7 +469,7 @@ func _spawn_food_body(food_type: String) -> void:
 		window.borderless = true
 		window.transparent = true
 		window.always_on_top = true
-		window.unfocusable = false
+		window.unfocusable = true
 		var window_size := Vector2i(FOOD_WINDOW_SIZE, FOOD_WINDOW_SIZE)
 		window.size = window_size
 		window.content_scale_size = window_size

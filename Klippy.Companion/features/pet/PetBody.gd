@@ -241,8 +241,17 @@ func _process_idle_base(_delta: float, _window: Window) -> void:
 	pass
 
 
+## Bodies that should never settle into a static [constant State.IDLE] (a food
+## item rolling around a bag, say — it has no floor of its own to rest on, so
+## going idle the instant gravity zeroes its velocity for a tick just leaves
+## it frozen wherever that happened) can override this to keep physics
+## running unconditionally instead.
+func _can_rest() -> bool:
+	return true
+
+
 func _process_thrown(delta: float, window: Window) -> void:
-	if velocity == Vector2.ZERO:
+	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)
 		return
 
@@ -300,5 +309,5 @@ func _process_thrown(delta: float, window: Window) -> void:
 
 	window.position = Vector2i(pos)
 
-	if velocity == Vector2.ZERO:
+	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)

@@ -14,6 +14,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
     </list>
@@ -596,7 +597,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789117080820</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="Refactor food bag system with art assets and collision improvements&#10;&#10;- Replaced procedural bag rendering with preloaded textures for visual consistency.&#10;- Introduced `KlippyFoodBag.png` and `KlippyFoodBagBack.png` as assets for bag visuals.&#10;- Updated bag implementation to use `interior_polygon` for dynamic containment checks.&#10;- Enhanced collision logic to account for wall outlines and bag interior using traced polygons.&#10;- Redesigned food spawning offsets and state flow for better alignment with visuals.&#10;- Removed obsolete procedural graphics methods for bag rendering from `FoodBagBody.gd`.">
+      <option name="closed" value="true" />
+      <created>1789130053063</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1789130053063</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -617,7 +626,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add health mechanics and integrate with UI and stats system&#10;&#10;- Introduced `health` property with decay, regeneration, and status thresholds.&#10;- Added `health_changed` signal for real-time updates.&#10;- Enhanced `StatusDialog` and `SettingsPanel` with health value toggles and displays.&#10;- Adjusted mood logic to consider health status.&#10;- Updated save/load system to persist health state." />
     <MESSAGE value="Add bounce impact speed handling and idle animations for pets&#10;&#10;- Added `impact_speed` parameter to `_on_energetic_bounce` to apply throw damage only at high speeds.&#10;- Introduced idle bouncing animation for hungry pets.&#10;- Adjusted idle and DVD modes to handle animations dynamically." />
     <MESSAGE value="Increase impact speed threshold for damage calculation&#10;&#10;- Updated `DAMAGE_SPEED_THRESHOLD` in `Klippy.gd` from 400.0 to 800.0." />
     <MESSAGE value="Add developer tools dialog and state system refactor&#10;&#10;- Introduced `DevToolsDialog` to allow manual adjustment of pet stats with UI controls.&#10;- Added `state` property and `State` enum to replace `dragging` boolean in `PetBody`.&#10;- Refactored physics and input handling to accommodate state transitions (`IDLE`, `DRAGGING`, `THROWN`).&#10;- Updated `SettingsPanel` and context menu to toggle developer tools visibility.&#10;- Implemented debug methods in `Stats.gd` for direct stat modification." />
@@ -642,7 +650,8 @@
     <MESSAGE value="Refactor food mechanics and update project structure&#10;&#10;- Introduced `active_food_items` and `food_window_pool` arrays for efficient food management.&#10;- Added constants (`FOOD_WINDOW_SIZE`, `FOOD_MASS`, `MAX_FOOD_ITEMS`) in `Klippy.gd`.&#10;- Adjusted `.idea/workspace.xml structure.  &#10;- Moved `FoodBagBody.gd` and related files to `features/food` for modularity." />
     <MESSAGE value="Fixed my bad merge." />
     <MESSAGE value="Prevent collision logic execution when window is not visible" />
-    <option name="LAST_COMMIT_MESSAGE" value="Prevent collision logic execution when window is not visible" />
+    <MESSAGE value="Refactor food bag system with art assets and collision improvements&#10;&#10;- Replaced procedural bag rendering with preloaded textures for visual consistency.&#10;- Introduced `KlippyFoodBag.png` and `KlippyFoodBagBack.png` as assets for bag visuals.&#10;- Updated bag implementation to use `interior_polygon` for dynamic containment checks.&#10;- Enhanced collision logic to account for wall outlines and bag interior using traced polygons.&#10;- Redesigned food spawning offsets and state flow for better alignment with visuals.&#10;- Removed obsolete procedural graphics methods for bag rendering from `FoodBagBody.gd`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor food bag system with art assets and collision improvements&#10;&#10;- Replaced procedural bag rendering with preloaded textures for visual consistency.&#10;- Introduced `KlippyFoodBag.png` and `KlippyFoodBagBack.png` as assets for bag visuals.&#10;- Updated bag implementation to use `interior_polygon` for dynamic containment checks.&#10;- Enhanced collision logic to account for wall outlines and bag interior using traced polygons.&#10;- Redesigned food spawning offsets and state flow for better alignment with visuals.&#10;- Removed obsolete procedural graphics methods for bag rendering from `FoodBagBody.gd`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

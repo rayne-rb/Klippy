@@ -11,16 +11,64 @@ var bag: FoodBagBody
 var contained_in: FoodBagBody
 var food_type: String = "standard"
 
+## Every food item currently in the tree (bag-contained, loose on the desktop,
+## or pooled-and-hidden alike), so any one of them can find the rest to
+## collide with. Nothing here is a manager pass; each item just looks up its
+## own neighbors and resolves against those that haven't been resolved yet
+## this tick (see [method _resolve_food_collisions]).
+static var _all_food: Array[FoodBody] = []
+
+
+func _enter_tree() -> void:
+	_all_food.append(self)
+
+
+func _exit_tree() -> void:
+	_all_food.erase(self)
+
 
 func _physics_process(delta: float) -> void:
+	var pre_move_position := get_window().position
 	super._physics_process(delta)
 
 	if state == State.DRAGGING:
 		contained_in = null
 		return
 
-	_check_bag()
+	_resolve_food_collisions()
+	_check_bag(pre_move_position)
 	_check_feeding()
+
+
+## Bounces this item off every other live food item it overlaps, using the
+## same circle-circle math [method PetBody._resolve_body_collision] already
+## uses for Klippy-vs-bag. Walking the shared registry from just past this
+## item's own index means each pair only ever gets resolved once per tick,
+## no matter which of the two items happens to process first.
+func _resolve_food_collisions() -> void:
+	var index := _all_food.find(self)
+	if index == -1:
+		return
+
+	for i in range(index + 1, _all_food.size()):
+		var other := _all_food[i]
+		if not is_instance_valid(other) or not other.is_physics_processing():
+			continue
+		_resolve_body_collision(other)
+
+
+## A bag-associated item has no floor of its own to rest on the way loose food
+## does on the real desktop, so it must never latch into a static
+## [constant State.IDLE] — that would just freeze it wherever gravity
+## happened to zero its velocity for one tick. Food with no bag keeps the
+## normal desktop resting behavior.
+func _can_rest() -> bool:
+	return bag == null
+
+
+func _process_idle_base(_delta: float, _window: Window) -> void:
+	if bag != null:
+		_set_state(State.THROWN)
 
 
 ## "Stored" is a live membership test against the bag's background art, not a
@@ -30,14 +78,29 @@ func _physics_process(delta: float) -> void:
 ## [method FoodBagBody.resolve_food_wall_collision]) rather than a place that
 ## pins food in position, so a stored item keeps rolling/settling like any
 ## other food — it's just confined to the bag's interior.
-func _check_bag() -> void:
+func _check_bag(pre_move_position: Vector2i) -> void:
 	contained_in = null
 	if bag == null:
 		return
 
 	var bag_window := bag.get_window()
 	var food_window := get_window()
-	var local_center := Vector2(food_window.position - bag_window.position) + Vector2(food_window.size) / 2.0
+	var half_size := Vector2(food_window.size) / 2.0
+
+	# Both measured as of the start of this tick, before anything moved —
+	# the food's true position relative to the bag a moment ago.
+	var prev_local_center := Vector2(pre_move_position - bag.tick_start_position) + half_size
+
+	# Carry the food along with however far the bag itself moved this tick,
+	# same as a real bag drags its contents when picked up — otherwise a
+	# fast drag/throw of the bag just leaves loose contents behind in
+	# mid-air, which looks exactly like food escaping. Only carry it if it
+	# was actually inside the bag's footprint a moment ago; food elsewhere
+	# shouldn't jump just because some unrelated bag moved.
+	if Rect2(Vector2.ZERO, Vector2(bag_window.size)).has_point(prev_local_center):
+		food_window.position += bag.movement_delta_this_tick()
+
+	var local_center := Vector2(food_window.position - bag_window.position) + half_size
 	var over_bag := Rect2(Vector2.ZERO, Vector2(bag_window.size)).has_point(local_center)
 
 	# A closed bag tucks away whatever is inside it; food sitting elsewhere on
@@ -46,8 +109,11 @@ func _check_bag() -> void:
 	if not bag_window.visible:
 		return
 
-	bag.resolve_food_wall_collision(self)
+	bag.resolve_food_wall_collision(self, prev_local_center)
 
+	# The collision may have just moved the window, so re-derive this rather
+	# than reuse the pre-collision value above.
+	local_center = Vector2(food_window.position - bag_window.position) + half_size
 	if bag.contains_point(local_center):
 		contained_in = bag
 		food_window.move_to_foreground()

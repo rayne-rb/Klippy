@@ -75,7 +75,7 @@ func _build_window() -> Window:
 	window.borderless = true
 	window.transparent = true
 	window.always_on_top = true
-	window.unfocusable = false
+	window.unfocusable = true
 
 	var window_size := Vector2i(WINDOW_SIZE, WINDOW_SIZE)
 	window.size = window_size
