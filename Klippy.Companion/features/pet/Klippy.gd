@@ -11,7 +11,7 @@ const STATUS_ID := 4
 const REVIVE_ID := 5
 const DEV_TOOLS_ID := 6
 const SUMMON_FOOD_ID := 7
-const CONNECTION_ID := 7
+const CONNECTION_ID := 8
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -138,7 +138,8 @@ func _ready() -> void:
 	_create_food_bag()
 	var stored_standard: int = int(food_bag_data.get("standard", 0))
 	for i in stored_standard:
-		_spawn_contained_food("standard", Vector2i(10 + 8 * i, 10 + 8 * i))
+		var stack_offset := FoodBagBody.WINDOW_MARGIN + 10 + 8 * i
+		_spawn_contained_food("standard", Vector2i(stack_offset, stack_offset))
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
@@ -253,7 +254,8 @@ func _create_food_bag() -> void:
 	window.transparent = true
 	window.always_on_top = true
 	window.unfocusable = false
-	var window_size := Vector2i(FoodBagBody.BAG_WINDOW_SIZE, FoodBagBody.BAG_WINDOW_SIZE)
+	var bag_size := FoodBagBody.BAG_WINDOW_SIZE + FoodBagBody.WINDOW_MARGIN * 2
+	var window_size := Vector2i(bag_size, bag_size)
 	window.size = window_size
 	window.content_scale_size = window_size
 
@@ -419,7 +421,6 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_toggle_dvd_mode()
 		FEED_ID:
 			_toggle_food_bag()
-			food_spawner.spawn()
 		REVIVE_ID:
 			stats.revive()
 			_update_revive_item()
@@ -527,10 +528,11 @@ func _spawn_contained_food(food_type: String, offset: Vector2i) -> void:
 	var window: Window = active_food_items.back()
 	var body := window.get_child(0) as FoodBody
 	var bag_window := food_bag.get_window()
-	var max_offset := bag_window.size - window.size
+	var margin := FoodBagBody.WINDOW_MARGIN
+	var max_offset := bag_window.size - Vector2i.ONE * margin - window.size
 	var clamped_offset := Vector2i(
-		clampi(offset.x, 0, max(max_offset.x, 0)),
-		clampi(offset.y, 0, max(max_offset.y, 0))
+		clampi(offset.x, margin, max(max_offset.x, margin)),
+		clampi(offset.y, margin, max(max_offset.y, margin))
 	)
 
 	body.contained_in = food_bag

@@ -73,10 +73,13 @@ func _rebuild_mask_points() -> void:
 	if raw_polygon.is_empty():
 		return
 
-	var center := Vector2(get_window().size) / 2.0
+	## [member raw_polygon] is in the sprite texture's own pixel space, so it
+	## must be centered on the texture's size, not the window's — the two only
+	## coincide when the window is sized to exactly fit the sprite.
+	var center := Vector2(sprite.texture.get_size()) / 2.0
 	mask_points.resize(raw_polygon.size())
 	for i in raw_polygon.size():
-		mask_points[i] = raw_polygon[i] * sprite.scale - center
+		mask_points[i] = (raw_polygon[i] - center) * sprite.scale
 
 
 func _rotated_mask_points(angle: float) -> PackedVector2Array:

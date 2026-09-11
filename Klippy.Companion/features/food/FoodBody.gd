@@ -51,10 +51,11 @@ func _check_bag_containment() -> void:
 		return
 
 	var offset := food_window.position - bag_window.position
-	var max_offset := bag_window.size - food_window.size
+	var margin := FoodBagBody.WINDOW_MARGIN
+	var max_offset := bag_window.size - Vector2i.ONE * margin - food_window.size
 	contained_offset = Vector2i(
-		clampi(offset.x, 0, max(max_offset.x, 0)),
-		clampi(offset.y, 0, max(max_offset.y, 0))
+		clampi(offset.x, margin, max(max_offset.x, margin)),
+		clampi(offset.y, margin, max(max_offset.y, margin))
 	)
 	contained_in = bag
 	food_window.move_to_front()
