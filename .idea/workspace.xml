@@ -11,7 +11,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -208,14 +209,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00002" summary="Remove klippy.pck that was created by accident">
-      <option name="closed" value="true" />
-      <created>1788951224031</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1788951224031</updated>
     </task>
     <task id="LOCAL-00003" summary="Add angular velocity and rolling behavior to Klippy movement&#10;&#10;Includes:&#10;- Introduced `_angularVelocity` and `RollRadius` for rolling motion.&#10;- Adjusted bounce physics to account for rotational effects.&#10;- Enhanced passthrough mask updates to handle sprite rotation dynamically.">
       <option name="closed" value="true" />
@@ -601,7 +594,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789132465215</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals.">
+      <option name="closed" value="true" />
+      <created>1789137760801</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1789137760801</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -622,7 +623,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Increase impact speed threshold for damage calculation&#10;&#10;- Updated `DAMAGE_SPEED_THRESHOLD` in `Klippy.gd` from 400.0 to 800.0." />
     <MESSAGE value="Add developer tools dialog and state system refactor&#10;&#10;- Introduced `DevToolsDialog` to allow manual adjustment of pet stats with UI controls.&#10;- Added `state` property and `State` enum to replace `dragging` boolean in `PetBody`.&#10;- Refactored physics and input handling to accommodate state transitions (`IDLE`, `DRAGGING`, `THROWN`).&#10;- Updated `SettingsPanel` and context menu to toggle developer tools visibility.&#10;- Implemented debug methods in `Stats.gd` for direct stat modification." />
     <MESSAGE value="Update idle bounce mechanics and health regeneration logic&#10;&#10;- Refactored idle bounce behavior for hungry pets with configurable burst intervals and cycles.&#10;- Added stricter type annotation for health regeneration in `Stats.gd`." />
     <MESSAGE value="Adjust mood and health mechanics, increase bounce intensity&#10;&#10;- Updated `MOOD_INCREASE_RATE` and `MOOD_DECREASE_RATE` to balance mood changes.&#10;- Reduced `THROW_HEALTH_LOSS` for less severe penalties.&#10;- Increased `HUNGRY_BOUNCE_AMPLITUDE` and `HUNGRY_BOUNCE_SPEED` for more dynamic animations." />
@@ -647,7 +647,8 @@
     <MESSAGE value="Prevent collision logic execution when window is not visible" />
     <MESSAGE value="Refactor food bag system with art assets and collision improvements&#10;&#10;- Replaced procedural bag rendering with preloaded textures for visual consistency.&#10;- Introduced `KlippyFoodBag.png` and `KlippyFoodBagBack.png` as assets for bag visuals.&#10;- Updated bag implementation to use `interior_polygon` for dynamic containment checks.&#10;- Enhanced collision logic to account for wall outlines and bag interior using traced polygons.&#10;- Redesigned food spawning offsets and state flow for better alignment with visuals.&#10;- Removed obsolete procedural graphics methods for bag rendering from `FoodBagBody.gd`." />
     <MESSAGE value="Add `_can_rest` logic to improve idle state handling and update food collision mechanics&#10;&#10;- Introduced `_can_rest` to prevent bag-contained objects from prematurely entering idle state.&#10;- Enhanced food collision resolution for better interaction between fast-moving objects and bag walls.&#10;- Updated `FoodBody` to track all instances for collision checks.&#10;- Adjusted `FoodBagBody` to carry food during movement and resolve wall collisions more accurately. &#10;- Made windows unfocusable for consistency across components." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add `_can_rest` logic to improve idle state handling and update food collision mechanics&#10;&#10;- Introduced `_can_rest` to prevent bag-contained objects from prematurely entering idle state.&#10;- Enhanced food collision resolution for better interaction between fast-moving objects and bag walls.&#10;- Updated `FoodBody` to track all instances for collision checks.&#10;- Adjusted `FoodBagBody` to carry food during movement and resolve wall collisions more accurately. &#10;- Made windows unfocusable for consistency across components." />
+    <MESSAGE value="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals." />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

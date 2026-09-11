@@ -11,8 +11,11 @@ const BACK_TEXTURE: Texture2D = preload("res://assets/KlippyFoodBagBack.png")
 const TARGET_HEIGHT := 300.0
 
 ## Extra room around the art so a rotated corner has space to swing through
-## before it hits the window edge and gets clipped.
-const WINDOW_MARGIN := 30
+## before it hits the window edge and gets clipped. Needs to cover half the
+## art's rotated diagonal minus half its tallest side (~43px at the current
+## TARGET_HEIGHT) — this doesn't auto-scale with that constant, so bump it
+## along with any future size change.
+const WINDOW_MARGIN := 55
 
 var klippy: Klippy
 

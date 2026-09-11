@@ -458,7 +458,35 @@ func _update_feed_menu_state() -> void:
 
 
 func _summon_food() -> void:
+	if active_food_items.size() >= MAX_FOOD_ITEMS:
+		return
+
+	var portal := FoodPortal.new()
+	# A brand-new Window defaults to the primary screen regardless of where
+	# Klippy actually is, so on a multi-monitor setup the portal would open
+	# wherever screen 0 is rather than next to the pet.
+	portal.current_screen = get_window().current_screen
+	add_child(portal)
+	portal.opened.connect(_on_food_portal_opened.bind(portal))
+
+
+## Spawns the food only once the portal is actually open (see
+## [signal FoodPortal.opened]), then repositions/launches it out of the
+## portal's center instead of [method _spawn_food_body]'s normal
+## next-to-Klippy default.
+func _on_food_portal_opened(portal: FoodPortal) -> void:
 	_spawn_food_body("standard")
+	if active_food_items.is_empty():
+		return
+
+	var window: Window = active_food_items.back()
+	var body := window.get_child(0) as FoodBody
+	var portal_center := portal.position + Vector2i(portal.size) / 2
+	window.position = portal_center - window.size / 2
+
+	var angle := randf() * TAU
+	body.velocity = Vector2(cos(angle), sin(angle)) * 220.0
+	body.state = PetBody.State.THROWN
 
 
 func _spawn_food_body(food_type: String) -> void:
