@@ -85,7 +85,7 @@ static func _bridge_loops(outer: PackedVector2Array, inner: PackedVector2Array) 
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
-	if klippy:
+	if klippy and get_window().visible:
 		_resolve_body_collision(klippy)
 
 
