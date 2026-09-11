@@ -11,35 +11,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DevToolsDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/DevToolsDialog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DevToolsDialog.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/DevToolsDialog.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dialogue.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Dialogue.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dialogue.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Dialogue.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/FoodBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FoodBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/FoodBody.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.png" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.png.import" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.png.import" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Klippy.tscn" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/PetBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PetBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/PetBody.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SaveData.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SaveData.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SaveData.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SaveData.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SettingsPanel.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPanel.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SettingsPanel.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpeechBubble.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SpeechBubble.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpeechBubble.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/SpeechBubble.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Stats.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Stats.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/Stats.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/StatusDialog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/StatusDialog.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/StatusDialog.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/icon.svg" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/icon.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/icon.svg.import" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/icon.svg.import" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/project.godot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FoodBagBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd.uid" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/project.godot" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/project.godot" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -176,7 +151,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Editor" type="RunExe" factoryName=".NET Executable">
-      <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -192,7 +167,7 @@
       </method>
     </configuration>
     <configuration name="Player" type="RunExe" factoryName=".NET Executable">
-      <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot;" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -208,7 +183,7 @@
       </method>
     </configuration>
     <configuration name="Editor" type="RunNativeExe" factoryName="Native Executable">
-      <option name="EXE_PATH" value="$USER_HOME$/Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../Programs/godot-4.7.1/Godot_v4.7.1-stable_linux.x86_64" />
       <option name="PROGRAM_PARAMETERS" value="--path &quot;./Klippy.Companion&quot; --editor" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="PASS_PARENT_ENVS" value="1" />
@@ -220,8 +195,10 @@
     <list>
       <item itemvalue=".NET Executable.Editor" />
       <item itemvalue=".NET Executable.Player" />
-      <item itemvalue="GDScript Start and Debug.Debug GDScript (Running session)" />
-      <item itemvalue="GDScript Start and Debug.Player GDScript" />
+      <item itemvalue="GdScript Start and Debug.Debug GDScript (Running session)" />
+      <item itemvalue="GdScript Start and Debug.Player GDScript" />
+      <item itemvalue="Native Executable.Godot Editor" />
+      <item itemvalue="Native Executable.Godot Player" />
       <item itemvalue="Native Executable.Editor" />
     </list>
   </component>

@@ -20,6 +20,10 @@ const DAMAGE_SPEED_THRESHOLD := 1200.0
 const COMPLAINT_CHANCE := 0.12
 const COMPLAINT_COOLDOWN := 4.0
 
+const FOOD_WINDOW_SIZE := 60
+const FOOD_MASS := 0.3
+const MAX_FOOD_ITEMS := 8
+
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
 const HUNGRY_BOUNCES_PER_BURST := 5
@@ -32,6 +36,9 @@ const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
 
 var food_spawner: FoodSpawner
+
+var active_food_items: Array[Window] = []
+var food_window_pool: Array[Window] = []
 
 var idle_base_y := 0
 var bounce_timer := 0.0

@@ -17,16 +17,13 @@ run/max_fps=30
 run/low_processor_mode=true
 config/icon="res://assets/icon.svg"
 
-[autoload]
-
-; The link to Klippy.Server. An autoload because every slice that wants to publish
-; or react to an event needs it, and threading a reference through the pet to reach
-; them would put the pet in the middle of traffic that is none of its business.
-KlippyLink="*res://features/link/KlippyLink.gd"
-
 [audio]
 
 driver/driver="Dummy"
+
+[autoload]
+
+KlippyLink="*res://features/link/KlippyLink.gd"
 
 [display]
 
