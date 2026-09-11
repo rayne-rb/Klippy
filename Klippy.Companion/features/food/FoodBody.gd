@@ -100,23 +100,33 @@ func _check_bag(pre_move_position: Vector2i) -> void:
 	if Rect2(Vector2.ZERO, Vector2(bag_window.size)).has_point(prev_local_center):
 		food_window.position += bag.movement_delta_this_tick()
 
+	# The wall keeps holding contents in place even while the bag is closed —
+	# a real bag doesn't spill what's inside just because you can't see it —
+	# so this has to keep running regardless of [member Window.visible].
+	# Skipping it while hidden used to mean gravity kept right on pulling
+	# food down with nothing to stop it, so by the time the bag reopened
+	# the contents had often fallen straight out through where the (now
+	# uncollidable) wall used to be.
+	bag.resolve_food_wall_collision(self, prev_local_center)
+
+	# The collision may have just moved the window, so re-derive this rather
+	# than reuse the pre-collision value above.
 	var local_center := Vector2(food_window.position - bag_window.position) + half_size
 	var over_bag := Rect2(Vector2.ZERO, Vector2(bag_window.size)).has_point(local_center)
 
 	# A closed bag tucks away whatever is inside it; food sitting elsewhere on
 	# the desktop shouldn't vanish just because the bag elsewhere got closed.
 	food_window.visible = bag_window.visible or not over_bag
-	if not bag_window.visible:
-		return
 
-	bag.resolve_food_wall_collision(self, prev_local_center)
+	# Keep it above the bag's background whenever it's anywhere over the bag
+	# at all, not just once it's confirmed "stored" — otherwise it can sit
+	# behind the background art (invisible) for however long it takes to
+	# settle into the stricter interior zone.
+	if bag_window.visible and over_bag:
+		food_window.move_to_foreground()
 
-	# The collision may have just moved the window, so re-derive this rather
-	# than reuse the pre-collision value above.
-	local_center = Vector2(food_window.position - bag_window.position) + half_size
 	if bag.contains_point(local_center):
 		contained_in = bag
-		food_window.move_to_foreground()
 
 
 func _check_feeding() -> void:

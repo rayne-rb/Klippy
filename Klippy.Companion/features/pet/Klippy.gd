@@ -137,10 +137,17 @@ func _ready() -> void:
 
 	_create_food_bag()
 	var stored_standard: int = int(food_bag_data.get("standard", 0))
+	# The bag's art isn't a simple rectangle, so anywhere clever picked ahead
+	# of time risks landing just outside it — dead center is the one point
+	# guaranteed to be inside, and food-vs-food collision spreads the pile
+	# back out over the following few ticks. They still need a tiny nudge
+	# apart from each other first, though: exactly-coincident items have no
+	# meaningful direction to push apart along, so left dead-on-top of one
+	# another they'd just stay stacked forever.
 	var bag_center := Vector2i(food_bag.get_window().size) / 2
 	for i in stored_standard:
-		var stagger := Vector2i(8 * i, 8 * i) - Vector2i.ONE * (4 * stored_standard)
-		_spawn_contained_food("standard", bag_center + stagger)
+		var jitter := Vector2(cos(i * 2.4), sin(i * 2.4)) * 5.0
+		_spawn_contained_food("standard", bag_center + Vector2i(jitter))
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
