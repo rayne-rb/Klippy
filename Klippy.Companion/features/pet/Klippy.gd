@@ -32,6 +32,10 @@ const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
 const PUPIL_FOLLOW_RATE := 12.0
+# Scales with current_size so activation range stays proportionate as Klippy
+# is resized, rather than a flat pixel radius that would feel too small at
+# 400 or too large at 100.
+const PUPIL_ACTIVATION_RADIUS_SCALE := 2.5
 # Rest position and the room each pupil has to move before its edge would exit
 # the eye white, per side, traced from the source art (both eyes are hand-drawn
 # and asymmetric, so this isn't derived at runtime). Rest is expressed in
@@ -647,10 +651,23 @@ func _process(delta: float) -> void:
 ## same unrotated space the bounds below were traced in, regardless of whether
 ## Klippy is currently spinning from a drag or a throw.
 func _update_pupils(delta: float) -> void:
-	var mouse_window_local := Vector2(DisplayServer.mouse_get_position() - get_window().position)
-	var look_pos := sprite.to_local(mouse_window_local)
-	left_pupil.position = _follow_pupil(left_pupil.position, look_pos - LEFT_PUPIL_REST, LEFT_PUPIL_BOUNDS, delta)
-	right_pupil.position = _follow_pupil(right_pupil.position, look_pos - RIGHT_PUPIL_REST, RIGHT_PUPIL_BOUNDS, delta)
+	var window := get_window()
+	var mouse_screen := Vector2(DisplayServer.mouse_get_position())
+	var window_center := Vector2(window.position) + Vector2(window.size) / 2.0
+	var activation_radius := current_size * PUPIL_ACTIVATION_RADIUS_SCALE
+
+	# Outside the activation radius the pupils just relax back to their rest
+	# position (a zero offset) via the same lerp used to track the mouse, so
+	# there's no separate snap-back path to keep in sync with the tracking one.
+	var wanted_left := Vector2.ZERO
+	var wanted_right := Vector2.ZERO
+	if mouse_screen.distance_to(window_center) <= activation_radius:
+		var look_pos := sprite.to_local(mouse_screen - Vector2(window.position))
+		wanted_left = look_pos - LEFT_PUPIL_REST
+		wanted_right = look_pos - RIGHT_PUPIL_REST
+
+	left_pupil.position = _follow_pupil(left_pupil.position, wanted_left, LEFT_PUPIL_BOUNDS, delta)
+	right_pupil.position = _follow_pupil(right_pupil.position, wanted_right, RIGHT_PUPIL_BOUNDS, delta)
 
 
 ## [param bounds] holds the max reach per direction (left/up as its negative
