@@ -1,0 +1,242 @@
+#!/usr/bin/env bash
+# Isolated graphical sandboxes for autonomous agents, one command each way.
+#
+# Every sandbox is its own Docker container with a private virtual X display
+# (Xvfb), a window manager, a browser, and ffmpeg. The agent drives apps inside
+# it; the host desktop is never touched. Recordings, screenshots and any files
+# the agent produces land in the sandbox's output directory on the host.
+#
+#   sandbox build                        build/refresh the image
+#   sandbox create <name> [options]      create + start a sandbox
+#        --screen WxHxD   virtual screen (default 1280x800x24)
+#        --cpus N         cpu limit        (default 2)
+#        --mem SIZE       memory limit     (default 4g)
+#        --pids N         process limit    (default 512)
+#        --net none|mode  network mode     (default: docker bridge, i.e. online)
+#        --record         start recording immediately
+#        --vnc            expose live VNC on 127.0.0.1:<port>
+#   sandbox exec <name> <cmd...>         run a command in the session (DISPLAY set)
+#   sandbox shot <name> [file.png]       screenshot into the sandbox out/ dir
+#   sandbox record <name> start|stop     session recording into out/
+#   sandbox vnc <name> on|off|info       live view for the human
+#   sandbox list | stop <name> | start <name> | destroy <name> [--purge]
+#
+# Sandbox files live under $SANDBOX_HOME (default ~/agent-sandboxes/<name>):
+#   out/  recordings, screenshots, artifacts   (bind-mounted to /output)
+#   logs/ session + tool logs                  (bind-mounted to /logs)
+#   home/ the agent's home directory           (bind-mounted to /home/agent)
+set -euo pipefail
+
+IMAGE="agent-sandbox:latest"
+SANDBOX_HOME="${SANDBOX_HOME:-$HOME/agent-sandboxes}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+die() { echo "error: $*" >&2; exit 1; }
+ctr_for() { echo "agent-sandbox-$1"; }
+dir_for() { echo "$SANDBOX_HOME/$1"; }
+
+need_container() {
+    docker inspect "$(ctr_for "$1")" >/dev/null 2>&1 || die "sandbox '$1' does not exist"
+}
+running_container() {
+    [ "$(docker inspect -f '{{.State.Running}}' "$(ctr_for "$1")" 2>/dev/null)" = "true" ]
+}
+
+cmd_build() {
+    docker build -t "$IMAGE" "$SCRIPT_DIR"
+}
+
+# Assign a free loopback VNC port derived from the name.
+pick_vnc_port() {
+    local base=$(( 0x$(printf '%s' "$1" | sha256sum | cut -c1-4) % 90 + 10 ))
+    local port=$(( 5900 + base ))
+    while ss -ltn 2>/dev/null | grep -q ":$port "; do
+        port=$(( port + 1 ))
+    done
+    echo "$port"
+}
+
+cmd_create() {
+    local name="$1"; shift
+    [ -n "$name" ] || die "usage: sandbox create <name> [options]"
+    docker inspect "$(ctr_for "$name")" >/dev/null 2>&1 && die "sandbox '$name' already exists"
+    [ -e "$(dir_for "$name")" ] && die "$(dir_for "$name") exists; remove it or pick another name"
+
+    local screen="1280x800" cpus=2 mem=4g pids=512 net="" record=no vnc=no
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --screen) screen="${2%x24}"; shift 2;;
+            --cpus)   cpus="$2"; shift 2;;
+            --mem)    mem="$2"; shift 2;;
+            --pids)   pids="$2"; shift 2;;
+            --net)    net="$2"; shift 2;;
+            --record) record=yes; shift;;
+            --vnc)    vnc=yes; shift;;
+            *) die "unknown option: $1";;
+        esac
+    done
+
+    docker image inspect "$IMAGE" >/dev/null 2>&1 || cmd_build
+
+    local dir ctr vncport
+    dir="$(dir_for "$name")"
+    ctr="$(ctr_for "$name")"
+    vncport="$(pick_vnc_port "$name")"
+    mkdir -p "$dir/out" "$dir/logs" "$dir/home"
+
+    docker run -d --name "$ctr" \
+        --user agent \
+        --hostname "$name" \
+        -e DISPLAY_NUM=99 -e "SCREEN=${screen}x24" \
+        -v "$dir/out:/output" \
+        -v "$dir/logs:/logs" \
+        -v "$dir/home:/home/agent" \
+        --tmpfs /tmp:rw,nosuid,size=512m \
+        --cpus "$cpus" --memory "$mem" --pids-limit "$pids" \
+        --security-opt no-new-privileges \
+        ${net:+--network "$net"} \
+        ${vnc:+-p "127.0.0.1:$vncport:5900"} \
+        "$IMAGE" >/dev/null
+
+    cat > "$dir/sandbox.env" <<EOF
+name=$name
+container=$ctr
+screen=$screen
+vnc_port=$vncport
+vnc_published=$([ "$vnc" = yes ] && echo yes || echo no)
+EOF
+
+    # Wait for the virtual display to come up.
+    local i=0
+    until docker exec "$ctr" test -S /tmp/.X11-unix/X99 2>/dev/null; do
+        i=$((i + 1))
+        [ "$i" -gt 50 ] && die "virtual display did not start; check $dir/logs"
+        sleep 0.2
+    done
+
+    [ "$record" = yes ] && cmd_record "$name" start
+    [ "$vnc" = yes ] && cmd_vnc "$name" on
+
+    echo "sandbox '$name' is up"
+    echo "  files:      $dir  (out/ logs/ home/)"
+    echo "  exec:       sandbox exec $name xterm"
+    [ "$record" = yes ] && echo "  recording:  $dir/out/session.mp4"
+    if [ "$vnc" = yes ]; then
+        echo "  live view:  vnc://127.0.0.1:$vncport"
+    fi
+}
+
+exec_env() {
+    # Environment for every exec so tools find the virtual display.
+    docker exec -e DISPLAY=":99" -e XAUTHORITY=/tmp/.Xauthority "$@"
+}
+
+cmd_exec() {
+    local name="$1"; shift
+    need_container "$name"
+    running_container "$name" || die "sandbox '$name' is not running"
+    local tty_flag=""
+    [ -t 0 ] && tty_flag="-it"
+    exec_env $tty_flag "$(ctr_for "$name")" "$@"
+}
+
+cmd_shot() {
+    local name="$1" file="${2:-screenshot-$(date +%H%M%S).png}"
+    need_container "$name"
+    running_container "$name" || die "sandbox '$name' is not running"
+    exec_env "$(ctr_for "$name")" import -window root "/output/$file"
+    echo "$(dir_for "$name")/out/$file"
+}
+
+cmd_record() {
+    local name="$1" action="$2"
+    need_container "$name"
+    running_container "$name" || die "sandbox '$name' is not running"
+    local screen
+    screen="$(grep '^screen=' "$(dir_for "$name")/sandbox.env" | cut -d= -f2)"
+
+    case "$action" in
+        start)
+            exec_env -d "$(ctr_for "$name")" sh -c \
+                "ffmpeg -y -f x11grab -video_size ${screen%x24} -framerate 24 -i :99 -c:v libx264 -preset ultrafast -crf 26 /output/session.mp4 2>/logs/ffmpeg.log & echo \$! > /tmp/ffmpeg.pid"
+            sleep 0.5
+            exec_env "$(ctr_for "$name")" kill -0 "$(exec_env "$(ctr_for "$name")" cat /tmp/ffmpeg.pid)" 2>/dev/null \
+                && echo "recording to $(dir_for "$name")/out/session.mp4" \
+                || die "ffmpeg failed to start; check $(dir_for "$name")/logs/ffmpeg.log"
+            ;;
+        stop)
+            local pid
+            pid="$(exec_env "$(ctr_for "$name")" cat /tmp/ffmpeg.pid)"
+            # SIGINT makes ffmpeg finalize the mp4 cleanly.
+            exec_env "$(ctr_for "$name")" kill -INT "$pid"
+            echo "recording stopped: $(dir_for "$name")/out/session.mp4"
+            ;;
+        *) die "usage: sandbox record <name> start|stop";;
+    esac
+}
+
+cmd_vnc() {
+    local name="$1" action="$2"
+    need_container "$name"
+    local dir port
+    dir="$(dir_for "$name")"
+    port="$(grep '^vnc_port=' "$dir/sandbox.env" | cut -d= -f2)"
+    case "$action" in
+        on|off)
+            [ "$(grep '^vnc_published=' "$dir/sandbox.env" | cut -d= -f2)" = "yes" ] \
+                || die "sandbox was created without --vnc; recreate it or publish port $port manually"
+            if [ "$action" = on ]; then
+                # Note: x11vnc must listen on all interfaces *inside* the container
+                # (the published port arrives via the container's eth0); exposure on
+                # the host stays loopback-only thanks to -p 127.0.0.1:port:5900.
+                exec_env -d "$(ctr_for "$name")" \
+                    x11vnc -display :99 -auth /tmp/.Xauthority -nopw \
+                        -rfbport 5900 -forever -quiet
+                echo "live view: vnc://127.0.0.1:$port"
+            else
+                exec_env "$(ctr_for "$name")" pkill x11vnc 2>/dev/null || true
+                echo "vnc off"
+            fi;;
+        info)
+            echo "vnc://127.0.0.1:$port (run: sandbox vnc $name on)";;
+        *) die "usage: sandbox vnc <name> on|off|info";;
+    esac
+}
+
+cmd_list() {
+    local ctr
+    for ctr in $(docker ps -a --format '{{.Names}}' | grep '^agent-sandbox-' || true); do
+        local name=${ctr#agent-sandbox-}
+        local state
+        state="$(docker inspect -f '{{.State.Status}}' "$ctr")"
+        echo "$name  $state  $(dir_for "$name")"
+    done
+}
+
+cmd_destroy() {
+    local name="$1" purge="${2:-}"
+    need_container "$name"
+    docker rm -f "$(ctr_for "$name")" >/dev/null
+    if [ "$purge" = "--purge" ]; then
+        rm -rf "$(dir_for "$name")"
+        echo "sandbox '$name' destroyed, files removed"
+    else
+        echo "sandbox '$name' destroyed; files kept in $(dir_for "$name")"
+    fi
+}
+
+cmd="${1:-}"; [ -n "$cmd" ] || { sed -n '2,30p' "$0"; exit 1; }
+shift
+case "$cmd" in
+    build)   cmd_build;;
+    create)  [ $# -ge 1 ] || die "usage: sandbox create <name> [options]"; cmd_create "$@";;
+    exec)    [ $# -ge 2 ] || die "usage: sandbox exec <name> <cmd...>"; n="$1"; shift; cmd_exec "$n" "$@";;
+    shot)    [ $# -ge 1 ] || die "usage: sandbox shot <name> [file.png]"; n="$1"; shift; cmd_shot "$n" "$@";;
+    record)  [ $# -ge 2 ] || die "usage: sandbox record <name> start|stop"; n="$1"; shift; cmd_record "$n" "$@";;
+    vnc)     [ $# -ge 2 ] || die "usage: sandbox vnc <name> on|off|info"; n="$1"; shift; cmd_vnc "$n" "$@";;
+    list)    cmd_list;;
+    start)   need_container "$1"; docker start "$(ctr_for "$1")" >/dev/null; echo "started";;
+    stop)    need_container "$1"; docker stop "$(ctr_for "$1")" >/dev/null; echo "stopped";;
+    destroy) [ $# -ge 1 ] || die "usage: sandbox destroy <name> [--purge]"; n="$1"; shift; cmd_destroy "$n" "$@";;
+    *)       die "unknown command: $cmd";;
+esac
