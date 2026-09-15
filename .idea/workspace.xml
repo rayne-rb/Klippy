@@ -10,7 +10,11 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -205,14 +209,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00006" summary="Enable C# support and adjust project configuration settings">
-      <option name="closed" value="true" />
-      <created>1788958103187</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1788958103187</updated>
     </task>
     <task id="LOCAL-00007" summary="Remove Klippy resources, project files, and configurations">
       <option name="closed" value="true" />
@@ -598,7 +594,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789460552169</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="Scale pupil activation radius with size and implement dynamic relaxation behavior. &#10;&#10;- Added `PUPIL_ACTIVATION_RADIUS_SCALE` to adjust activation radius proportionally to Klippy's size. &#10;- Updated `_update_pupils` to allow pupils to relax to their rest position when the cursor moves outside the activation radius.">
+      <option name="closed" value="true" />
+      <created>1789460713930</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1789460713930</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -619,7 +623,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add bounce trigger button and adjust mood/health mechanics&#10;&#10;- Added `bounce_triggered` signal and UI button to manually trigger idle bounce behavior in `DevToolsDialog`.&#10;- Updated mood/health rates in `Stats.gd` for improved progression balance.&#10;- Refined idle bounce logic to integrate manual triggers and reset behavior dynamically." />
     <MESSAGE value=" configurable scaling." />
     <MESSAGE value="Refine hungry bounce logic with envelope scaling&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
     <MESSAGE value="Improved bouncing&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
@@ -644,7 +647,8 @@
     <MESSAGE value="Add `FoodPortal` for spawning visual effects  &#10;&#10;- Introduced `FoodPortal` with animated opening/closing and vortex visuals for summoning food.  &#10;- Updated `FoodBagBody.gd` to adjust `WINDOW_MARGIN` for dynamic alignment.  &#10;- Modified `Klippy.gd` to use `FoodPortal` for spawning food at the portal's position." />
     <MESSAGE value="Prevent feeding logic from executing when the window is not visible." />
     <MESSAGE value="Add pupil tracking mechanics and art assets for Klippy&#10;&#10;- Introduced left and right pupil tracking based on mouse position.&#10;- Added new art assets for Klippy's body, details, and facial components.&#10;- Updated `Klippy.tscn` to integrate new textures and structured nodes for facial features.&#10;- Implemented `_update_pupils` logic to dynamically follow the cursor while maintaining bounds." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add pupil tracking mechanics and art assets for Klippy&#10;&#10;- Introduced left and right pupil tracking based on mouse position.&#10;- Added new art assets for Klippy's body, details, and facial components.&#10;- Updated `Klippy.tscn` to integrate new textures and structured nodes for facial features.&#10;- Implemented `_update_pupils` logic to dynamically follow the cursor while maintaining bounds." />
+    <MESSAGE value="Scale pupil activation radius with size and implement dynamic relaxation behavior. &#10;&#10;- Added `PUPIL_ACTIVATION_RADIUS_SCALE` to adjust activation radius proportionally to Klippy's size. &#10;- Updated `_update_pupils` to allow pupils to relax to their rest position when the cursor moves outside the activation radius." />
+    <option name="LAST_COMMIT_MESSAGE" value="Scale pupil activation radius with size and implement dynamic relaxation behavior. &#10;&#10;- Added `PUPIL_ACTIVATION_RADIUS_SCALE` to adjust activation radius proportionally to Klippy's size. &#10;- Updated `_update_pupils` to allow pupils to relax to their rest position when the cursor moves outside the activation radius." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

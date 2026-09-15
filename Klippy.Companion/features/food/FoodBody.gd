@@ -3,13 +3,11 @@ extends PetBody
 
 signal consumed
 
-const FEED_AMOUNT := 5.0
-
 var stats: PetStats
 var klippy_window: Window
 var bag: FoodBagBody
 var contained_in: FoodBagBody
-var food_type: String = "standard"
+var food_type: String = FoodCatalog.APPLE
 
 ## Every food item currently in the tree (bag-contained, loose on the desktop,
 ## or pooled-and-hidden alike), so any one of them can find the rest to
@@ -139,17 +137,20 @@ func _check_feeding() -> void:
 	var food_rect := Rect2i(get_window().position, get_window().size)
 
 	if klippy_rect.intersects(food_rect):
-		stats.feed(FEED_AMOUNT)
+		stats.feed(FoodCatalog.get_def(food_type).feed_amount)
 		consumed.emit()
 
 
-static func make_texture(_food_type: String = "standard") -> ImageTexture:
-	var diameter := 40
-	var image := Image.create_empty(diameter, diameter, false, Image.FORMAT_RGBA8)
-	var radius := diameter / 2.0
-	var center := Vector2(radius, radius)
-	for y in diameter:
-		for x in diameter:
-			var dist := Vector2(x + 0.5, y + 0.5).distance_to(center)
-			image.set_pixel(x, y, Color(0.85, 0.2, 0.2, 1.0) if dist <= radius else Color(0, 0, 0, 0))
-	return ImageTexture.create_from_image(image)
+## Switches this item to another [FoodCatalog] entry: swaps in its texture and
+## rescales the sprite to fill this item's window regardless of the source
+## art's native resolution, since a pooled window is reused across whatever
+## food type spawns into it next.
+func apply_food_type(new_food_type: String) -> void:
+	food_type = new_food_type
+
+	var texture := FoodCatalog.get_def(food_type).texture
+	sprite.texture = texture
+
+	var largest_side := maxf(texture.get_size().x, texture.get_size().y)
+	var window_size := get_window().size.x
+	sprite.scale = Vector2.ONE * (window_size / largest_side if largest_side > 0.0 else 1.0)

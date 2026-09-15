@@ -37,7 +37,7 @@ func can_spawn() -> bool:
 
 
 ## Drops one food item next to the anchor. Returns false when there is no room.
-func spawn() -> bool:
+func spawn(food_type: String = FoodCatalog.APPLE) -> bool:
 	if _active.size() >= MAX_ITEMS:
 		return false
 
@@ -55,6 +55,9 @@ func spawn() -> bool:
 	body.mass = MASS
 	body.stats = _stats
 	body.klippy_window = _anchor
+	# A pooled window's sprite still carries whatever food it last held, so this
+	# has to be re-applied every spawn rather than only when the window is built.
+	body.apply_food_type(food_type)
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
 	body.drag_spin_target = 0.0
@@ -87,9 +90,9 @@ func _build_window() -> Window:
 
 	var sprite := Sprite2D.new()
 	# Godot names an unnamed code-added child @Sprite2D@N; say it plainly so the
-	# body finds it the same way a scene-built one does.
+	# body finds it the same way a scene-built one does. Texture and scale are
+	# set right after by the [method spawn] call that triggered this build.
 	sprite.name = "Sprite2D"
-	sprite.texture = _make_texture()
 	body.add_child(sprite)
 	window.add_child(body)
 
@@ -111,15 +114,3 @@ func _on_consumed(window: Window) -> void:
 		window.queue_free()
 
 	availability_changed.emit()
-
-
-func _make_texture() -> ImageTexture:
-	var diameter := 40
-	var image := Image.create_empty(diameter, diameter, false, Image.FORMAT_RGBA8)
-	var radius := diameter / 2.0
-	var center := Vector2(radius, radius)
-	for y in diameter:
-		for x in diameter:
-			var dist := Vector2(x + 0.5, y + 0.5).distance_to(center)
-			image.set_pixel(x, y, Color(0.85, 0.2, 0.2, 1.0) if dist <= radius else Color(0, 0, 0, 0))
-	return ImageTexture.create_from_image(image)

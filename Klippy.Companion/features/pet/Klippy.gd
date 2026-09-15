@@ -161,7 +161,6 @@ func _ready() -> void:
 	_update_dev_tools_item()
 
 	_create_food_bag()
-	var stored_standard: int = int(food_bag_data.get("standard", 0))
 	# The bag's art isn't a simple rectangle, so anywhere clever picked ahead
 	# of time risks landing just outside it — dead center is the one point
 	# guaranteed to be inside, and food-vs-food collision spreads the pile
@@ -170,9 +169,13 @@ func _ready() -> void:
 	# meaningful direction to push apart along, so left dead-on-top of one
 	# another they'd just stay stacked forever.
 	var bag_center := Vector2i(food_bag.get_window().size) / 2
-	for i in stored_standard:
-		var jitter := Vector2(cos(i * 2.4), sin(i * 2.4)) * 5.0
-		_spawn_contained_food("standard", bag_center + Vector2i(jitter))
+	var jitter_index := 0
+	for food_id in food_bag_data:
+		var stored_count: int = int(food_bag_data[food_id])
+		for i in stored_count:
+			var jitter := Vector2(cos(jitter_index * 2.4), sin(jitter_index * 2.4)) * 5.0
+			_spawn_contained_food(food_id, bag_center + Vector2i(jitter))
+			jitter_index += 1
 
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
@@ -399,11 +402,11 @@ func _on_size_selected(new_size: int) -> void:
 
 
 func _save_state() -> void:
-	var contained_standard := 0
+	var contained_counts := {}
 	for window in active_food_items:
 		var body := window.get_child(0) as FoodBody
-		if body.contained_in == food_bag and body.food_type == "standard":
-			contained_standard += 1
+		if body.contained_in == food_bag:
+			contained_counts[body.food_type] = contained_counts.get(body.food_type, 0) + 1
 
 	SaveData.save_data({
 		"klippy": {"size": current_size},
@@ -422,7 +425,7 @@ func _save_state() -> void:
 			"vsync_enabled": vsync_enabled,
 			"target_fps": target_fps,
 		},
-		"food_bag": {"standard": contained_standard},
+		"food_bag": contained_counts,
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -500,7 +503,7 @@ func _summon_food() -> void:
 ## portal's center instead of [method _spawn_food_body]'s normal
 ## next-to-Klippy default.
 func _on_food_portal_opened(portal: FoodPortal) -> void:
-	_spawn_food_body("standard")
+	_spawn_food_body(FoodCatalog.APPLE)
 	if active_food_items.is_empty():
 		return
 
@@ -539,7 +542,6 @@ func _spawn_food_body(food_type: String) -> void:
 		body.roll_radius = FOOD_WINDOW_SIZE * 0.45
 
 		var sprite2d := Sprite2D.new()
-		sprite2d.texture = FoodBody.make_texture(food_type)
 		body.add_child(sprite2d)
 		window.add_child(body)
 
@@ -551,7 +553,9 @@ func _spawn_food_body(food_type: String) -> void:
 	body.klippy_window = get_window()
 	body.bag = food_bag
 	body.contained_in = null
-	body.food_type = food_type
+	# A pooled window's sprite still carries whatever food it last held, so this
+	# has to be re-applied every spawn rather than only when the window is built.
+	body.apply_food_type(food_type)
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
 	body.drag_spin_target = 0.0
