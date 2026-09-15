@@ -12,6 +12,7 @@ const REVIVE_ID := 5
 const DEV_TOOLS_ID := 6
 const SUMMON_FOOD_ID := 7
 const CONNECTION_ID := 8
+const REMINDERS_ID := 9
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -76,8 +77,10 @@ var close_confirm_dialog: ConfirmationDialog
 var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
 var connection_dialog: PairingDialog
+var reminder_dialog: ReminderDialog
 
 var remote_control: RemoteControl
+var reminder_scheduler: ReminderScheduler
 
 var left_pupil: Sprite2D
 var right_pupil: Sprite2D
@@ -149,6 +152,7 @@ func _ready() -> void:
 	context_menu.add_item("Feed", FEED_ID)
 	context_menu.add_item("Summon Food", SUMMON_FOOD_ID)
 	context_menu.add_item("Status", STATUS_ID)
+	context_menu.add_item("Reminders", REMINDERS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Connection", CONNECTION_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
@@ -182,6 +186,12 @@ func _ready() -> void:
 		_apply_size(saved_size)
 
 	idle_base_y = get_window().position.y
+
+	reminder_scheduler = ReminderScheduler.new()
+	add_child(reminder_scheduler)
+	reminder_scheduler.setup(save_data.get("reminders", {}))
+	reminder_scheduler.reminder_due.connect(_on_reminder_due)
+	reminder_scheduler.reminders_changed.connect(_save_state)
 
 	complaint_cooldown_timer = Timer.new()
 	complaint_cooldown_timer.one_shot = true
@@ -351,6 +361,30 @@ func _on_connection_closed() -> void:
 	connection_dialog = null
 
 
+func _open_reminders() -> void:
+	if reminder_dialog == null:
+		reminder_dialog = ReminderDialog.new()
+		add_child(reminder_dialog)
+		reminder_dialog.setup(reminder_scheduler)
+		reminder_dialog.close_requested.connect(_on_reminders_closed)
+	reminder_dialog.popup_centered()
+
+
+func _on_reminders_closed() -> void:
+	reminder_dialog.queue_free()
+	reminder_dialog = null
+
+
+## Hands the due reminder to the speech bubble, which keeps it up and nagging
+## until clicked. Reminders speak even when Klippy is dead — the user asked
+## for them, after all.
+func _on_reminder_due(reminder: Dictionary) -> void:
+	var message := str(reminder.get("message", "")).strip_edges()
+	if message.is_empty():
+		return
+	_get_speech_bubble().announce_reminder(message, get_window())
+
+
 func _on_unpair_requested() -> void:
 	KlippyLink.forget_pairing()
 
@@ -426,6 +460,7 @@ func _save_state() -> void:
 			"target_fps": target_fps,
 		},
 		"food_bag": contained_counts,
+		"reminders": reminder_scheduler.to_save_data(),
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -464,6 +499,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_summon_food()
 		CONNECTION_ID:
 			_open_connection()
+		REMINDERS_ID:
+			_open_reminders()
 
 
 func _update_revive_item() -> void:

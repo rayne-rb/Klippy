@@ -11,7 +11,8 @@ Klippy is a Clippy-inspired desktop pet — a small rock that lives on your desk
 
 - Drag and throw Klippy with real physics, allowing him to interact with the desktop
 - Food, mood, and health stats: feeding, passive healing, starvation, death, and revival
-- Right-click menu: Feed, Status, DVD mode, Connection, Settings, Close (plus Revive / Dev Tools when relevant)
+- Right-click menu: Feed, Status, Reminders, DVD mode, Connection, Settings, Close (plus Revive / Dev Tools when relevant)
+- Reminders: schedule a datetime and Klippy announces it in his speech bubble when it comes due — the bubble repeats until clicked, and reminders persist across launches
 - State persists across launches, including offline progress while closed
 - Pairs with Klippy.Server so the pet can be seen and poked from a phone
 - Dev Tools panel (enable in Settings) for nudging stats directly while testing
@@ -28,6 +29,7 @@ of which folder they sit in.
 | `food` | Food items and the spawner that pools them |
 | `stats` | Vitals and the Status window |
 | `dialogue` | What Klippy says, and the speech bubble it says it in |
+| `reminders` | Scheduling a datetime, keeping it in the save, and nagging about it |
 | `settings` | The Settings window |
 | `devtools` | The Dev Tools window |
 | `discovery` | Finds a Klippy server on the network |
