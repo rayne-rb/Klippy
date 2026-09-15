@@ -11,6 +11,17 @@ can reach it — and, as of the audio cast, a way to hear your PC through your p
 | Klippy.Shared | The contracts that cross the wire |
 | Klippy.Tests | Every test in the solution, plus the hand-run AudioCast bench probe |
 
+## Run the pet with Nix
+
+```sh
+nix run .#klippy
+```
+
+Launches the companion via Godot 4 from nixpkgs — no editor, no export step. The
+first run seeds a writable copy of the project under `~/.local/share/klippy/`
+(Godot needs to write its import cache there) and refreshes it whenever the
+flake input moves.
+
 ## How the pieces fit together
 
 Everything goes through the server, over two paths that are deliberately not the same
