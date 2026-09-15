@@ -158,6 +158,7 @@ func _ready() -> void:
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close Klippy", CLOSE_ID)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
+	RockyTheme.style_popup(context_menu)
 	add_child(context_menu)
 	_on_feeding_enabled_changed(stats.feeding_enabled)
 	stats.died.connect(_update_revive_item)
@@ -394,6 +395,7 @@ func _open_close_confirm() -> void:
 		close_confirm_dialog = ConfirmationDialog.new()
 		close_confirm_dialog.title = "Close Klippy"
 		close_confirm_dialog.dialog_text = "Close Klippy?"
+		close_confirm_dialog.theme = RockyTheme.theme()
 		close_confirm_dialog.confirmed.connect(_on_quit_requested)
 		close_confirm_dialog.canceled.connect(_on_close_confirm_closed)
 		close_confirm_dialog.close_requested.connect(_on_close_confirm_closed)
