@@ -7,11 +7,16 @@ extends Window
 ## itself — and reports the entry, so the owner can teleport him out of the
 ## next portal in the chain, which may sit on a different monitor.
 
-signal entered(entry_velocity: Vector2)
+signal entered(entry_velocity: Vector2, rising: bool)
 
 const SIZE := 160
-const SPIN_SPEED := 1.1
+const SPIN_SPEED := 1.6
 const PULSE_SPEED := 3.0
+## While the pet loiters inside the vortex (an infinite dropper), the entry
+## re-fires at this interval instead of only on the crossing frame. Must stay
+## shorter than the time it takes to fall through the vortex at exit speed,
+## or the dropper loop drops out of the bottom.
+const LINGER_REFIRE := 0.1
 
 ## Swirl colours per portal kind: kind -> [core, rim].
 const PALETTE := {
@@ -32,6 +37,9 @@ var _sprite: Sprite2D
 var _kind: String
 var _time := 0.0
 var _was_inside := false
+var _last_fire := 0.0
+var _had_pet := false
+var _last_pet_center := Vector2.ZERO
 var _dragging := false
 var _drag_offset := Vector2()
 
@@ -73,6 +81,11 @@ func _process(delta: float) -> void:
 	if _dragging:
 		position = Vector2i(_clamped_to_desktop(
 			Vector2(DisplayServer.mouse_get_position()) - _drag_offset))
+
+
+## Entry detection runs on the physics tick so it samples exactly where the
+## pet's movement steps put him.
+func _physics_process(_delta: float) -> void:
 	_watch_pet()
 
 
@@ -102,21 +115,38 @@ func _clamped_to_desktop(pos: Vector2) -> Vector2:
 	return pos.clamp(lo, hi - Vector2(SIZE, SIZE))
 
 
-## Edge-triggered entry check: fires only on the frame the pet's center
-## crosses into the vortex while thrown. Resting or dragging inside it does
-## nothing, and the next portal in the chain doesn't re-catch him the instant
-## he exits.
+## Entry check with a swept test: the pet is measured against the segment he
+## travelled since the last tick, so a fast throw can't tunnel through the
+## vortex between frames. Fires on crossing into the vortex, and — while the
+## pet lingers inside one, like in a dropper loop — re-fires every
+## [constant LINGER_REFIRE] seconds. `rising` distinguishes the two.
 func _watch_pet() -> void:
 	if not probe.is_valid():
 		return
 	var info: Dictionary = probe.call()
-	var inside: bool = (
-		info.thrown
-		and center().distance_to(info.center) < radius() + float(info.radius) * 0.6
-	)
-	if inside and not _was_inside:
-		entered.emit(info.velocity)
+	var pet_center: Vector2 = info.center
+	if not _had_pet:
+		_had_pet = true
+		_last_pet_center = pet_center
+		return
+
+	var inside := false
+	if info.thrown:
+		var seg := pet_center - _last_pet_center
+		var t := 0.0
+		if seg.length_squared() > 0.001:
+			t = clampf((center() - _last_pet_center).dot(seg) / seg.length_squared(), 0.0, 1.0)
+		var closest := _last_pet_center + seg * t
+		inside = center().distance_to(closest) < radius() + float(info.radius) * 0.6
+
+	var rising := inside and not _was_inside
+	var lingering := inside and _was_inside and _time - _last_fire >= LINGER_REFIRE
+	if rising or lingering:
+		_last_fire = _time
+		entered.emit(info.velocity, rising)
+
 	_was_inside = inside
+	_last_pet_center = pet_center
 
 
 func _core_color() -> Color:

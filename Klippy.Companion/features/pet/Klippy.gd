@@ -16,9 +16,13 @@ const REMINDERS_ID := 9
 const SUMMON_PORTALS_ID := 10
 const BANISH_PORTALS_ID := 11
 
-# After a teleport the pet starts right beside a portal; this gap keeps that
-# exit from being read as a fresh entry into the next portal in the chain.
-const PORTAL_CHAIN_COOLDOWN := 0.4
+# While the pet loiters inside a portal (a dropper loop) the portal re-fires
+# every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
+# Fresh crossings into a portal teleport immediately and ignore it.
+const PORTAL_CHAIN_COOLDOWN := 0.08
+# Exits are capped so a dropper loop stays smooth instead of accelerating
+# until the pet tunnels through everything.
+const PORTAL_MAX_EXIT_SPEED := 1300.0
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -649,18 +653,21 @@ func _update_portal_menu_items() -> void:
 func _pet_probe() -> Dictionary:
 	var window := get_window()
 	return {
-		"thrown": state == State.THROWN and not dvd_mode,
+		"thrown": state == State.THROWN,
 		"center": Vector2(window.position) + Vector2(window.size) / 2.0,
 		"radius": roll_radius,
 		"velocity": velocity,
 	}
 
 
-## Emitted by the portal the pet just flew into. His velocity carries over —
-## direction included — so he bursts out of the next portal in the chain the
-## way he came in, offset far enough that it doesn't instantly re-catch him.
-func _on_portal_entered(entry_velocity: Vector2, entered_portal: TravelPortal) -> void:
-	if Time.get_unix_time_from_system() < _portal_chain_cooldown:
+## Emitted by the portal the pet just flew into (`rising`), or by one he is
+## loitering inside (`rising == false`, the dropper case). His velocity
+## carries over — direction included, capped for sanity — so he bursts out of
+## the next portal in the chain the way he came in, offset far enough that it
+## doesn't instantly re-catch him.
+func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: TravelPortal) -> void:
+	var now := Time.get_unix_time_from_system()
+	if not rising and now < _portal_chain_cooldown:
 		return
 	if travel_portals.size() < 2 or not is_instance_valid(entered_portal):
 		return
@@ -670,14 +677,16 @@ func _on_portal_entered(entry_velocity: Vector2, entered_portal: TravelPortal) -
 	if index == -1 or not is_instance_valid(exit_portal):
 		return
 
-	var direction := entry_velocity.normalized() if entry_velocity.length() > 1.0 \
+	var exit_velocity := entry_velocity.limit_length(PORTAL_MAX_EXIT_SPEED)
+	var direction := exit_velocity.normalized() if exit_velocity.length() > 1.0 \
 			else Vector2.RIGHT.rotated(randf() * TAU)
 	var window := get_window()
 	window.current_screen = exit_portal.current_screen
 	var exit_center := exit_portal.center()
 	window.position = Vector2i(exit_center + direction * (exit_portal.radius() + roll_radius + 8.0)) \
 			- Vector2i(window.size) / 2
-	_portal_chain_cooldown = Time.get_unix_time_from_system() + PORTAL_CHAIN_COOLDOWN
+	velocity = exit_velocity
+	_portal_chain_cooldown = now + PORTAL_CHAIN_COOLDOWN
 
 
 func _spawn_food_body(food_type: String) -> void:
