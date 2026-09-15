@@ -12,7 +12,7 @@ var health_value_label: Label
 
 
 func _ready() -> void:
-	_vbox = RockyTheme.setup_window(self, "Status", Vector2i(320, 280))
+	_vbox = RockyTheme.setup_window(self, "Status")
 
 
 func setup(pet_stats: PetStats) -> void:

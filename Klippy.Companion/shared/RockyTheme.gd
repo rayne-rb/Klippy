@@ -93,16 +93,23 @@ static func theme() -> Theme:
 
 ## Turns a plain Window into a chromeless bubble: rounded stone panel, soft
 ## shadow, and a title row with a close button that emits the window's
-## `close_requested`. Returns the container to put the dialog's content in.
-static func setup_window(win: Window, title: String, size := Vector2i(360, 320)) -> VBoxContainer:
+## `close_requested`. The window wraps its content, so dialogs are exactly as
+## tall as what's inside them — no dead space — and every dialog shares the
+## same `width` so the cards read as a set. Returns the container to put the
+## dialog's content in.
+static func setup_window(win: Window, title: String, width := 340) -> VBoxContainer:
 	win.title = title
 	win.borderless = true
 	win.transparent = true
+	win.wrap_controls = true
+	win.min_size = Vector2i(width, 0)
 	win.theme = theme()
-	win.size = size
 	win.close_requested.connect(win.hide)
 
 	var margin := MarginContainer.new()
+	# Anchored to the full rect so the panel stretches to the window's width
+	# (the window itself wraps to the content's minimum size; `min_size` gives
+	# every dialog the same card width even when its content is narrow).
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for side in ["left", "right", "top", "bottom"]:
 		margin.add_theme_constant_override("margin_" + side, 10)

@@ -17,7 +17,7 @@ var _unpair_button: Button
 
 
 func _ready() -> void:
-	var vbox := RockyTheme.setup_window(self, "Klippy Connection", Vector2i(380, 300))
+	var vbox := RockyTheme.setup_window(self, "Klippy Connection", 380)
 
 	_status_label = Label.new()
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

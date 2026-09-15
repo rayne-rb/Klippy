@@ -73,7 +73,7 @@ var play_distance_traveled := 0.0
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
-var close_confirm_dialog: ConfirmationDialog
+var close_confirm_dialog: Window
 var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
 var connection_dialog: PairingDialog
@@ -392,12 +392,30 @@ func _on_unpair_requested() -> void:
 
 func _open_close_confirm() -> void:
 	if close_confirm_dialog == null:
-		close_confirm_dialog = ConfirmationDialog.new()
-		close_confirm_dialog.title = "Close Klippy"
-		close_confirm_dialog.dialog_text = "Close Klippy?"
-		close_confirm_dialog.theme = RockyTheme.theme()
-		close_confirm_dialog.confirmed.connect(_on_quit_requested)
-		close_confirm_dialog.canceled.connect(_on_close_confirm_closed)
+		close_confirm_dialog = Window.new()
+		var vbox := RockyTheme.setup_window(close_confirm_dialog, "Close Klippy")
+
+		var label := Label.new()
+		label.text = "Really say goodbye?"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(label)
+
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.alignment = BoxContainer.ALIGNMENT_END
+		vbox.add_child(row)
+
+		var keep_button := Button.new()
+		keep_button.text = "Keep him"
+		keep_button.pressed.connect(func() -> void: close_confirm_dialog.close_requested.emit())
+		row.add_child(keep_button)
+
+		var close_button := Button.new()
+		close_button.text = "Close"
+		close_button.theme_type_variation = "ButtonPrimary"
+		close_button.pressed.connect(_on_quit_requested)
+		row.add_child(close_button)
+
 		close_confirm_dialog.close_requested.connect(_on_close_confirm_closed)
 		add_child(close_confirm_dialog)
 	close_confirm_dialog.popup_centered()

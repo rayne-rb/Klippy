@@ -10,7 +10,7 @@ var stats: PetStats
 
 func setup(pet_stats: PetStats) -> void:
 	stats = pet_stats
-	var vbox := RockyTheme.setup_window(self, "Dev Tools", Vector2i(320, 280))
+	var vbox := RockyTheme.setup_window(self, "Dev Tools")
 
 	_add_stat_row(vbox, "Food", stats.debug_adjust_food)
 	_add_stat_row(vbox, "Mood", stats.debug_adjust_mood)

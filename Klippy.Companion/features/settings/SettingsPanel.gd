@@ -18,7 +18,7 @@ var size_steps: Array
 func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	stats = pet_stats
 	size_steps = sizes
-	var vbox := RockyTheme.setup_window(self, "Settings", Vector2i(360, 510))
+	var vbox := RockyTheme.setup_window(self, "Settings")
 
 	var feeding_check := CheckBox.new()
 	feeding_check.text = "Enable feeding"

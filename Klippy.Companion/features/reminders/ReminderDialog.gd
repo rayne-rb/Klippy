@@ -17,7 +17,7 @@ var pending_box: VBoxContainer
 
 func setup(reminder_scheduler: ReminderScheduler) -> void:
 	scheduler = reminder_scheduler
-	var vbox := RockyTheme.setup_window(self, "Reminders", Vector2i(360, 302))
+	var vbox := RockyTheme.setup_window(self, "Reminders")
 	scheduler.reminders_changed.connect(_refresh_pending)
 	_refresh_pending()
 
