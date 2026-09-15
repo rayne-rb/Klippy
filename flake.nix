@@ -26,7 +26,12 @@
           # cache into the project directory, which a store path can't be.
           # The seeded copy needs one editor-style import pass before its
           # class_name lookups resolve, exactly like a fresh checkout.
+          #
+          # mesa.drivers goes on LD_LIBRARY_PATH because off NixOS the nix Godot
+          # otherwise can't find the GPU's DRI drivers: GLX comes back with no
+          # framebuffer configs and the GLES fallback segfaults in EGL init.
           klippy = pkgs.writeShellScriptBin "klippy" ''
+            export LD_LIBRARY_PATH="${pkgs.mesa.drivers}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             data="''${XDG_DATA_HOME:-$HOME/.local/share}/klippy/$(basename ${klippy-src})"
             if [ ! -d "$data" ]; then
               mkdir -p "$(dirname "$data")"
