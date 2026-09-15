@@ -1,7 +1,12 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=8 format=3]
 
-[ext_resource type="Texture2D" uid="uid://cx7tkqa2h0qcw" path="res://assets/Klippy.png" id="1_texture"]
+[ext_resource type="Texture2D" uid="uid://b5qirws2ksm4w" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyBody.png" id="1_body"]
 [ext_resource type="Script" path="res://features/pet/Klippy.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://dkwpa1bfqf10n" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyDetail.png" id="3_detail"]
+[ext_resource type="Texture2D" uid="uid://c6wug8hh4k2m1" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyLeftEye.png" id="4_lefteye"]
+[ext_resource type="Texture2D" uid="uid://cita80syoaur0" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyLeftPupil.png" id="5_leftpupil"]
+[ext_resource type="Texture2D" uid="uid://boswvb4mxmkbk" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyRightEye.png" id="6_righteye"]
+[ext_resource type="Texture2D" uid="uid://ylmhr715vxj8" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyRightPupil.png" id="7_rightpupil"]
 
 [node name="Klippy" type="Node2D"]
 position = Vector2(100, 100)
@@ -9,4 +14,19 @@ script = ExtResource("2_script")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("1_texture")
+texture = ExtResource("1_body")
+
+[node name="Detail" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("3_detail")
+
+[node name="LeftEye" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("4_lefteye")
+
+[node name="LeftPupil" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("5_leftpupil")
+
+[node name="RightEye" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("6_righteye")
+
+[node name="RightPupil" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("7_rightpupil")

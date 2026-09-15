@@ -31,6 +31,22 @@ const HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE := 0.35
 const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
 
+const PUPIL_FOLLOW_RATE := 12.0
+# Rest position and the room each pupil has to move before its edge would exit
+# the eye white, per side, traced from the source art (both eyes are hand-drawn
+# and asymmetric, so this isn't derived at runtime). Rest is expressed in
+# Sprite2D-local space, which Godot centers on the 400x400 texture's midpoint
+# (Sprite2D.centered defaults to true) — that's why these aren't the raw
+# 0..400 pixel coordinates traced from the image.
+const LEFT_PUPIL_REST := Vector2(150.5 - 200.0, 129.5 - 200.0)
+# The left eye's raw alpha bbox is misleading on the right side: it picks up a
+# small highlight-glint blob near the top-right that's disconnected from the
+# actual socket. Traced at the pupil's own vertical center instead, the real
+# eye-white edge there is ~x=189, not the ~213 the full-image bbox suggests.
+const LEFT_PUPIL_BOUNDS := Rect2(-18.0, -15.0, 35.0, 28.0)
+const RIGHT_PUPIL_REST := Vector2(245.0 - 200.0, 147.0 - 200.0)
+const RIGHT_PUPIL_BOUNDS := Rect2(-19.0, -15.0, 38.0, 30.0)
+
 const PLAY_MIN_HEALTH := 60.0
 const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
@@ -59,6 +75,9 @@ var connection_dialog: PairingDialog
 
 var remote_control: RemoteControl
 
+var left_pupil: Sprite2D
+var right_pupil: Sprite2D
+
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
 var stats: PetStats
@@ -79,6 +98,8 @@ var target_fps := 30
 
 func _ready() -> void:
 	super._ready()
+	left_pupil = sprite.get_node(^"LeftPupil") as Sprite2D
+	right_pupil = sprite.get_node(^"RightPupil") as Sprite2D
 	_build_click_through_mask()
 	_recompute_physical_properties()
 
@@ -611,6 +632,44 @@ func _apply_size(new_size: int) -> void:
 func _recompute_physical_properties() -> void:
 	roll_radius = current_size * 0.45
 	mass = pow(current_size / REFERENCE_SIZE, 2.0)
+
+
+func _process(delta: float) -> void:
+	_update_pupils(delta)
+
+
+## Point both pupils at the mouse. Reads the OS-level cursor position rather
+## than [method Node2D.get_global_mouse_position] because most of Klippy's
+## window is a mouse-passthrough region — the viewport's cached mouse position
+## only updates on motion events the window actually receives, which is rare,
+## so it would sit frozen and then jump. [method Node2D.to_local] then folds
+## out the sprite's current scale/rotation, giving the mouse position in the
+## same unrotated space the bounds below were traced in, regardless of whether
+## Klippy is currently spinning from a drag or a throw.
+func _update_pupils(delta: float) -> void:
+	var mouse_window_local := Vector2(DisplayServer.mouse_get_position() - get_window().position)
+	var look_pos := sprite.to_local(mouse_window_local)
+	left_pupil.position = _follow_pupil(left_pupil.position, look_pos - LEFT_PUPIL_REST, LEFT_PUPIL_BOUNDS, delta)
+	right_pupil.position = _follow_pupil(right_pupil.position, look_pos - RIGHT_PUPIL_REST, RIGHT_PUPIL_BOUNDS, delta)
+
+
+## [param bounds] holds the max reach per direction (left/up as its negative
+## position, right/down as its end), not a box to clamp into directly — the
+## eye white is oval, so a plain per-axis clampf would let the offset reach
+## the box's corners, which sit outside the actual eye shape. Scaling back
+## any offset that falls outside the quadrant's ellipse keeps the pupil
+## inside the socket at every angle instead of just on the axes.
+func _follow_pupil(current: Vector2, wanted_offset: Vector2, bounds: Rect2, delta: float) -> Vector2:
+	var rx := bounds.end.x if wanted_offset.x >= 0.0 else -bounds.position.x
+	var ry := bounds.end.y if wanted_offset.y >= 0.0 else -bounds.position.y
+	var clamped := wanted_offset
+	if rx > 0.0 and ry > 0.0:
+		var t := pow(wanted_offset.x / rx, 2) + pow(wanted_offset.y / ry, 2)
+		if t > 1.0:
+			clamped = wanted_offset / sqrt(t)
+
+	var lerp_t := 1.0 - exp(-PUPIL_FOLLOW_RATE * delta)
+	return current.lerp(clamped, lerp_t)
 
 
 func _input(event: InputEvent) -> void:
