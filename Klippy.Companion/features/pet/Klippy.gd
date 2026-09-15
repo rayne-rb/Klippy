@@ -14,6 +14,11 @@ const SUMMON_FOOD_ID := 7
 const CONNECTION_ID := 8
 const REMINDERS_ID := 9
 const SUMMON_PORTALS_ID := 10
+const BANISH_PORTALS_ID := 11
+
+# After a teleport the pet starts right beside a portal; this gap keeps that
+# exit from being read as a fresh entry into the next portal in the chain.
+const PORTAL_CHAIN_COOLDOWN := 0.4
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -86,6 +91,7 @@ var reminder_scheduler: ReminderScheduler
 var blue_portal: TravelPortal
 var red_portal: TravelPortal
 var travel_portals: Array[TravelPortal] = []
+var _portal_chain_cooldown := 0.0
 
 var left_pupil: Sprite2D
 var right_pupil: Sprite2D
@@ -524,7 +530,9 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		SUMMON_FOOD_ID:
 			_summon_food()
 		SUMMON_PORTALS_ID:
-			_toggle_portals()
+			_summon_portals()
+		BANISH_PORTALS_ID:
+			_banish_portals()
 		CONNECTION_ID:
 			_open_connection()
 		REMINDERS_ID:
@@ -582,45 +590,58 @@ func _on_food_portal_opened(portal: FoodPortal) -> void:
 	body.state = PetBody.State.THROWN
 
 
-## Blue and red travel portals: throw the pet into one and he flies out of
-## the other. Red is placed on the next monitor when there is one, so the
-## pair doubles as a way to fling Klippy across screens.
-func _toggle_portals() -> void:
-	if not travel_portals.is_empty():
-		for portal in travel_portals:
-			portal.queue_free()
-		travel_portals.clear()
-		blue_portal = null
-		red_portal = null
-	else:
-		var screens := DisplayServer.get_screen_count()
+## Travel portals, as many as you like. The first summon places the classic
+## pair — blue here, red on the next monitor when there is one — and every
+## further summon adds one more portal in a new colour, round-robin across
+## screens. Entering any portal exits the next one in the chain.
+func _summon_portals() -> void:
+	var screens := maxi(DisplayServer.get_screen_count(), 1)
+	if travel_portals.is_empty():
 		var blue_screen := get_window().current_screen
 		var red_screen := (blue_screen + 1) % screens if screens > 1 else blue_screen
 		_spawn_portal("blue", blue_screen, 0.25)
 		_spawn_portal("red", red_screen, 0.75)
-	_update_portals_menu_item()
+	else:
+		var index := travel_portals.size()
+		var fractions := [0.5, 0.3, 0.7]
+		_spawn_portal(TravelPortal.PALETTE.keys()[index % TravelPortal.PALETTE.size()],
+				index % screens, fractions[index % fractions.size()])
+	_update_portal_menu_items()
 
 
-func _spawn_portal(kind: String, screen: int, x_fraction: float) -> void:
+func _banish_portals() -> void:
+	for portal in travel_portals:
+		if is_instance_valid(portal):
+			portal.queue_free()
+	travel_portals.clear()
+	blue_portal = null
+	red_portal = null
+	_update_portal_menu_items()
+
+
+func _spawn_portal(kind: String, screen: int, x_fraction: float, y_fraction := 0.45) -> void:
 	var portal := TravelPortal.new(kind)
 	portal.current_screen = screen
 	portal.probe = _pet_probe
 	portal.entered.connect(_on_portal_entered.bind(portal))
 	add_child(portal)
 	var bounds := DisplayServer.screen_get_usable_rect(screen)
-	var spot := Vector2(bounds.position) + Vector2(bounds.size.x * x_fraction, bounds.size.y * 0.45)
+	var spot := Vector2(bounds.position) + Vector2(bounds.size.x * x_fraction, bounds.size.y * y_fraction)
 	portal.place(Vector2i(spot))
 	travel_portals.append(portal)
 	if kind == "blue":
 		blue_portal = portal
-	else:
+	elif kind == "red":
 		red_portal = portal
 
 
-func _update_portals_menu_item() -> void:
-	var index := context_menu.get_item_index(SUMMON_PORTALS_ID)
-	var active := not travel_portals.is_empty()
-	context_menu.set_item_text(index, "Banish Portals" if active else "Summon Portals")
+func _update_portal_menu_items() -> void:
+	var banish_index := context_menu.get_item_index(BANISH_PORTALS_ID)
+	if travel_portals.is_empty():
+		if banish_index != -1:
+			context_menu.remove_item(banish_index)
+	elif banish_index == -1:
+		context_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
 
 
 ## What the travel portals need to know about the pet each frame, in their
@@ -636,11 +657,17 @@ func _pet_probe() -> Dictionary:
 
 
 ## Emitted by the portal the pet just flew into. His velocity carries over —
-## direction included — so he bursts out of the twin portal the way he came
-## in, offset far enough that the twin doesn't instantly re-catch him.
+## direction included — so he bursts out of the next portal in the chain the
+## way he came in, offset far enough that it doesn't instantly re-catch him.
 func _on_portal_entered(entry_velocity: Vector2, entered_portal: TravelPortal) -> void:
-	var exit_portal := red_portal if entered_portal == blue_portal else blue_portal
-	if exit_portal == null:
+	if Time.get_unix_time_from_system() < _portal_chain_cooldown:
+		return
+	if travel_portals.size() < 2 or not is_instance_valid(entered_portal):
+		return
+
+	var index := travel_portals.find(entered_portal)
+	var exit_portal: TravelPortal = travel_portals[(index + 1) % travel_portals.size()]
+	if index == -1 or not is_instance_valid(exit_portal):
 		return
 
 	var direction := entry_velocity.normalized() if entry_velocity.length() > 1.0 \
@@ -650,6 +677,7 @@ func _on_portal_entered(entry_velocity: Vector2, entered_portal: TravelPortal) -
 	var exit_center := exit_portal.center()
 	window.position = Vector2i(exit_center + direction * (exit_portal.radius() + roll_radius + 8.0)) \
 			- Vector2i(window.size) / 2
+	_portal_chain_cooldown = Time.get_unix_time_from_system() + PORTAL_CHAIN_COOLDOWN
 
 
 func _spawn_food_body(food_type: String) -> void:

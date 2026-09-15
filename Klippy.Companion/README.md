@@ -12,7 +12,7 @@ Klippy is a Clippy-inspired desktop pet — a small rock that lives on your desk
 - Drag and throw Klippy with real physics, allowing him to interact with the desktop
 - Food, mood, and health stats: feeding, passive healing, starvation, death, and revival
 - Right-click menu: Feed, Summon Food, Summon Portals, Status, Reminders, DVD mode, Connection, Settings, Close (plus Revive / Dev Tools when relevant)
-- Travel portals: a linked blue/red pair — throw Klippy into one and he flies out of the other; red is placed on the next monitor when there is one
+- Travel portals: place as many as you like and drag them anywhere (any monitor) — the first summon makes a blue/red pair across monitors; throw Klippy into one and he flies out of the next portal in the chain
 - Reminders: set a message and a minutes-from-now and Klippy announces it in his speech bubble when it comes due — the bubble repeats until clicked, and reminders persist across launches
 - State persists across launches, including offline progress while closed
 - Pairs with Klippy.Server so the pet can be seen and poked from a phone
