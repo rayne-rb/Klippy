@@ -132,6 +132,8 @@ func _check_bag(pre_move_position: Vector2i) -> void:
 func _check_feeding() -> void:
 	if klippy_window == null or stats == null:
 		return
+	if not get_window().visible:
+		return
 
 	var klippy_rect := Rect2i(klippy_window.position, klippy_window.size)
 	var food_rect := Rect2i(get_window().position, get_window().size)
