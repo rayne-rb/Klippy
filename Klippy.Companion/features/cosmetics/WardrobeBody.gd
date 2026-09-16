@@ -30,6 +30,10 @@ var _press_window_position: Vector2i
 
 
 func _ready() -> void:
+	# A wardrobe is an upright cabinet, not a ball — it shouldn't pick up spin
+	# from throws/bounces/drag-wheel the way Klippy and food do.
+	can_rotate = false
+
 	var wardrobe_sprite := Sprite2D.new()
 	wardrobe_sprite.name = "Sprite2D"
 	wardrobe_sprite.texture = TEXTURE

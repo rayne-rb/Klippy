@@ -22,6 +22,14 @@ var drag_spin_target := 0.0
 var mass := 1.0
 var roll_radius := 90.0
 
+## Whether landings, air spin and drag-wheel spin are allowed to turn this
+## body's sprite at all. Round bodies (Klippy, food) roll realistically as
+## [member roll_radius] converts their linear velocity to spin; an upright
+## prop with no floor-contact roll of its own (the wardrobe) would otherwise
+## pick up an arbitrary, never-recovered tilt from any residual velocity left
+## over when a drag ends. Subclasses that shouldn't roll set this false.
+var can_rotate := true
+
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
 
@@ -229,7 +237,7 @@ func _process_dragging(delta: float, window: Window) -> void:
 		velocity = (new_pos - old_pos) / delta
 	window.position = Vector2i(new_pos)
 
-	if sprite.rotation != drag_spin_target:
+	if can_rotate and sprite.rotation != drag_spin_target:
 		var t := 1.0 - exp(-SPIN_RECOVERY_RATE * delta)
 		sprite.rotation = lerp_angle(sprite.rotation, drag_spin_target, t)
 		if abs(sprite.rotation - drag_spin_target) < 0.001:
@@ -303,7 +311,7 @@ func _process_thrown(delta: float, window: Window) -> void:
 	if not direct_roll:
 		angular_velocity *= max(0.0, 1.0 - AIR_SPIN_DAMPING * delta)
 
-	if angular_velocity != 0.0:
+	if can_rotate and angular_velocity != 0.0:
 		sprite.rotation += angular_velocity * delta
 		_on_rotation_changed(sprite.rotation)
 
