@@ -13,9 +13,9 @@ const DEV_TOOLS_ID := 6
 const SUMMON_FOOD_ID := 7
 const CONNECTION_ID := 8
 const WARDROBE_ID := 9
-const REMINDERS_ID := 9
-const SUMMON_PORTALS_ID := 10
-const BANISH_PORTALS_ID := 11
+const REMINDERS_ID := 10
+const SUMMON_PORTALS_ID := 11
+const BANISH_PORTALS_ID := 12
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
