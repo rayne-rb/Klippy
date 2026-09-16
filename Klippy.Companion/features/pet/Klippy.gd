@@ -594,22 +594,16 @@ func _on_food_portal_opened(portal: FoodPortal) -> void:
 	body.state = PetBody.State.THROWN
 
 
-## Travel portals, as many as you like. The first summon places the classic
-## pair — blue here, red on the next monitor when there is one — and every
-## further summon adds one more portal in a new colour, round-robin across
-## screens. Entering any portal exits the next one in the chain.
+## Travel portals: a linked pair — blue here, red on the next monitor when
+## there is one. Entering either portal exits the other.
 func _summon_portals() -> void:
+	if not travel_portals.is_empty():
+		return
 	var screens := maxi(DisplayServer.get_screen_count(), 1)
-	if travel_portals.is_empty():
-		var blue_screen := get_window().current_screen
-		var red_screen := (blue_screen + 1) % screens if screens > 1 else blue_screen
-		_spawn_portal("blue", blue_screen, 0.25)
-		_spawn_portal("red", red_screen, 0.75)
-	else:
-		var index := travel_portals.size()
-		var fractions := [0.5, 0.3, 0.7]
-		_spawn_portal(TravelPortal.PALETTE.keys()[index % TravelPortal.PALETTE.size()],
-				index % screens, fractions[index % fractions.size()])
+	var blue_screen := get_window().current_screen
+	var red_screen := (blue_screen + 1) % screens if screens > 1 else blue_screen
+	_spawn_portal("blue", blue_screen, 0.25)
+	_spawn_portal("red", red_screen, 0.75)
 	_update_portal_menu_items()
 
 
@@ -640,12 +634,14 @@ func _spawn_portal(kind: String, screen: int, x_fraction: float, y_fraction := 0
 
 
 func _update_portal_menu_items() -> void:
+	var have_portals := not travel_portals.is_empty()
+	context_menu.set_item_disabled(context_menu.get_item_index(SUMMON_PORTALS_ID), have_portals)
 	var banish_index := context_menu.get_item_index(BANISH_PORTALS_ID)
-	if travel_portals.is_empty():
-		if banish_index != -1:
-			context_menu.remove_item(banish_index)
-	elif banish_index == -1:
-		context_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
+	if have_portals:
+		if banish_index == -1:
+			context_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
+	elif banish_index != -1:
+		context_menu.remove_item(banish_index)
 
 
 ## What the travel portals need to know about the pet each frame, in their
