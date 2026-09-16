@@ -5,3 +5,4 @@ extends RefCounted
 ## menus reference a name here instead of a bare number.
 
 const MARBLE_COSMETICS := 3
+const JELLY_FOOD := 2

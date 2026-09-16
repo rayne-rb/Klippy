@@ -22,6 +22,12 @@ var drag_spin_target := 0.0
 var mass := 1.0
 var roll_radius := 90.0
 
+## Restitution for wall/floor bounces (see [method _process_thrown]), separate
+## from the shared [constant BOUNCE_DAMPING] so a per-instance buff (Klippy
+## going extra-bouncy off jelly, say) can override just this one body without
+## touching every other body's collisions.
+var bounce_damping := BOUNCE_DAMPING
+
 ## Whether landings, air spin and drag-wheel spin are allowed to turn this
 ## body's sprite at all. Round bodies (Klippy, food) roll realistically as
 ## [member roll_radius] converts their linear velocity to spin; an upright
@@ -279,27 +285,27 @@ func _process_thrown(delta: float, window: Window) -> void:
 	if pos.x < min_x:
 		pos.x = min_x
 		var impact_speed := velocity.length()
-		velocity.x = -velocity.x * BOUNCE_DAMPING
+		velocity.x = -velocity.x * bounce_damping
 		angular_velocity += -velocity.y / roll_radius
 		_on_energetic_bounce(impact_speed)
 	elif pos.x > max_x:
 		pos.x = max_x
 		var impact_speed := velocity.length()
-		velocity.x = -velocity.x * BOUNCE_DAMPING
+		velocity.x = -velocity.x * bounce_damping
 		angular_velocity += -velocity.y / roll_radius
 		_on_energetic_bounce(impact_speed)
 
 	if pos.y < min_y:
 		pos.y = min_y
 		var impact_speed := velocity.length()
-		velocity.y = -velocity.y * BOUNCE_DAMPING
+		velocity.y = -velocity.y * bounce_damping
 		angular_velocity += velocity.x / roll_radius
 		_on_energetic_bounce(impact_speed)
 	elif pos.y >= floor_y:
 		pos.y = floor_y
 		if abs(velocity.y) > REST_SPEED:
 			var impact_speed := velocity.length()
-			velocity.y = -velocity.y * BOUNCE_DAMPING
+			velocity.y = -velocity.y * bounce_damping
 			angular_velocity += velocity.x / roll_radius
 			_on_energetic_bounce(impact_speed)
 		else:

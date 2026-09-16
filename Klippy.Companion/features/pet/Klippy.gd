@@ -36,6 +36,10 @@ const FOOD_WINDOW_SIZE := 60
 const FOOD_MASS := 0.3
 const MAX_FOOD_ITEMS := 8
 
+# Jelly only turns up in the portal's random draw once Klippy has some levels
+# on him (see [constant LevelUnlocks.JELLY_FOOD]), and even then rarely.
+const JELLY_SPAWN_CHANCE := 0.02
+
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
 const HUNGRY_BOUNCES_PER_BURST := 5
@@ -118,6 +122,11 @@ var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
 var stats: PetStats
 var pet_level: PetLevel
+
+## Backs whatever food buff (jelly's bounciness, say) is currently active;
+## [method _on_food_buff_expired] reverts everything it touched once it fires.
+var food_buff_timer: Timer
+var damage_immune := false
 
 var dvd_mode := false
 
@@ -253,6 +262,11 @@ func _ready() -> void:
 	complaint_cooldown_timer.one_shot = true
 	complaint_cooldown_timer.wait_time = COMPLAINT_COOLDOWN
 	add_child(complaint_cooldown_timer)
+
+	food_buff_timer = Timer.new()
+	food_buff_timer.one_shot = true
+	food_buff_timer.timeout.connect(_on_food_buff_expired)
+	add_child(food_buff_timer)
 
 	get_tree().root.close_requested.connect(_on_quit_requested)
 
@@ -720,7 +734,7 @@ func _summon_food() -> void:
 ## portal's center instead of [method _spawn_food_body]'s normal
 ## next-to-Klippy default.
 func _on_food_portal_opened(portal: FoodPortal) -> void:
-	_spawn_food_body(FoodCatalog.APPLE)
+	_spawn_food_body(_roll_summon_food_type())
 	if active_food_items.is_empty():
 		return
 
@@ -829,6 +843,14 @@ func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: T
 	_portal_chain_cooldown = now + PORTAL_CHAIN_COOLDOWN
 
 
+## What the portal drops: almost always an apple, but a rare jelly once
+## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]).
+func _roll_summon_food_type() -> String:
+	if pet_level.is_unlocked(LevelUnlocks.JELLY_FOOD) and randf() < JELLY_SPAWN_CHANCE:
+		return FoodCatalog.JELLY
+	return FoodCatalog.APPLE
+
+
 func _spawn_food_body(food_type: String) -> void:
 	if active_food_items.size() >= MAX_FOOD_ITEMS:
 		return
@@ -885,6 +907,7 @@ func _spawn_food_body(food_type: String) -> void:
 
 func _on_food_item_consumed(window: Window) -> void:
 	var body := window.get_child(0) as FoodBody
+	_apply_food_buff(FoodCatalog.get_def(body.food_type))
 	body.set_physics_process(false)
 	window.hide()
 	active_food_items.erase(window)
@@ -893,6 +916,24 @@ func _on_food_item_consumed(window: Window) -> void:
 	else:
 		window.queue_free()
 	_update_feed_menu_state()
+
+
+## Starts (or refreshes, if one is already running) whatever timed buff
+## [param def] carries. A food with no [member FoodDef.buff_duration] leaves
+## Klippy untouched.
+func _apply_food_buff(def: FoodDef) -> void:
+	if def.buff_duration <= 0.0:
+		return
+
+	if def.bounce_damping_override >= 0.0:
+		bounce_damping = def.bounce_damping_override
+	damage_immune = def.damage_immune
+	food_buff_timer.start(def.buff_duration)
+
+
+func _on_food_buff_expired() -> void:
+	bounce_damping = BOUNCE_DAMPING
+	damage_immune = false
 
 
 ## Drops a food item at [param local_position] (relative to the bag window's
@@ -1029,7 +1070,7 @@ func _on_rotation_changed(angle: float) -> void:
 
 
 func _on_energetic_bounce(impact_speed: float) -> void:
-	if impact_speed >= DAMAGE_SPEED_THRESHOLD:
+	if impact_speed >= DAMAGE_SPEED_THRESHOLD and not damage_immune:
 		stats.apply_throw_damage()
 	_maybe_complain()
 

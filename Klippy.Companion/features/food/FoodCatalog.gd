@@ -6,6 +6,7 @@ extends RefCounted
 ## spawns, saves, or feeds food needs to know the specific list.
 
 const APPLE := "apple"
+const JELLY := "jelly"
 
 static var _defs: Dictionary = {}
 static var _initialized := false
@@ -32,3 +33,13 @@ static func _ensure_initialized() -> void:
 	apple.texture = preload("res://assets/Food/KlippyAppleFood.png")
 	apple.feed_amount = 5.0
 	_defs[apple.id] = apple
+
+	var jelly := FoodDef.new()
+	jelly.id = JELLY
+	jelly.display_name = "Jelly"
+	jelly.texture = preload("res://assets/Food/KlippyJellyFood.png")
+	jelly.feed_amount = 5.0
+	jelly.buff_duration = 20.0
+	jelly.bounce_damping_override = 0.95
+	jelly.damage_immune = true
+	_defs[jelly.id] = jelly

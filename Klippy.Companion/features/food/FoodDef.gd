@@ -9,3 +9,13 @@ extends Resource
 @export var display_name: String
 @export var texture: Texture2D
 @export var feed_amount: float = 5.0
+
+## How long, in seconds, eating this food buffs Klippy for. 0 means no buff —
+## the food just feeds. A repeat feeding refreshes the timer rather than
+## stacking it.
+@export var buff_duration: float = 0.0
+## Replaces [constant PetBody.BOUNCE_DAMPING] for the buff's duration.
+## Negative means "leave bounciness alone".
+@export var bounce_damping_override: float = -1.0
+## Whether impacts land no throw damage for the buff's duration.
+@export var damage_immune: bool = false

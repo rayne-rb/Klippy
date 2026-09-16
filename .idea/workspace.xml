@@ -11,14 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPartDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPartDef.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/PupilsCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/PupilsCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -214,14 +211,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00014" summary="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions.&#10;- Included probabilistic logic and cooldown system for complaint generation.">
-      <option name="closed" value="true" />
-      <created>1788967279800</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1788967279800</updated>
     </task>
     <task id="LOCAL-00015" summary="Add feeding system with stats management to Klippy&#10;&#10;- Introduced `PetStats` to track and emit hunger and feeding states.&#10;- Added `SettingsPanel` with toggles for feeding and hunger visibility.&#10;- Enabled feeding through context menu with dynamic state management.&#10;- Integrated hunger updates with real-time UI feedback.">
       <option name="closed" value="true" />
@@ -607,7 +596,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789543803317</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level.">
+      <option name="closed" value="true" />
+      <created>1789545969788</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1789545969788</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -628,7 +625,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
     <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
     <MESSAGE value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
@@ -653,7 +649,8 @@
     <MESSAGE value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
     <MESSAGE value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
     <MESSAGE value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
+    <MESSAGE value="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
