@@ -80,7 +80,7 @@ var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
 var connection_dialog: PairingDialog
 var wardrobe: WardrobeBody
-var cosmetic_picker: PopupMenu
+var wardrobe_dialog: WardrobeDialog
 
 var remote_control: RemoteControl
 
@@ -90,7 +90,10 @@ var right_eye: Sprite2D
 var left_pupil: Sprite2D
 var right_pupil: Sprite2D
 
-var current_cosmetic_id := CosmeticCatalog.DEFAULT
+var current_body_id := BodyCatalog.DEFAULT
+var current_expression_id := ExpressionCatalog.DEFAULT
+var current_eyes_id := EyesCatalog.DEFAULT
+var current_pupils_id := PupilsCatalog.DEFAULT
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -196,9 +199,19 @@ func _ready() -> void:
 	if saved_size in SIZE_STEPS:
 		_apply_size(saved_size)
 
-	var saved_cosmetic_id: String = klippy_data.get("cosmetic_id", CosmeticCatalog.DEFAULT)
-	current_cosmetic_id = saved_cosmetic_id if saved_cosmetic_id in CosmeticCatalog.ids() else CosmeticCatalog.DEFAULT
-	_apply_cosmetic_set(current_cosmetic_id)
+	var saved_body_id: String = klippy_data.get("body_id", BodyCatalog.DEFAULT)
+	current_body_id = saved_body_id if saved_body_id in BodyCatalog.ids() else BodyCatalog.DEFAULT
+	var saved_expression_id: String = klippy_data.get("expression_id", ExpressionCatalog.DEFAULT)
+	current_expression_id = saved_expression_id if saved_expression_id in ExpressionCatalog.ids() else ExpressionCatalog.DEFAULT
+	var saved_eyes_id: String = klippy_data.get("eyes_id", EyesCatalog.DEFAULT)
+	current_eyes_id = saved_eyes_id if saved_eyes_id in EyesCatalog.ids() else EyesCatalog.DEFAULT
+	var saved_pupils_id: String = klippy_data.get("pupils_id", PupilsCatalog.DEFAULT)
+	current_pupils_id = saved_pupils_id if saved_pupils_id in PupilsCatalog.ids() else PupilsCatalog.DEFAULT
+
+	_apply_body(current_body_id)
+	_apply_expression(current_expression_id)
+	_apply_eyes(current_eyes_id)
+	_apply_pupils(current_pupils_id)
 
 	idle_base_y = get_window().position.y
 
@@ -380,39 +393,55 @@ func _toggle_wardrobe() -> void:
 		window.show()
 
 
-func _apply_cosmetic_set(id: String) -> void:
-	var def := CosmeticCatalog.get_def(id)
-	sprite.texture = def.body_texture
-	detail.texture = def.expression_texture
-	left_eye.texture = def.left_eye_texture
-	right_eye.texture = def.right_eye_texture
-	left_pupil.texture = def.left_pupil_texture
-	right_pupil.texture = def.right_pupil_texture
-	current_cosmetic_id = id
+func _apply_body(id: String) -> void:
+	sprite.texture = BodyCatalog.get_def(id).texture
+	current_body_id = id
 	_build_click_through_mask()
 
 
+func _apply_expression(id: String) -> void:
+	detail.texture = ExpressionCatalog.get_def(id).texture
+	current_expression_id = id
+
+
+func _apply_eyes(id: String) -> void:
+	var def := EyesCatalog.get_def(id)
+	left_eye.texture = def.texture
+	right_eye.texture = def.right_texture
+	current_eyes_id = id
+
+
+func _apply_pupils(id: String) -> void:
+	var def := PupilsCatalog.get_def(id)
+	left_pupil.texture = def.texture
+	right_pupil.texture = def.right_texture
+	current_pupils_id = id
+
+
 func _open_cosmetic_picker() -> void:
-	if cosmetic_picker == null:
-		cosmetic_picker = PopupMenu.new()
-		for cosmetic_id in CosmeticCatalog.ids():
-			cosmetic_picker.add_item(CosmeticCatalog.get_def(cosmetic_id).display_name)
-		cosmetic_picker.index_pressed.connect(_on_cosmetic_picker_index_pressed)
-		add_child(cosmetic_picker)
-	cosmetic_picker.popup()
-	call_deferred("_reposition_cosmetic_picker")
+	if wardrobe_dialog == null:
+		wardrobe_dialog = WardrobeDialog.new()
+		add_child(wardrobe_dialog)
+		wardrobe_dialog.body_selected.connect(_apply_body)
+		wardrobe_dialog.expression_selected.connect(_apply_expression)
+		wardrobe_dialog.eyes_selected.connect(_apply_eyes)
+		wardrobe_dialog.pupils_selected.connect(_apply_pupils)
+	wardrobe_dialog.setup({
+		"body": current_body_id,
+		"expression": current_expression_id,
+		"eyes": current_eyes_id,
+		"pupils": current_pupils_id,
+	})
+	wardrobe_dialog.popup()
+	call_deferred("_reposition_wardrobe_dialog")
 
 
-func _reposition_cosmetic_picker() -> void:
+func _reposition_wardrobe_dialog() -> void:
 	var anchor := wardrobe.get_window()
-	cosmetic_picker.position = anchor.position + Vector2i(
-		anchor.size.x / 2 - cosmetic_picker.size.x / 2,
-		-cosmetic_picker.size.y - WARDROBE_MENU_GAP
+	wardrobe_dialog.position = anchor.position + Vector2i(
+		anchor.size.x / 2 - wardrobe_dialog.size.x / 2,
+		-wardrobe_dialog.size.y - WARDROBE_MENU_GAP
 	)
-
-
-func _on_cosmetic_picker_index_pressed(index: int) -> void:
-	_apply_cosmetic_set(CosmeticCatalog.ids()[index])
 
 
 func _raise_contained_food() -> void:
@@ -502,7 +531,13 @@ func _save_state() -> void:
 			contained_counts[body.food_type] = contained_counts.get(body.food_type, 0) + 1
 
 	SaveData.save_data({
-		"klippy": {"size": current_size, "cosmetic_id": current_cosmetic_id},
+		"klippy": {
+			"size": current_size,
+			"body_id": current_body_id,
+			"expression_id": current_expression_id,
+			"eyes_id": current_eyes_id,
+			"pupils_id": current_pupils_id,
+		},
 		"stats": {
 			"food": stats.food,
 			"mood": stats.mood,
