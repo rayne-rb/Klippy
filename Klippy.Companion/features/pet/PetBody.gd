@@ -22,6 +22,11 @@ var drag_spin_target := 0.0
 var mass := 1.0
 var roll_radius := 90.0
 
+## When true, a throw that crosses the left/right border of the current
+## screen re-emerges from the facing border of the adjacent screen (index
+## +/- 1), if such a screen exists. Borders without a neighbour stay solid.
+var monitor_border_wrap := false
+
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
 
@@ -269,12 +274,16 @@ func _process_thrown(delta: float, window: Window) -> void:
 	var direct_roll := false
 
 	if pos.x < min_x:
+		if monitor_border_wrap and _wrap_to_neighbor_screen(-1, window):
+			return
 		pos.x = min_x
 		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * BOUNCE_DAMPING
 		angular_velocity += -velocity.y / roll_radius
 		_on_energetic_bounce(impact_speed)
 	elif pos.x > max_x:
+		if monitor_border_wrap and _wrap_to_neighbor_screen(1, window):
+			return
 		pos.x = max_x
 		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * BOUNCE_DAMPING
@@ -311,3 +320,21 @@ func _process_thrown(delta: float, window: Window) -> void:
 
 	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)
+
+
+## With [member monitor_border_wrap], re-emerges the pet from the facing
+## border of the screen at [param dir] (+1 right, -1 left) when that
+## neighbour screen exists. Velocity is preserved, so he keeps flying in the
+## same direction on the other side.
+func _wrap_to_neighbor_screen(dir: int, window: Window) -> bool:
+	var neighbor := window.current_screen + dir
+	if neighbor < 0 or neighbor >= DisplayServer.get_screen_count():
+		return false
+
+	var rect := DisplayServer.screen_get_usable_rect(neighbor)
+	var pos := Vector2(window.position)
+	var new_x := rect.position.x + 2.0 if dir > 0 else rect.end.x - window.size.x - 2.0
+	var new_y := clampf(pos.y, rect.position.y, maxf(rect.end.y - window.size.y, rect.position.y))
+	window.position = Vector2i(Vector2(new_x, new_y))
+	window.current_screen = neighbor
+	return true

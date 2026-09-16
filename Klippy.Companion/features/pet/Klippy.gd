@@ -158,6 +158,7 @@ func _ready() -> void:
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
 	show_health_value = settings_data.get("show_health_value", false)
+	monitor_border_wrap = settings_data.get("border_wrap", false)
 	dev_tools_enabled = settings_data.get("dev_tools_enabled", false)
 	vsync_enabled = settings_data.get("vsync_enabled", true)
 	target_fps = settings_data.get("target_fps", 30)
@@ -241,6 +242,10 @@ func _on_dev_tools_toggled(enabled: bool) -> void:
 	_update_dev_tools_item()
 
 
+func _on_monitor_border_wrap_toggled(enabled: bool) -> void:
+	monitor_border_wrap = enabled
+
+
 func _update_dev_tools_item() -> void:
 	var index := context_menu.get_item_index(DEV_TOOLS_ID)
 	if dev_tools_enabled:
@@ -259,6 +264,7 @@ func _open_settings() -> void:
 			"show_mood": show_mood_value,
 			"show_health": show_health_value,
 			"dev_tools_enabled": dev_tools_enabled,
+			"border_wrap": monitor_border_wrap,
 			"size": current_size,
 			"vsync_enabled": vsync_enabled,
 			"fps": target_fps,
@@ -267,6 +273,7 @@ func _open_settings() -> void:
 		settings_window.show_mood_toggled.connect(_on_show_mood_toggled)
 		settings_window.show_health_toggled.connect(_on_show_health_toggled)
 		settings_window.dev_tools_toggled.connect(_on_dev_tools_toggled)
+		settings_window.monitor_border_wrap_toggled.connect(_on_monitor_border_wrap_toggled)
 		settings_window.size_selected.connect(_on_size_selected)
 		settings_window.vsync_toggled.connect(_on_vsync_toggled)
 		settings_window.fps_selected.connect(_on_fps_selected)
@@ -492,6 +499,7 @@ func _save_state() -> void:
 			"show_mood_value": show_mood_value,
 			"show_health_value": show_health_value,
 			"dev_tools_enabled": dev_tools_enabled,
+			"border_wrap": monitor_border_wrap,
 			"vsync_enabled": vsync_enabled,
 			"target_fps": target_fps,
 		},
