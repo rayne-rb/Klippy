@@ -82,6 +82,10 @@ static func theme() -> Theme:
 		_theme.set_color("font_accelerator_color", "PopupMenu", MUTED)
 		_theme.set_constant("v_separation", "PopupMenu", 6)
 
+		_theme.set_stylebox("background", "ProgressBar", _box(FIELD_BG, FIELD_BORDER, 8, 0))
+		_theme.set_stylebox("fill", "ProgressBar", _box(ACCENT, Color(0, 0, 0, 0), 8, 0))
+		_theme.set_color("font_color", "ProgressBar", TEXT)
+
 		var line := StyleBoxLine.new()
 		line.color = Color("d8cdb8")
 		line.thickness = 1

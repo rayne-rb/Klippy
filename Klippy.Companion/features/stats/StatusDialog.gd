@@ -5,6 +5,7 @@ var stats: PetStats
 var pet_level: PetLevel
 var _vbox: VBoxContainer
 var level_label: Label
+var xp_bar: ProgressBar
 var food_status_label: Label
 var food_value_label: Label
 var mood_status_label: Label
@@ -23,6 +24,13 @@ func setup(pet_stats: PetStats, level: PetLevel) -> void:
 
 	level_label = Label.new()
 	_vbox.add_child(level_label)
+
+	xp_bar = ProgressBar.new()
+	xp_bar.custom_minimum_size = Vector2(0, 14)
+	xp_bar.show_percentage = false
+	xp_bar.max_value = PetLevel.XP_PER_LEVEL
+	_vbox.add_child(xp_bar)
+
 	pet_level.level_changed.connect(_on_level_changed)
 	pet_level.xp_changed.connect(_on_xp_changed)
 	_update_level_label()
@@ -95,3 +103,4 @@ func _update_level_label() -> void:
 	level_label.text = "Level %d (%.1f / %.0f XP)" % [
 		pet_level.level, pet_level.xp_into_level(), PetLevel.XP_PER_LEVEL
 	]
+	xp_bar.value = pet_level.xp_into_level()
