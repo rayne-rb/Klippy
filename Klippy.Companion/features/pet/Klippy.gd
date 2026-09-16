@@ -13,6 +13,17 @@ const DEV_TOOLS_ID := 6
 const SUMMON_FOOD_ID := 7
 const CONNECTION_ID := 8
 const WARDROBE_ID := 9
+const REMINDERS_ID := 9
+const SUMMON_PORTALS_ID := 10
+const BANISH_PORTALS_ID := 11
+
+# While the pet loiters inside a portal (a dropper loop) the portal re-fires
+# every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
+# Fresh crossings into a portal teleport immediately and ignore it.
+const PORTAL_CHAIN_COOLDOWN := 0.08
+# Exits are capped so a dropper loop stays smooth instead of accelerating
+# until the pet tunnels through everything.
+const PORTAL_MAX_EXIT_SPEED := 1300.0
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -75,14 +86,21 @@ var play_distance_traveled := 0.0
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
-var close_confirm_dialog: ConfirmationDialog
+var close_confirm_dialog: Window
 var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
 var connection_dialog: PairingDialog
+var reminder_dialog: ReminderDialog
 var wardrobe: WardrobeBody
 var wardrobe_dialog: WardrobeDialog
 
 var remote_control: RemoteControl
+var reminder_scheduler: ReminderScheduler
+
+var blue_portal: TravelPortal
+var red_portal: TravelPortal
+var travel_portals: Array[TravelPortal] = []
+var _portal_chain_cooldown := 0.0
 
 var detail: Sprite2D
 var left_eye: Sprite2D
@@ -165,12 +183,15 @@ func _ready() -> void:
 	context_menu.add_item("Feed", FEED_ID)
 	context_menu.add_item("Summon Food", SUMMON_FOOD_ID)
 	context_menu.add_item("Wardrobe", WARDROBE_ID)
+	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
 	context_menu.add_item("Status", STATUS_ID)
+	context_menu.add_item("Reminders", REMINDERS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Connection", CONNECTION_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close Klippy", CLOSE_ID)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
+	RockyTheme.style_popup(context_menu)
 	add_child(context_menu)
 	_on_feeding_enabled_changed(stats.feeding_enabled)
 	stats.died.connect(_update_revive_item)
@@ -214,6 +235,12 @@ func _ready() -> void:
 	_apply_pupils(current_pupils_id)
 
 	idle_base_y = get_window().position.y
+
+	reminder_scheduler = ReminderScheduler.new()
+	add_child(reminder_scheduler)
+	reminder_scheduler.setup(save_data.get("reminders", {}))
+	reminder_scheduler.reminder_due.connect(_on_reminder_due)
+	reminder_scheduler.reminders_changed.connect(_save_state)
 
 	complaint_cooldown_timer = Timer.new()
 	complaint_cooldown_timer.one_shot = true
@@ -475,17 +502,60 @@ func _on_connection_closed() -> void:
 	connection_dialog = null
 
 
+func _open_reminders() -> void:
+	if reminder_dialog == null:
+		reminder_dialog = ReminderDialog.new()
+		add_child(reminder_dialog)
+		reminder_dialog.setup(reminder_scheduler)
+		reminder_dialog.close_requested.connect(_on_reminders_closed)
+	reminder_dialog.popup_centered()
+
+
+func _on_reminders_closed() -> void:
+	reminder_dialog.queue_free()
+	reminder_dialog = null
+
+
+## Hands the due reminder to the speech bubble, which keeps it up and nagging
+## until clicked. Reminders speak even when Klippy is dead — the user asked
+## for them, after all.
+func _on_reminder_due(reminder: Dictionary) -> void:
+	var message := str(reminder.get("message", "")).strip_edges()
+	if message.is_empty():
+		return
+	_get_speech_bubble().announce_reminder(message, get_window())
+
+
 func _on_unpair_requested() -> void:
 	KlippyLink.forget_pairing()
 
 
 func _open_close_confirm() -> void:
 	if close_confirm_dialog == null:
-		close_confirm_dialog = ConfirmationDialog.new()
-		close_confirm_dialog.title = "Close Klippy"
-		close_confirm_dialog.dialog_text = "Close Klippy?"
-		close_confirm_dialog.confirmed.connect(_on_quit_requested)
-		close_confirm_dialog.canceled.connect(_on_close_confirm_closed)
+		close_confirm_dialog = Window.new()
+		var vbox := RockyTheme.setup_window(close_confirm_dialog, "Close Klippy")
+
+		var label := Label.new()
+		label.text = "Really say goodbye?"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		vbox.add_child(label)
+
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		row.alignment = BoxContainer.ALIGNMENT_END
+		vbox.add_child(row)
+
+		var keep_button := Button.new()
+		keep_button.text = "Keep him"
+		keep_button.pressed.connect(func() -> void: close_confirm_dialog.close_requested.emit())
+		row.add_child(keep_button)
+
+		var close_button := Button.new()
+		close_button.text = "Close"
+		close_button.theme_type_variation = "ButtonPrimary"
+		close_button.pressed.connect(_on_quit_requested)
+		row.add_child(close_button)
+
 		close_confirm_dialog.close_requested.connect(_on_close_confirm_closed)
 		add_child(close_confirm_dialog)
 	close_confirm_dialog.popup_centered()
@@ -556,6 +626,7 @@ func _save_state() -> void:
 			"target_fps": target_fps,
 		},
 		"food_bag": contained_counts,
+		"reminders": reminder_scheduler.to_save_data(),
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -592,10 +663,16 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_open_dev_tools()
 		SUMMON_FOOD_ID:
 			_summon_food()
+		SUMMON_PORTALS_ID:
+			_summon_portals()
+		BANISH_PORTALS_ID:
+			_banish_portals()
 		CONNECTION_ID:
 			_open_connection()
 		WARDROBE_ID:
 			_toggle_wardrobe()
+		REMINDERS_ID:
+			_open_reminders()
 
 
 func _update_revive_item() -> void:
@@ -647,6 +724,101 @@ func _on_food_portal_opened(portal: FoodPortal) -> void:
 	var angle := randf() * TAU
 	body.velocity = Vector2(cos(angle), sin(angle)) * 220.0
 	body.state = PetBody.State.THROWN
+
+
+## Travel portals, as many as you like. The first summon places the classic
+## pair — blue here, red on the next monitor when there is one — and every
+## further summon adds one more portal in a new colour, round-robin across
+## screens. Entering any portal exits the next one in the chain.
+func _summon_portals() -> void:
+	var screens := maxi(DisplayServer.get_screen_count(), 1)
+	if travel_portals.is_empty():
+		var blue_screen := get_window().current_screen
+		var red_screen := (blue_screen + 1) % screens if screens > 1 else blue_screen
+		_spawn_portal("blue", blue_screen, 0.25)
+		_spawn_portal("red", red_screen, 0.75)
+	else:
+		var index := travel_portals.size()
+		var fractions := [0.5, 0.3, 0.7]
+		_spawn_portal(TravelPortal.PALETTE.keys()[index % TravelPortal.PALETTE.size()],
+				index % screens, fractions[index % fractions.size()])
+	_update_portal_menu_items()
+
+
+func _banish_portals() -> void:
+	for portal in travel_portals:
+		if is_instance_valid(portal):
+			portal.queue_free()
+	travel_portals.clear()
+	blue_portal = null
+	red_portal = null
+	_update_portal_menu_items()
+
+
+func _spawn_portal(kind: String, screen: int, x_fraction: float, y_fraction := 0.45) -> void:
+	var portal := TravelPortal.new(kind)
+	portal.current_screen = screen
+	portal.probe = _pet_probe
+	portal.entered.connect(_on_portal_entered.bind(portal))
+	add_child(portal)
+	var bounds := DisplayServer.screen_get_usable_rect(screen)
+	var spot := Vector2(bounds.position) + Vector2(bounds.size.x * x_fraction, bounds.size.y * y_fraction)
+	portal.place(Vector2i(spot))
+	travel_portals.append(portal)
+	if kind == "blue":
+		blue_portal = portal
+	elif kind == "red":
+		red_portal = portal
+
+
+func _update_portal_menu_items() -> void:
+	var banish_index := context_menu.get_item_index(BANISH_PORTALS_ID)
+	if travel_portals.is_empty():
+		if banish_index != -1:
+			context_menu.remove_item(banish_index)
+	elif banish_index == -1:
+		context_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
+
+
+## What the travel portals need to know about the pet each frame, in their
+## own words — the pet stays in charge of how it moves.
+func _pet_probe() -> Dictionary:
+	var window := get_window()
+	return {
+		"thrown": state == State.THROWN,
+		"center": Vector2(window.position) + Vector2(window.size) / 2.0,
+		"radius": roll_radius,
+		"velocity": velocity,
+	}
+
+
+## Emitted by the portal the pet just flew into (`rising`), or by one he is
+## loitering inside (`rising == false`, the dropper case). His velocity
+## carries over — direction included, capped for sanity — so he bursts out of
+## the next portal in the chain the way he came in, offset far enough that it
+## doesn't instantly re-catch him.
+func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: TravelPortal) -> void:
+	var now := Time.get_unix_time_from_system()
+	if not rising and now < _portal_chain_cooldown:
+		return
+	if travel_portals.size() < 2 or not is_instance_valid(entered_portal):
+		return
+
+	var index := travel_portals.find(entered_portal)
+	var exit_portal: TravelPortal = travel_portals[(index + 1) % travel_portals.size()]
+	if index == -1 or not is_instance_valid(exit_portal):
+		return
+
+	var exit_velocity := entry_velocity.limit_length(PORTAL_MAX_EXIT_SPEED)
+	var direction := exit_velocity.normalized() if exit_velocity.length() > 1.0 \
+			else Vector2.RIGHT.rotated(randf() * TAU)
+	var window := get_window()
+	window.current_screen = exit_portal.current_screen
+	var exit_center := exit_portal.center()
+	window.position = Vector2i(exit_center + direction * (exit_portal.radius() + roll_radius + 8.0)) \
+			- Vector2i(window.size) / 2
+	velocity = exit_velocity
+	_portal_chain_cooldown = now + PORTAL_CHAIN_COOLDOWN
 
 
 func _spawn_food_body(food_type: String) -> void:

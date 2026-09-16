@@ -8,26 +8,9 @@ const ADJUST_STEP := 10.0
 var stats: PetStats
 
 
-func _ready() -> void:
-	title = "Dev Tools"
-	size = Vector2i(260, 230)
-	close_requested.connect(hide)
-
-
 func setup(pet_stats: PetStats) -> void:
 	stats = pet_stats
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
+	var vbox := RockyTheme.setup_window(self, "Dev Tools")
 
 	_add_stat_row(vbox, "Food", stats.debug_adjust_food)
 	_add_stat_row(vbox, "Mood", stats.debug_adjust_mood)
@@ -35,6 +18,7 @@ func setup(pet_stats: PetStats) -> void:
 
 	var bounce_button := Button.new()
 	bounce_button.text = "Trigger Bounce"
+	bounce_button.theme_type_variation = "ButtonPrimary"
 	bounce_button.pressed.connect(bounce_triggered.emit)
 	vbox.add_child(bounce_button)
 

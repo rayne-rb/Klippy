@@ -15,27 +15,10 @@ var stats: PetStats
 var size_steps: Array
 
 
-func _ready() -> void:
-	title = "Settings"
-	size = Vector2i(300, 340)
-	close_requested.connect(hide)
-
-
 func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	stats = pet_stats
 	size_steps = sizes
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
+	var vbox := RockyTheme.setup_window(self, "Settings")
 
 	var feeding_check := CheckBox.new()
 	feeding_check.text = "Enable feeding"
@@ -81,6 +64,7 @@ func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	size_option.select(maxi(size_steps.find(initial.get("size", size_steps[0])), 0))
 	size_option.item_selected.connect(_on_size_selected)
 	size_row.add_child(size_option)
+	RockyTheme.style_popup(size_option.get_popup())
 
 	var vsync_check := CheckBox.new()
 	vsync_check.text = "Enable VSync"
@@ -102,6 +86,7 @@ func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	fps_option.select(maxi(FPS_OPTIONS.find(initial.get("fps", 30)), 0))
 	fps_option.item_selected.connect(_on_fps_selected)
 	fps_row.add_child(fps_option)
+	RockyTheme.style_popup(fps_option.get_popup())
 
 
 func _on_feeding_toggled(enabled: bool) -> void:

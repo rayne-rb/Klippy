@@ -16,3 +16,6 @@ obj/
 # Deliberately the whole directory. If a shared settings.json or skills are ever worth
 # committing, un-ignore just those: !.claude/settings.json
 .claude/
+
+# Nix build outputs
+result*

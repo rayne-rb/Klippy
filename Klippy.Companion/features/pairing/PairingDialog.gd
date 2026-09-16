@@ -17,19 +17,7 @@ var _unpair_button: Button
 
 
 func _ready() -> void:
-	title = "Klippy Connection"
-	size = Vector2i(340, 250)
-	close_requested.connect(hide)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 14)
-	add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
+	var vbox := RockyTheme.setup_window(self, "Klippy Connection", 380)
 
 	_status_label = Label.new()
 	_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
