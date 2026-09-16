@@ -11,6 +11,7 @@ signal body_selected(id: String)
 signal expression_selected(id: String)
 signal eyes_selected(id: String)
 signal pupils_selected(id: String)
+signal hat_selected(id: String)
 
 ## One entry per row: {container, ids_fn, get_def_fn, index, field_button,
 ## changed_signal, label}. Built generically over these instead of writing
@@ -66,6 +67,8 @@ func setup(initial: Dictionary, pet_level: PetLevel) -> void:
 		initial.get("eyes", EyesCatalog.DEFAULT), eyes_selected)
 	_add_row("Pupils", Callable(PupilsCatalog, "ids"), Callable(PupilsCatalog, "get_def"),
 		initial.get("pupils", PupilsCatalog.DEFAULT), pupils_selected)
+	_add_row("Hats", Callable(HatsCatalog, "ids"), Callable(HatsCatalog, "get_def"),
+		initial.get("hat", HatsCatalog.DEFAULT), hat_selected)
 
 
 ## Only options Klippy's current level has reached — locked options (see

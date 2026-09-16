@@ -69,6 +69,16 @@ const LEFT_PUPIL_BOUNDS := Rect2(-18.0, -15.0, 35.0, 28.0)
 const RIGHT_PUPIL_REST := Vector2(245.0 - 200.0, 147.0 - 200.0)
 const RIGHT_PUPIL_BOUNDS := Rect2(-19.0, -15.0, 38.0, 30.0)
 
+# A hat sits well off the body's center, unlike every other cosmetic part
+# (which stays within the body's own rotational silhouette) — rigidly
+# attached and spinning with the body like everything else, its farthest
+# point sweeps a bigger circle than the body's own radius as Klippy rotates.
+# _apply_size() pads the window by this (scaled with current_size, same as
+# roll_radius/mass) so that circle never exceeds the window bounds and clips.
+# ~29px of padding (at the reference TEXTURE_SIZE scale) is the measured
+# minimum for the current crown art; this leaves some headroom for it.
+const HAT_SWING_MARGIN := 35.0
+
 const PLAY_MIN_HEALTH := 60.0
 const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
@@ -112,11 +122,13 @@ var left_eye: Sprite2D
 var right_eye: Sprite2D
 var left_pupil: Sprite2D
 var right_pupil: Sprite2D
+var hat: Sprite2D
 
 var current_body_id := BodyCatalog.DEFAULT
 var current_expression_id := ExpressionCatalog.DEFAULT
 var current_eyes_id := EyesCatalog.DEFAULT
 var current_pupils_id := PupilsCatalog.DEFAULT
+var current_hat_id := HatsCatalog.DEFAULT
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -151,6 +163,7 @@ func _ready() -> void:
 	right_eye = sprite.get_node(^"RightEye") as Sprite2D
 	left_pupil = sprite.get_node(^"LeftPupil") as Sprite2D
 	right_pupil = sprite.get_node(^"RightPupil") as Sprite2D
+	hat = sprite.get_node(^"Hat") as Sprite2D
 	_build_click_through_mask()
 	_recompute_physical_properties()
 
@@ -247,11 +260,14 @@ func _ready() -> void:
 	current_eyes_id = saved_eyes_id if saved_eyes_id in EyesCatalog.ids() else EyesCatalog.DEFAULT
 	var saved_pupils_id: String = klippy_data.get("pupils_id", PupilsCatalog.DEFAULT)
 	current_pupils_id = saved_pupils_id if saved_pupils_id in PupilsCatalog.ids() else PupilsCatalog.DEFAULT
+	var saved_hat_id: String = klippy_data.get("hat_id", HatsCatalog.DEFAULT)
+	current_hat_id = saved_hat_id if saved_hat_id in HatsCatalog.ids() else HatsCatalog.DEFAULT
 
 	_apply_body(current_body_id)
 	_apply_expression(current_expression_id)
 	_apply_eyes(current_eyes_id)
 	_apply_pupils(current_pupils_id)
+	_apply_hat(current_hat_id)
 
 	idle_base_y = get_window().position.y
 
@@ -477,6 +493,11 @@ func _apply_pupils(id: String) -> void:
 	current_pupils_id = id
 
 
+func _apply_hat(id: String) -> void:
+	hat.texture = HatsCatalog.get_def(id).texture
+	current_hat_id = id
+
+
 func _open_cosmetic_picker() -> void:
 	if wardrobe_dialog == null:
 		wardrobe_dialog = WardrobeDialog.new()
@@ -485,11 +506,13 @@ func _open_cosmetic_picker() -> void:
 		wardrobe_dialog.expression_selected.connect(_apply_expression)
 		wardrobe_dialog.eyes_selected.connect(_apply_eyes)
 		wardrobe_dialog.pupils_selected.connect(_apply_pupils)
+		wardrobe_dialog.hat_selected.connect(_apply_hat)
 	wardrobe_dialog.setup({
 		"body": current_body_id,
 		"expression": current_expression_id,
 		"eyes": current_eyes_id,
 		"pupils": current_pupils_id,
+		"hat": current_hat_id,
 	}, pet_level)
 	wardrobe_dialog.popup()
 	call_deferred("_reposition_wardrobe_dialog")
@@ -639,6 +662,7 @@ func _save_state() -> void:
 			"expression_id": current_expression_id,
 			"eyes_id": current_eyes_id,
 			"pupils_id": current_pupils_id,
+			"hat_id": current_hat_id,
 		},
 		"stats": {
 			"food": stats.food,
@@ -990,13 +1014,18 @@ func _apply_size(new_size: int) -> void:
 	var window := get_window()
 	var old_center := Vector2(window.position) + Vector2(window.size) / 2.0
 	var new_size_v := Vector2i(new_size, new_size)
+	# Padding is invisible (nothing is drawn out there normally) and kept out
+	# of current_size/roll_radius/mass entirely — it exists purely so a worn
+	# hat has room to swing through without the window clipping it.
+	var margin := int(round(HAT_SWING_MARGIN * (new_size / TEXTURE_SIZE)))
+	var window_size_v := new_size_v + Vector2i.ONE * (margin * 2)
 
-	window.content_scale_size = new_size_v
-	window.size = new_size_v
-	window.position = Vector2i(old_center - Vector2(new_size_v) / 2.0)
+	window.content_scale_size = window_size_v
+	window.size = window_size_v
+	window.position = Vector2i(old_center - Vector2(window_size_v) / 2.0)
 
 	sprite.scale = Vector2.ONE * (new_size / TEXTURE_SIZE)
-	position = Vector2(new_size_v) / 2.0
+	position = Vector2(window_size_v) / 2.0
 	current_size = new_size
 	_recompute_physical_properties()
 

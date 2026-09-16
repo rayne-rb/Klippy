@@ -30,3 +30,6 @@ texture = ExtResource("6_righteye")
 
 [node name="RightPupil" type="Sprite2D" parent="Sprite2D"]
 texture = ExtResource("7_rightpupil")
+
+[node name="Hat" type="Sprite2D" parent="Sprite2D"]
+position = Vector2(0, -100)
