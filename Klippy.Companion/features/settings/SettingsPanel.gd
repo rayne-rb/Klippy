@@ -8,6 +8,7 @@ signal dev_tools_toggled(enabled: bool)
 signal size_selected(size: int)
 signal vsync_toggled(enabled: bool)
 signal fps_selected(fps: int)
+signal monitor_border_wrap_toggled(enabled: bool)
 
 const FPS_OPTIONS := [30, 60, 120]
 
@@ -49,6 +50,12 @@ func setup(pet_stats: PetStats, initial: Dictionary, sizes: Array) -> void:
 	dev_tools_check.set_pressed_no_signal(initial.get("dev_tools_enabled", false))
 	dev_tools_check.toggled.connect(_on_dev_tools_toggled)
 	vbox.add_child(dev_tools_check)
+
+	var border_wrap_check := CheckBox.new()
+	border_wrap_check.text = "Throw through monitor borders"
+	border_wrap_check.set_pressed_no_signal(initial.get("border_wrap", false))
+	border_wrap_check.toggled.connect(_on_border_wrap_toggled)
+	vbox.add_child(border_wrap_check)
 
 	var size_row := HBoxContainer.new()
 	size_row.add_theme_constant_override("separation", 8)
@@ -107,6 +114,10 @@ func _on_show_health_toggled(enabled: bool) -> void:
 
 func _on_dev_tools_toggled(enabled: bool) -> void:
 	dev_tools_toggled.emit(enabled)
+
+
+func _on_border_wrap_toggled(enabled: bool) -> void:
+	monitor_border_wrap_toggled.emit(enabled)
 
 
 func _on_size_selected(index: int) -> void:

@@ -22,8 +22,6 @@ const LINGER_REFIRE := 0.1
 const PALETTE := {
 	"blue": [Color("1c46c9"), Color("55c8ff")],
 	"red": [Color("b3122f"), Color("ff8a55")],
-	"green": [Color("0f8a3c"), Color("7dffb0")],
-	"violet": [Color("6a1fc9"), Color("d08aff")],
 }
 
 static var _textures := {}

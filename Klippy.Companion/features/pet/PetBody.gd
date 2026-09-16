@@ -22,6 +22,11 @@ var drag_spin_target := 0.0
 var mass := 1.0
 var roll_radius := 90.0
 
+## When true, a throw that crosses the left/right border of the current
+## screen re-emerges from the facing border of the adjacent screen (index
+## +/- 1), if such a screen exists. Borders without a neighbour stay solid.
+var monitor_border_wrap := false
+
 ## Restitution for wall/floor bounces (see [method _process_thrown]), separate
 ## from the shared [constant BOUNCE_DAMPING] so a per-instance buff (Klippy
 ## going extra-bouncy off jelly, say) can override just this one body without
@@ -283,12 +288,16 @@ func _process_thrown(delta: float, window: Window) -> void:
 	var direct_roll := false
 
 	if pos.x < min_x:
+		if monitor_border_wrap and _wrap_to_neighbor_screen(-1, window):
+			return
 		pos.x = min_x
 		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * bounce_damping
 		angular_velocity += -velocity.y / roll_radius
 		_on_energetic_bounce(impact_speed)
 	elif pos.x > max_x:
+		if monitor_border_wrap and _wrap_to_neighbor_screen(1, window):
+			return
 		pos.x = max_x
 		var impact_speed := velocity.length()
 		velocity.x = -velocity.x * bounce_damping
@@ -325,3 +334,45 @@ func _process_thrown(delta: float, window: Window) -> void:
 
 	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)
+
+
+## With [member monitor_border_wrap], re-emerges the pet from the border of
+## the screen that physically faces the border he just crossed ([param dir]
+## +1 = he crossed this screen's right border, -1 = left). Velocity is
+## preserved, so he keeps flying in the same direction on the other side.
+func _wrap_to_neighbor_screen(dir: int, window: Window) -> bool:
+	var neighbor := neighbor_screen_across(window.current_screen, dir)
+	if neighbor == -1:
+		return false
+
+	var rect := DisplayServer.screen_get_usable_rect(neighbor)
+	var pos := Vector2(window.position)
+	var new_x := rect.position.x + 2.0 if dir > 0 else rect.end.x - window.size.x - 2.0
+	var new_y := clampf(pos.y, rect.position.y, maxf(rect.end.y - window.size.y, rect.position.y))
+	window.position = Vector2i(Vector2(new_x, new_y))
+	window.current_screen = neighbor
+	return true
+
+
+## The screen whose edge physically faces [param screen]'s `side` border
+## (+1 right, -1 left): a monitor whose opposing edge sits at the same x and
+## whose vertical range overlaps. Screen indices don't follow the physical
+## layout, so adjacency is measured from real geometry. Returns -1 when
+## nothing abuts that border.
+static func neighbor_screen_across(screen: int, side: int) -> int:
+	var count := DisplayServer.get_screen_count()
+	if screen < 0 or screen >= count:
+		return -1
+	var rect := Rect2(DisplayServer.screen_get_position(screen), DisplayServer.screen_get_size(screen))
+	for i in count:
+		if i == screen:
+			continue
+		var other := Rect2(DisplayServer.screen_get_position(i), DisplayServer.screen_get_size(i))
+		var vertical_overlap := rect.position.y < other.end.y and other.position.y < rect.end.y
+		if not vertical_overlap:
+			continue
+		if side > 0 and absf(other.position.x - rect.end.x) <= 8.0:
+			return i
+		if side < 0 and absf(other.end.x - rect.position.x) <= 8.0:
+			return i
+	return -1
