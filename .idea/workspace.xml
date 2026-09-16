@@ -11,9 +11,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyDetail.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyDetail.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyLeftEye.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyLeftEye.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyLeftPupil.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyLeftPupil.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyRightEye.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyRightEye.png.import" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyRightPupil.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Bodies/Default/KlippyRightPupil.png.import" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,23 +54,23 @@
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0262362962365768" />
-      <entry key="MS500" value="1.9189289955057172" />
-      <entry key="S2" value="4.772261621622212" />
-      <entry key="S5" value="6.785429644249114" />
-      <entry key="S10" value="7.775231084940499" />
-      <entry key="S30" value="8.561871275568723" />
-      <entry key="S60" value="8.776935358792606" />
-      <entry key="M2" value="8.887446346821509" />
-      <entry key="M5" value="8.954730639800074" />
-      <entry key="M10" value="8.977323769379128" />
-      <entry key="M15" value="8.984873262046717" />
-      <entry key="M30" value="8.992432001232887" />
-      <entry key="H1" value="8.99623828498542" />
-      <entry key="H2" value="9.0336500471284" />
-      <entry key="H4" value="10.38411002740427" />
-      <entry key="D1" value="38.32397344851422" />
-      <entry key="W1" value="58.48937741101723" />
+      <entry key="MS100" value="1.654770369624556" />
+      <entry key="MS500" value="4.076224596572144" />
+      <entry key="S2" value="5.408143887415152" />
+      <entry key="S5" value="5.752504861959616" />
+      <entry key="S10" value="5.874378167003142" />
+      <entry key="S30" value="5.95770161694895" />
+      <entry key="S60" value="5.978797249270666" />
+      <entry key="M2" value="5.989385196687867" />
+      <entry key="M5" value="5.995750851071531" />
+      <entry key="M10" value="5.997874887193247" />
+      <entry key="M15" value="5.998583138466876" />
+      <entry key="M30" value="5.999291509394886" />
+      <entry key="H1" value="5.999645739736386" />
+      <entry key="H2" value="5.999822866127755" />
+      <entry key="H4" value="5.999911623161381" />
+      <entry key="D1" value="7.969051113522166" />
+      <entry key="W1" value="44.2740197620001" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -84,23 +92,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.0049335666483514" />
-      <entry key="MS500" value="1.9093235861745168" />
-      <entry key="S2" value="4.765513588425807" />
-      <entry key="S5" value="6.781504900702804" />
-      <entry key="S10" value="7.772968222020829" />
-      <entry key="S30" value="8.561037508862544" />
-      <entry key="S60" value="8.776507620304859" />
-      <entry key="M2" value="8.887229689393985" />
-      <entry key="M5" value="8.954643297901116" />
-      <entry key="M10" value="8.977279984451085" />
-      <entry key="M15" value="8.984844046704719" />
-      <entry key="M30" value="8.99241738085152" />
-      <entry key="H1" value="8.996230971589895" />
-      <entry key="H2" value="9.033646371127753" />
-      <entry key="H4" value="10.384107837157696" />
-      <entry key="D1" value="38.323971867445" />
-      <entry key="W1" value="58.48937705972384" />
+      <entry key="MS100" value="1.6407962416164705" />
+      <entry key="MS500" value="4.068739318284438" />
+      <entry key="S2" value="5.405646939322494" />
+      <entry key="S5" value="5.751441870525737" />
+      <entry key="S10" value="5.873835329271599" />
+      <entry key="S30" value="5.957518088230109" />
+      <entry key="S60" value="5.978705158083156" />
+      <entry key="M2" value="5.989339069085781" />
+      <entry key="M5" value="5.99573238031" />
+      <entry key="M10" value="5.9978656485224695" />
+      <entry key="M15" value="5.998576978621669" />
+      <entry key="M30" value="5.999288429106546" />
+      <entry key="H1" value="5.999644199500771" />
+      <entry key="H2" value="5.999822095987085" />
+      <entry key="H4" value="5.99991123808529" />
+      <entry key="D1" value="7.9690509681075135" />
+      <entry key="W1" value="44.27401952295366" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -209,14 +217,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00007" summary="Remove Klippy resources, project files, and configurations">
-      <option name="closed" value="true" />
-      <created>1788959561516</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1788959561516</updated>
     </task>
     <task id="LOCAL-00008" summary="Add draggable Klippy node with bounce and spin mechanics&#10;&#10;Includes:&#10;- Implemented draggable functionality with velocity and angular velocity handling.&#10;- Added bounce physics with damping and rolling behavior.&#10;- Integrated hitbox visualization toggle and passthrough mask updates. &#10;- Configured transparent window and tailored project settings.">
       <option name="closed" value="true" />
@@ -602,7 +602,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789460713930</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="Add `FoodCatalog` and refactor food system for modularity&#10;&#10;- Introduced `FoodCatalog` and `FoodDef` for centralized food definitions, enabling easier addition of new food types.&#10;- Updated `Klippy.gd` and related files to support dynamic food spawning using `FoodCatalog`.&#10;- Replaced hardcoded food types and textures with catalog-driven definitions.&#10;- Improved food spawning, saving, and loading processes to handle multiple food types.">
+      <option name="closed" value="true" />
+      <created>1789464379801</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1789464379801</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -623,7 +631,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value=" configurable scaling." />
     <MESSAGE value="Refine hungry bounce logic with envelope scaling&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
     <MESSAGE value="Improved bouncing&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for" />
     <MESSAGE value="Add play tracking and mood boost mechanics&#10;&#10;- Introduced `apply_play_boost` method in `Stats.gd` to adjust mood based on play activity.&#10;- Added play tracking logic using distance thresholds in `Klippy.gd`.&#10;- Integrated health and mood conditions to trigger the play mood boost." />
@@ -648,7 +655,8 @@
     <MESSAGE value="Prevent feeding logic from executing when the window is not visible." />
     <MESSAGE value="Add pupil tracking mechanics and art assets for Klippy&#10;&#10;- Introduced left and right pupil tracking based on mouse position.&#10;- Added new art assets for Klippy's body, details, and facial components.&#10;- Updated `Klippy.tscn` to integrate new textures and structured nodes for facial features.&#10;- Implemented `_update_pupils` logic to dynamically follow the cursor while maintaining bounds." />
     <MESSAGE value="Scale pupil activation radius with size and implement dynamic relaxation behavior. &#10;&#10;- Added `PUPIL_ACTIVATION_RADIUS_SCALE` to adjust activation radius proportionally to Klippy's size. &#10;- Updated `_update_pupils` to allow pupils to relax to their rest position when the cursor moves outside the activation radius." />
-    <option name="LAST_COMMIT_MESSAGE" value="Scale pupil activation radius with size and implement dynamic relaxation behavior. &#10;&#10;- Added `PUPIL_ACTIVATION_RADIUS_SCALE` to adjust activation radius proportionally to Klippy's size. &#10;- Updated `_update_pupils` to allow pupils to relax to their rest position when the cursor moves outside the activation radius." />
+    <MESSAGE value="Add `FoodCatalog` and refactor food system for modularity&#10;&#10;- Introduced `FoodCatalog` and `FoodDef` for centralized food definitions, enabling easier addition of new food types.&#10;- Updated `Klippy.gd` and related files to support dynamic food spawning using `FoodCatalog`.&#10;- Replaced hardcoded food types and textures with catalog-driven definitions.&#10;- Improved food spawning, saving, and loading processes to handle multiple food types." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add `FoodCatalog` and refactor food system for modularity&#10;&#10;- Introduced `FoodCatalog` and `FoodDef` for centralized food definitions, enabling easier addition of new food types.&#10;- Updated `Klippy.gd` and related files to support dynamic food spawning using `FoodCatalog`.&#10;- Replaced hardcoded food types and textures with catalog-driven definitions.&#10;- Improved food spawning, saving, and loading processes to handle multiple food types." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

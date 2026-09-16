@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dkwpa1bfqf10n"
-path="res://.godot/imported/KlippyDetail.png-c617c1cfad2c4dc009ca08d63e201854.ctex"
+uid="uid://3hhc13c8hbmy"
+path="res://.godot/imported/KlippyRightPupil.png-7ccf367e254a8b093095fc415376eac6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/KlippyCosmetics/Bodies/Default/KlippyDetail.png"
-dest_files=["res://.godot/imported/KlippyDetail.png-c617c1cfad2c4dc009ca08d63e201854.ctex"]
+source_file="res://assets/KlippyCosmetics/Pupils/Default/KlippyRightPupil.png"
+dest_files=["res://.godot/imported/KlippyRightPupil.png-7ccf367e254a8b093095fc415376eac6.ctex"]
 
 [params]
 

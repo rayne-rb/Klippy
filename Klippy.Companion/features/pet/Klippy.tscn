@@ -2,11 +2,11 @@
 
 [ext_resource type="Texture2D" uid="uid://b5qirws2ksm4w" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyBody.png" id="1_body"]
 [ext_resource type="Script" path="res://features/pet/Klippy.gd" id="2_script"]
-[ext_resource type="Texture2D" uid="uid://dkwpa1bfqf10n" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyDetail.png" id="3_detail"]
-[ext_resource type="Texture2D" uid="uid://c6wug8hh4k2m1" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyLeftEye.png" id="4_lefteye"]
-[ext_resource type="Texture2D" uid="uid://cita80syoaur0" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyLeftPupil.png" id="5_leftpupil"]
-[ext_resource type="Texture2D" uid="uid://boswvb4mxmkbk" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyRightEye.png" id="6_righteye"]
-[ext_resource type="Texture2D" uid="uid://ylmhr715vxj8" path="res://assets/KlippyCosmetics/Bodies/Default/KlippyRightPupil.png" id="7_rightpupil"]
+[ext_resource type="Texture2D" uid="uid://cgdsvou8ufkij" path="res://assets/KlippyCosmetics/Expressions/Default/KlippyIconicSmile.png" id="3_detail"]
+[ext_resource type="Texture2D" uid="uid://b4nc6kxjbv8mc" path="res://assets/KlippyCosmetics/Eyes/Default/KlippyLeftEye.png" id="4_lefteye"]
+[ext_resource type="Texture2D" uid="uid://c0nibyjktmjof" path="res://assets/KlippyCosmetics/Pupils/Default/KlippyLeftPupil.png" id="5_leftpupil"]
+[ext_resource type="Texture2D" uid="uid://cyjfo3w0te7he" path="res://assets/KlippyCosmetics/Eyes/Default/KlippyRightEye.png" id="6_righteye"]
+[ext_resource type="Texture2D" uid="uid://3hhc13c8hbmy" path="res://assets/KlippyCosmetics/Pupils/Default/KlippyRightPupil.png" id="7_rightpupil"]
 
 [node name="Klippy" type="Node2D"]
 position = Vector2(100, 100)

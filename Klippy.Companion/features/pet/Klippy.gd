@@ -12,6 +12,7 @@ const REVIVE_ID := 5
 const DEV_TOOLS_ID := 6
 const SUMMON_FOOD_ID := 7
 const CONNECTION_ID := 8
+const WARDROBE_ID := 9
 
 const REFERENCE_SIZE := 200.0
 const DVD_SPEED := 220.0
@@ -30,6 +31,8 @@ const HUNGRY_BOUNCES_PER_BURST := 5
 const HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE := 0.35
 const HUNGRY_BURST_INTERVAL := 300.0
 const VERY_HUNGRY_BURST_INTERVAL := 150.0
+
+const WARDROBE_MENU_GAP := 8
 
 const PUPIL_FOLLOW_RATE := 12.0
 # Scales with current_size so activation range stays proportionate as Klippy
@@ -76,11 +79,18 @@ var close_confirm_dialog: ConfirmationDialog
 var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
 var connection_dialog: PairingDialog
+var wardrobe: WardrobeBody
+var cosmetic_picker: PopupMenu
 
 var remote_control: RemoteControl
 
+var detail: Sprite2D
+var left_eye: Sprite2D
+var right_eye: Sprite2D
 var left_pupil: Sprite2D
 var right_pupil: Sprite2D
+
+var current_cosmetic_id := CosmeticCatalog.DEFAULT
 
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
@@ -102,6 +112,9 @@ var target_fps := 30
 
 func _ready() -> void:
 	super._ready()
+	detail = sprite.get_node(^"Detail") as Sprite2D
+	left_eye = sprite.get_node(^"LeftEye") as Sprite2D
+	right_eye = sprite.get_node(^"RightEye") as Sprite2D
 	left_pupil = sprite.get_node(^"LeftPupil") as Sprite2D
 	right_pupil = sprite.get_node(^"RightPupil") as Sprite2D
 	_build_click_through_mask()
@@ -148,6 +161,7 @@ func _ready() -> void:
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
 	context_menu.add_item("Summon Food", SUMMON_FOOD_ID)
+	context_menu.add_item("Wardrobe", WARDROBE_ID)
 	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Connection", CONNECTION_ID)
@@ -161,6 +175,7 @@ func _ready() -> void:
 	_update_dev_tools_item()
 
 	_create_food_bag()
+	_create_wardrobe()
 	# The bag's art isn't a simple rectangle, so anywhere clever picked ahead
 	# of time risks landing just outside it — dead center is the one point
 	# guaranteed to be inside, and food-vs-food collision spreads the pile
@@ -180,6 +195,10 @@ func _ready() -> void:
 	var saved_size: int = klippy_data.get("size", current_size)
 	if saved_size in SIZE_STEPS:
 		_apply_size(saved_size)
+
+	var saved_cosmetic_id: String = klippy_data.get("cosmetic_id", CosmeticCatalog.DEFAULT)
+	current_cosmetic_id = saved_cosmetic_id if saved_cosmetic_id in CosmeticCatalog.ids() else CosmeticCatalog.DEFAULT
+	_apply_cosmetic_set(current_cosmetic_id)
 
 	idle_base_y = get_window().position.y
 
@@ -322,6 +341,80 @@ func _toggle_food_bag() -> void:
 		_raise_contained_food()
 
 
+func _create_wardrobe() -> void:
+	var window := Window.new()
+	window.borderless = true
+	window.transparent = true
+	window.always_on_top = true
+	window.unfocusable = true
+
+	var art_scale := WardrobeBody.TARGET_HEIGHT / WardrobeBody.TEXTURE.get_size().y
+	var visual_size := Vector2(WardrobeBody.TEXTURE.get_size()) * art_scale
+	var window_size := Vector2i(visual_size) + Vector2i.ONE * (WardrobeBody.WINDOW_MARGIN * 2)
+	window.size = window_size
+	window.content_scale_size = window_size
+
+	var body := WardrobeBody.new()
+	body.position = Vector2(window_size) / 2.0
+	body.roll_radius = minf(visual_size.x, visual_size.y) * 0.45
+	body.klippy = self
+	window.add_child(body)
+
+	add_child(window)
+
+	var klippy_window := get_window()
+	# Above-and-left of Klippy, distinct from the food bag's position (directly
+	# left, same y) so the two spawnable props don't stack on top of each other.
+	window.position = klippy_window.position + Vector2i(-window_size.x - 10, -window_size.y - 10)
+	window.visible = false
+
+	body.opened.connect(_open_cosmetic_picker)
+	wardrobe = body
+
+
+func _toggle_wardrobe() -> void:
+	var window := wardrobe.get_window()
+	if window.visible:
+		window.hide()
+	else:
+		window.show()
+
+
+func _apply_cosmetic_set(id: String) -> void:
+	var def := CosmeticCatalog.get_def(id)
+	sprite.texture = def.body_texture
+	detail.texture = def.expression_texture
+	left_eye.texture = def.left_eye_texture
+	right_eye.texture = def.right_eye_texture
+	left_pupil.texture = def.left_pupil_texture
+	right_pupil.texture = def.right_pupil_texture
+	current_cosmetic_id = id
+	_build_click_through_mask()
+
+
+func _open_cosmetic_picker() -> void:
+	if cosmetic_picker == null:
+		cosmetic_picker = PopupMenu.new()
+		for cosmetic_id in CosmeticCatalog.ids():
+			cosmetic_picker.add_item(CosmeticCatalog.get_def(cosmetic_id).display_name)
+		cosmetic_picker.index_pressed.connect(_on_cosmetic_picker_index_pressed)
+		add_child(cosmetic_picker)
+	cosmetic_picker.popup()
+	call_deferred("_reposition_cosmetic_picker")
+
+
+func _reposition_cosmetic_picker() -> void:
+	var anchor := wardrobe.get_window()
+	cosmetic_picker.position = anchor.position + Vector2i(
+		anchor.size.x / 2 - cosmetic_picker.size.x / 2,
+		-cosmetic_picker.size.y - WARDROBE_MENU_GAP
+	)
+
+
+func _on_cosmetic_picker_index_pressed(index: int) -> void:
+	_apply_cosmetic_set(CosmeticCatalog.ids()[index])
+
+
 func _raise_contained_food() -> void:
 	for window in active_food_items:
 		var body := window.get_child(0) as FoodBody
@@ -409,7 +502,7 @@ func _save_state() -> void:
 			contained_counts[body.food_type] = contained_counts.get(body.food_type, 0) + 1
 
 	SaveData.save_data({
-		"klippy": {"size": current_size},
+		"klippy": {"size": current_size, "cosmetic_id": current_cosmetic_id},
 		"stats": {
 			"food": stats.food,
 			"mood": stats.mood,
@@ -464,6 +557,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_summon_food()
 		CONNECTION_ID:
 			_open_connection()
+		WARDROBE_ID:
+			_toggle_wardrobe()
 
 
 func _update_revive_item() -> void:

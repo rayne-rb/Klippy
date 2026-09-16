@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://boswvb4mxmkbk"
-path="res://.godot/imported/KlippyRightEye.png-4e657ce62d6b161bd5a07cc31ead9eea.ctex"
+uid="uid://cvy18ps3ileyi"
+path="res://.godot/imported/KlippyIconicSmile.png-ee831e88ea76004c8cda87e12c22e3a3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/KlippyCosmetics/Bodies/Default/KlippyRightEye.png"
-dest_files=["res://.godot/imported/KlippyRightEye.png-4e657ce62d6b161bd5a07cc31ead9eea.ctex"]
+source_file="res://assets/KlippyCosmetics/Expressions/CleanMarble/KlippyIconicSmile.png"
+dest_files=["res://.godot/imported/KlippyIconicSmile.png-ee831e88ea76004c8cda87e12c22e3a3.ctex"]
 
 [params]
 
