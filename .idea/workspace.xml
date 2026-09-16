@@ -11,11 +11,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Hats/KlippyCrown.png" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Hats/KlippyCrown.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Hats/KlippyCrown.png.import" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/assets/KlippyCosmetics/Hats/KlippyCrown.png.import" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/leveling/PetLevel.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/leveling/PetLevel.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.tscn" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.tscn" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,14 +210,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00020" summary="Replace `StatusTooltip` with `StatusDialog` for improved status display&#10;&#10;- Removed `StatusTooltip` and its hover-based mechanics.&#10;- Introduced `StatusDialog` for detailed status viewing via context menu.&#10;- Added mood tracking integration to `StatusDialog` with real-time updates.&#10;- Updated `Klippy` to replace tooltip logic with dialog-based interaction.">
-      <option name="closed" value="true" />
-      <created>1788971014344</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1788971014344</updated>
     </task>
     <task id="LOCAL-00021" summary="Add mood value toggles and size selection to settings&#10;&#10;- Added toggles for showing detailed food and mood values in `SettingsPanel` and `StatusDialog`.&#10;- Implemented size selection with dynamic update in `SettingsPanel`.&#10;- Updated `Klippy` to save and apply user preferences for mood, food, and size.&#10;- Enhanced `StatusDialog` to display detailed food and mood levels.">
       <option name="closed" value="true" />
@@ -604,7 +595,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789547527755</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="Add hat customization for Klippy with crown cosmetic unlockable at level 50&#10;&#10;- Introduced `HatsCatalog` to manage hat definitions, textures, and unlock levels.&#10;- Updated `Klippy.gd` to support hat selection, persistence, and rendering.&#10;- Enhanced `WardrobeDialog` to include hat selection and appropriate level gating.&#10;- Added a crown hat asset and unlocked it at level 50 via `LevelUnlocks`.">
+      <option name="closed" value="true" />
+      <created>1789549637882</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1789549637882</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -625,7 +624,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value=" structure.  &#10;- Moved `FoodBagBody.gd` and related files to `features/food` for modularity." />
     <MESSAGE value="Refactor food mechanics and update project structure&#10;&#10;- Introduced `active_food_items` and `food_window_pool` arrays for efficient food management.&#10;- Added constants (`FOOD_WINDOW_SIZE`, `FOOD_MASS`, `MAX_FOOD_ITEMS`) in `Klippy.gd`.&#10;- Adjusted `.idea/workspace.xml" />
     <MESSAGE value="Refactor food mechanics and update project structure&#10;&#10;- Introduced `active_food_items` and `food_window_pool` arrays for efficient food management.&#10;- Added constants (`FOOD_WINDOW_SIZE`, `FOOD_MASS`, `MAX_FOOD_ITEMS`) in `Klippy.gd`.&#10;- Adjusted `.idea/workspace.xml structure.  &#10;- Moved `FoodBagBody.gd` and related files to `features/food` for modularity." />
     <MESSAGE value="Fixed my bad merge." />
@@ -650,7 +648,8 @@
     <MESSAGE value="Increase Jelly spawn chance from 2% to 5% for improved availability" />
     <MESSAGE value="Add bounce rewards for Jelly food type  &#10;&#10;- Introduced `bounce_xp_reward` and `bounce_mood_reward` properties to `FoodDef`.  &#10;- Updated `Klippy.gd` to grant XP and mood boosts on bounces during Jelly buff duration.  &#10;- Reset rewards on buff expiration for proper state management." />
     <MESSAGE value="Fix ID constants in `Klippy.gd` to ensure correct value assignments" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix ID constants in `Klippy.gd` to ensure correct value assignments" />
+    <MESSAGE value="Add hat customization for Klippy with crown cosmetic unlockable at level 50&#10;&#10;- Introduced `HatsCatalog` to manage hat definitions, textures, and unlock levels.&#10;- Updated `Klippy.gd` to support hat selection, persistence, and rendering.&#10;- Enhanced `WardrobeDialog` to include hat selection and appropriate level gating.&#10;- Added a crown hat asset and unlocked it at level 50 via `LevelUnlocks`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add hat customization for Klippy with crown cosmetic unlockable at level 50&#10;&#10;- Introduced `HatsCatalog` to manage hat definitions, textures, and unlock levels.&#10;- Updated `Klippy.gd` to support hat selection, persistence, and rendering.&#10;- Enhanced `WardrobeDialog` to include hat selection and appropriate level gating.&#10;- Added a crown hat asset and unlocked it at level 50 via `LevelUnlocks`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

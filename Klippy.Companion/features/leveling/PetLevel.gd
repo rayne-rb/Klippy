@@ -11,6 +11,9 @@ signal level_changed(new_level: int)
 
 const XP_PER_LEVEL := 1000.0
 
+const PASSIVE_XP_PER_MINUTE := 0.1
+const ECSTATIC_PASSIVE_XP_PER_MINUTE := 0.2
+
 var xp := 0.0
 var level := 0
 
@@ -26,6 +29,15 @@ func add_xp(amount: float) -> void:
 	xp = max(xp + amount, 0.0)
 	xp_changed.emit(xp)
 	_recompute_level()
+
+
+## Passive trickle of XP for simply being alive, ticked every frame with the
+## elapsed [param delta] rather than a once-a-minute timer, so it stays smooth
+## and needs no separate catch-up logic. Doubles while [param ecstatic] (mood
+## status "Ecstatic") holds.
+func apply_passive_gain(delta: float, ecstatic: bool) -> void:
+	var rate_per_minute := ECSTATIC_PASSIVE_XP_PER_MINUTE if ecstatic else PASSIVE_XP_PER_MINUTE
+	add_xp(rate_per_minute / 60.0 * delta)
 
 
 ## True once Klippy has reached the level something is gated behind.

@@ -1042,6 +1042,8 @@ func _recompute_physical_properties() -> void:
 
 func _process(delta: float) -> void:
 	_update_pupils(delta)
+	if not stats.is_dead:
+		pet_level.apply_passive_gain(delta, stats.get_mood_status() == "Ecstatic")
 
 
 ## Point both pupils at the mouse. Reads the OS-level cursor position rather
