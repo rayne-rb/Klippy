@@ -39,6 +39,7 @@ const MAX_FOOD_ITEMS := 8
 # Jelly only turns up in the portal's random draw once Klippy has some levels
 # on him (see [constant LevelUnlocks.JELLY_FOOD]), and even then rarely.
 const JELLY_SPAWN_CHANCE := 0.05
+const XP_GEM_SPAWN_CHANCE := 0.05
 
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
@@ -880,10 +881,13 @@ func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: T
 
 
 ## What the portal drops: almost always an apple, but a rare jelly once
-## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]).
+## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]), and a
+## separately-rolled rare XP gem regardless of level.
 func _roll_summon_food_type() -> String:
 	if pet_level.is_unlocked(LevelUnlocks.JELLY_FOOD) and randf() < JELLY_SPAWN_CHANCE:
 		return FoodCatalog.JELLY
+	if randf() < XP_GEM_SPAWN_CHANCE:
+		return FoodCatalog.XP_GEM
 	return FoodCatalog.APPLE
 
 
@@ -943,7 +947,10 @@ func _spawn_food_body(food_type: String) -> void:
 
 func _on_food_item_consumed(window: Window) -> void:
 	var body := window.get_child(0) as FoodBody
-	_apply_food_buff(FoodCatalog.get_def(body.food_type))
+	var def := FoodCatalog.get_def(body.food_type)
+	if def.xp_reward > 0.0:
+		pet_level.add_xp(def.xp_reward)
+	_apply_food_buff(def)
 	body.set_physics_process(false)
 	window.hide()
 	active_food_items.erase(window)

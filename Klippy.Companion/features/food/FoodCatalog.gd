@@ -7,6 +7,7 @@ extends RefCounted
 
 const APPLE := "apple"
 const JELLY := "jelly"
+const XP_GEM := "xp_gem"
 
 static var _defs: Dictionary = {}
 static var _initialized := false
@@ -45,3 +46,12 @@ static func _ensure_initialized() -> void:
 	jelly.bounce_xp_reward = 0.1
 	jelly.bounce_mood_reward = 0.5
 	_defs[jelly.id] = jelly
+
+	var xp_gem := FoodDef.new()
+	xp_gem.id = XP_GEM
+	xp_gem.display_name = "XP Gem"
+	xp_gem.texture = preload("res://assets/Food/KlippyXpGem.png")
+	# A gem, not a snack — no hunger benefit, just the XP.
+	xp_gem.feed_amount = 0.0
+	xp_gem.xp_reward = 100.0
+	_defs[xp_gem.id] = xp_gem

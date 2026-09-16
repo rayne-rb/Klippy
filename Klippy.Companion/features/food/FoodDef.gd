@@ -23,3 +23,7 @@ extends Resource
 ## duration. 0 means that bounce reward is off.
 @export var bounce_xp_reward: float = 0.0
 @export var bounce_mood_reward: float = 0.0
+
+## XP granted once, the instant this food is eaten — unlike the bounce
+## rewards above, not tied to any buff duration. 0 means none.
+@export var xp_reward: float = 0.0
