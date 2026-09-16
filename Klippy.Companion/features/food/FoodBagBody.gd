@@ -74,7 +74,7 @@ func _physics_process(delta: float) -> void:
 	tick_start_position = get_window().position
 	super._physics_process(delta)
 	if klippy and get_window().visible:
-		_resolve_body_collision(klippy)
+		_resolve_body_collision(klippy, delta)
 
 
 func movement_delta_this_tick() -> Vector2i:
@@ -118,7 +118,7 @@ func _rotated_interior_points() -> PackedVector2Array:
 ## that food never rests (see [method FoodBody._can_rest]), since gravity
 ## keeps building speed for as long as nothing catches it — so this first
 ## checks whether the food's whole path this tick crossed the wall at all.
-func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2) -> void:
+func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2, delta: float) -> void:
 	if raw_polygon.is_empty():
 		return
 
@@ -142,7 +142,7 @@ func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2) -> 
 
 			var corrected := (crossing as Vector2) + normal * food.roll_radius
 			food_window.position = Vector2i(corrected - Vector2(food_window.size) / 2.0) + get_window().position
-			_bounce_food(food, normal)
+			_bounce_food(food, normal, delta)
 			return
 
 	var closest_dist := INF
@@ -159,15 +159,36 @@ func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2) -> 
 
 	var normal := (local_center - closest_point) / closest_dist
 	var overlap := food.roll_radius - closest_dist
-	food_window.position += Vector2i(normal * overlap)
-	_bounce_food(food, normal)
+	var correction := maxf(overlap - PENETRATION_SLOP, 0.0)
+	if correction > 0.0:
+		food_window.position += Vector2i(normal * correction)
+	_bounce_food(food, normal, delta)
 
 
-func _bounce_food(food: FoodBody, normal: Vector2) -> void:
+## Below [constant PetBody.REST_SPEED], a full restitution bounce would just
+## hand the tiny downward velocity gravity re-adds every tick (bagged food
+## never rests, see [method FoodBody._can_rest]) straight back as an outward
+## one — forever, since nothing else ever removes it. Cancelling the inward
+## component instead of reflecting it (same call the real floor makes in
+## [method PetBody._process_thrown]) lets contact with the wall actually go
+## quiet instead of visibly vibrating.
+func _bounce_food(food: FoodBody, normal: Vector2, delta: float) -> void:
 	var approach_speed := food.velocity.dot(-normal)
 	if approach_speed <= 0.0:
 		return
 
-	food.velocity += (1.0 + BOUNCE_DAMPING) * approach_speed * normal
+	if approach_speed <= REST_SPEED:
+		food.velocity += approach_speed * normal
+	else:
+		food.velocity += (1.0 + BOUNCE_DAMPING) * approach_speed * normal
+
+	# Friction along the wall so resting/sliding contact bleeds speed instead
+	# of gliding frictionlessly — gravity's component along a tilted wall
+	# segment would otherwise keep sliding it sideways indefinitely once it
+	# can no longer bounce (the REST_SPEED case above).
+	var tangent := Vector2(-normal.y, normal.x)
+	var tangential_speed := food.velocity.dot(tangent)
+	food.velocity += (move_toward(tangential_speed, 0.0, FRICTION * delta) - tangential_speed) * tangent
+
 	if food.state != State.THROWN:
 		food._set_state(State.THROWN)

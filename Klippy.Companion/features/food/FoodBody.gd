@@ -33,8 +33,8 @@ func _physics_process(delta: float) -> void:
 		contained_in = null
 		return
 
-	_resolve_food_collisions()
-	_check_bag(pre_move_position)
+	_resolve_food_collisions(delta)
+	_check_bag(delta, pre_move_position)
 	_check_feeding()
 
 
@@ -43,7 +43,7 @@ func _physics_process(delta: float) -> void:
 ## uses for Klippy-vs-bag. Walking the shared registry from just past this
 ## item's own index means each pair only ever gets resolved once per tick,
 ## no matter which of the two items happens to process first.
-func _resolve_food_collisions() -> void:
+func _resolve_food_collisions(delta: float) -> void:
 	var index := _all_food.find(self)
 	if index == -1:
 		return
@@ -52,7 +52,7 @@ func _resolve_food_collisions() -> void:
 		var other := _all_food[i]
 		if not is_instance_valid(other) or not other.is_physics_processing():
 			continue
-		_resolve_body_collision(other)
+		_resolve_body_collision(other, delta)
 
 
 ## A bag-associated item has no floor of its own to rest on the way loose food
@@ -76,7 +76,7 @@ func _process_idle_base(_delta: float, _window: Window) -> void:
 ## [method FoodBagBody.resolve_food_wall_collision]) rather than a place that
 ## pins food in position, so a stored item keeps rolling/settling like any
 ## other food — it's just confined to the bag's interior.
-func _check_bag(pre_move_position: Vector2i) -> void:
+func _check_bag(delta: float, pre_move_position: Vector2i) -> void:
 	contained_in = null
 	if bag == null:
 		return
@@ -105,7 +105,7 @@ func _check_bag(pre_move_position: Vector2i) -> void:
 	# food down with nothing to stop it, so by the time the bag reopened
 	# the contents had often fallen straight out through where the (now
 	# uncollidable) wall used to be.
-	bag.resolve_food_wall_collision(self, prev_local_center)
+	bag.resolve_food_wall_collision(self, prev_local_center, delta)
 
 	# The collision may have just moved the window, so re-derive this rather
 	# than reuse the pre-collision value above.

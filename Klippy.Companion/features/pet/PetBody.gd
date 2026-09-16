@@ -7,6 +7,14 @@ const GRAVITY := 2200.0
 const BOUNCE_DAMPING := 0.45
 const REST_SPEED := 80.0
 const FRICTION := 800.0
+
+## Overlap this small is left uncorrected rather than pushed apart every
+## single tick. Two bodies resting against each other never quite reach zero
+## overlap — gravity keeps re-introducing a sliver of it each frame even once
+## their relative velocity is fully damped out — so without a slop, the hard
+## positional correction below fires every tick forever, which reads as the
+## contact visibly vibrating in place.
+const PENETRATION_SLOP := 1.5
 const AIR_SPIN_DAMPING := 0.1
 const SPIN_RECOVERY_RATE := 10.0
 const BASE_FOLLOW_RATE := 25.0
@@ -164,7 +172,7 @@ func _on_rotation_changed(angle: float) -> void:
 	_update_passthrough_mask(angle)
 
 
-func _resolve_body_collision(other: PetBody) -> void:
+func _resolve_body_collision(other: PetBody, delta: float) -> void:
 	if state == State.DRAGGING or other.state == State.DRAGGING:
 		return
 
@@ -183,14 +191,36 @@ func _resolve_body_collision(other: PetBody) -> void:
 	var overlap := min_distance - distance
 	var total_mass := mass + other.mass
 
-	window.position += Vector2i(normal * overlap * (other.mass / total_mass))
-	other_window.position -= Vector2i(normal * overlap * (mass / total_mass))
+	var correction := maxf(overlap - PENETRATION_SLOP, 0.0)
+	if correction > 0.0:
+		window.position += Vector2i(normal * correction * (other.mass / total_mass))
+		other_window.position -= Vector2i(normal * correction * (mass / total_mass))
+
+	# Friction along the contact tangent, independent of whether the pair is
+	# approaching or separating along the normal this tick — otherwise two
+	# bodies just resting against each other (food piled on food in the bag,
+	# say) keep gliding past one another indefinitely, since nothing else
+	# ever touches their sideways velocity.
+	var tangent := Vector2(-normal.y, normal.x)
+	var relative_tangential_speed := (velocity - other.velocity).dot(tangent)
+	if relative_tangential_speed != 0.0:
+		var damped_speed := move_toward(relative_tangential_speed, 0.0, FRICTION * delta)
+		var friction_impulse := (damped_speed - relative_tangential_speed) / (1.0 / mass + 1.0 / other.mass)
+		velocity += friction_impulse / mass * tangent
+		other.velocity -= friction_impulse / other.mass * tangent
 
 	var approach_speed := (velocity - other.velocity).dot(normal)
 	if approach_speed >= 0.0:
 		return
 
-	var impulse := -(1.0 + BOUNCE_DAMPING) * approach_speed / (1.0 / mass + 1.0 / other.mass)
+	# Below REST_SPEED, a full-restitution bounce would just hand back
+	# whatever tiny closing speed gravity re-added since last tick — forever,
+	# for anything that never settles into IDLE (bagged food piled on other
+	# food, say; see [method FoodBody._can_rest]). Cancelling the closing
+	# speed instead of reflecting it stops that from ever starting, while a
+	# real throw/impact still bounces normally.
+	var restitution := 0.0 if -approach_speed <= REST_SPEED else BOUNCE_DAMPING
+	var impulse := -(1.0 + restitution) * approach_speed / (1.0 / mass + 1.0 / other.mass)
 	var impulse_vector := impulse * normal
 
 	velocity += impulse_vector / mass

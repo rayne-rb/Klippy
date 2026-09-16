@@ -11,9 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -209,14 +211,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00024" summary="Limit feeding items to a maximum and update feed menu state dynamically&#10;&#10;- Introduced `MAX_FOOD_ITEMS` constant to cap the number of food items.&#10;- Added `active_food_items` array to track current food items.&#10;- Updated feeding logic to disable context menu option when limit is reached.&#10;- Implemented dynamic state updates for food spawning and removal using `_update_feed_menu_state`.">
-      <option name="closed" value="true" />
-      <created>1789018486789</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1789018486789</updated>
     </task>
     <task id="LOCAL-00025" summary="Add UID files for `FoodBody` and `PetBody` classes">
       <option name="closed" value="true" />
@@ -602,7 +596,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789551200262</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="Add XP Gem food type with instant XP reward&#10;&#10;- Introduced &quot;XP Gem&quot; to `FoodCatalog` with unique properties, including no hunger benefit and a large instant XP grant.&#10;- Updated `FoodDef` to support `xp_reward` for one-time XP bonuses.&#10;- Added rare XP Gem spawn logic to `_roll_summon_food_type` in `Klippy.gd`.">
+      <option name="closed" value="true" />
+      <created>1789551362887</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1789551362887</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -623,7 +625,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Prevent collision logic execution when window is not visible" />
     <MESSAGE value="Refactor food bag system with art assets and collision improvements&#10;&#10;- Replaced procedural bag rendering with preloaded textures for visual consistency.&#10;- Introduced `KlippyFoodBag.png` and `KlippyFoodBagBack.png` as assets for bag visuals.&#10;- Updated bag implementation to use `interior_polygon` for dynamic containment checks.&#10;- Enhanced collision logic to account for wall outlines and bag interior using traced polygons.&#10;- Redesigned food spawning offsets and state flow for better alignment with visuals.&#10;- Removed obsolete procedural graphics methods for bag rendering from `FoodBagBody.gd`." />
     <MESSAGE value="Add `_can_rest` logic to improve idle state handling and update food collision mechanics&#10;&#10;- Introduced `_can_rest` to prevent bag-contained objects from prematurely entering idle state.&#10;- Enhanced food collision resolution for better interaction between fast-moving objects and bag walls.&#10;- Updated `FoodBody` to track all instances for collision checks.&#10;- Adjusted `FoodBagBody` to carry food during movement and resolve wall collisions more accurately. &#10;- Made windows unfocusable for consistency across components." />
     <MESSAGE value="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals." />
@@ -648,7 +649,8 @@
     <MESSAGE value="Update import settings for KlippyCrown hat asset" />
     <MESSAGE value="Add passive XP gain for Klippy with ecstatic mood boost&#10;&#10;- Introduced smooth XP trickle based on mood status via `apply_passive_gain` in `PetLevel.gd`.&#10;- Updated `_process` in `Klippy.gd` to enable passive XP growth when Klippy is alive." />
     <MESSAGE value="Add XP progress bar to Status Dialog and theme updates for ProgressBar styling&#10;&#10;- Added `xp_bar` to `StatusDialog` to visually represent XP progress.&#10;- Updated `RockyTheme` to define consistent styling for `ProgressBar` elements." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add XP progress bar to Status Dialog and theme updates for ProgressBar styling&#10;&#10;- Added `xp_bar` to `StatusDialog` to visually represent XP progress.&#10;- Updated `RockyTheme` to define consistent styling for `ProgressBar` elements." />
+    <MESSAGE value="Add XP Gem food type with instant XP reward&#10;&#10;- Introduced &quot;XP Gem&quot; to `FoodCatalog` with unique properties, including no hunger benefit and a large instant XP grant.&#10;- Updated `FoodDef` to support `xp_reward` for one-time XP bonuses.&#10;- Added rare XP Gem spawn logic to `_roll_summon_food_type` in `Klippy.gd`." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add XP Gem food type with instant XP reward&#10;&#10;- Introduced &quot;XP Gem&quot; to `FoodCatalog` with unique properties, including no hunger benefit and a large instant XP grant.&#10;- Updated `FoodDef` to support `xp_reward` for one-time XP bonuses.&#10;- Added rare XP Gem spawn logic to `_roll_summon_food_type` in `Klippy.gd`." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

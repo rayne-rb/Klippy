@@ -47,7 +47,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if klippy and get_window().visible:
-		_resolve_body_collision(klippy)
+		_resolve_body_collision(klippy, delta)
 
 
 func _on_drag_started(_event: InputEventMouseButton) -> void:
