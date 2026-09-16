@@ -137,11 +137,25 @@ static func setup_window(win: Window, title: String, width := 340) -> VBoxContai
 	title_label.text = title
 	title_label.add_theme_font_size_override("font_size", 15)
 	title_label.add_theme_color_override("font_color", ACCENT)
+	title_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	header.add_child(title_label)
 
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_PASS
 	header.add_child(spacer)
+
+	# Borderless window has no OS titlebar to drag, so the header itself
+	# drags it: hold left mouse on the title row and move the mouse.
+	var drag := {"active": false, "offset": Vector2i()}
+	header.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			drag.active = event.pressed
+			if event.pressed:
+				drag.offset = DisplayServer.mouse_get_position() - win.position
+		elif event is InputEventMouseMotion and drag.active:
+			win.position = DisplayServer.mouse_get_position() - drag.offset
+	)
 
 	var close_button := Button.new()
 	close_button.text = "✕"
