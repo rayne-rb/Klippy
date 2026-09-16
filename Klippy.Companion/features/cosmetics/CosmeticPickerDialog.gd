@@ -10,25 +10,21 @@ signal item_selected(id: String)
 const COLUMNS := 4
 const CELL_SIZE := Vector2(96, 96)
 
+var _category_label: Label
 var _search: LineEdit
 var _grid: GridContainer
 
 
 func _ready() -> void:
-	size = Vector2i(440, 360)
-	close_requested.connect(hide)
+	# setup_window()'s own header title is fixed at construction time, but
+	# this dialog's heading changes per [method open_for] call, so it gets
+	# its own label underneath instead (the header still supplies the ✕).
+	var vbox := RockyTheme.setup_window(self, "", 440)
 
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
+	_category_label = Label.new()
+	_category_label.add_theme_color_override("font_color", RockyTheme.ACCENT)
+	_category_label.add_theme_font_size_override("font_size", 15)
+	vbox.add_child(_category_label)
 
 	_search = LineEdit.new()
 	_search.placeholder_text = "Search..."
@@ -36,6 +32,7 @@ func _ready() -> void:
 	vbox.add_child(_search)
 
 	var scroll := ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 260)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	vbox.add_child(scroll)
 
@@ -52,7 +49,7 @@ func _ready() -> void:
 
 ## [param get_def_fn] is a [Callable] to a catalog's static `get_def(id)`.
 func open_for(category_label: String, ids: Array, get_def_fn: Callable) -> void:
-	title = category_label
+	_category_label.text = category_label
 	_search.text = ""
 
 	# remove_child() first: queue_free() alone only defers removal to end of

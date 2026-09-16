@@ -10,7 +10,11 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPickerDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPickerDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -205,14 +209,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00012" summary="Add DVD mode and settings window to Klippy&#10;&#10;- Added DVD mode with bouncing window mechanics.&#10;- Implemented settings window with basic popup functionality.&#10;- Extended context menu with options for DVD mode and settings access.&#10;- Adjusted input and dragging logic to integrate new features.">
-      <option name="closed" value="true" />
-      <created>1788964820501</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1788964820501</updated>
     </task>
     <task id="LOCAL-00013" summary="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions. &#10;- Included probabilistic logic and cooldown system for complaint generation.">
       <option name="closed" value="true" />
@@ -598,7 +594,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789539791599</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior.">
+      <option name="closed" value="true" />
+      <created>1789540271928</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1789540271928</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -619,7 +623,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Limit FPS to 30 and adjust physics tick rate for performance optimization" />
     <MESSAGE value="Add VSync toggle and FPS selection to settings panel&#10;&#10;- Introduced `vsync_toggled` and `fps_selected` signals in `SettingsPanel`.&#10;- Added VSync checkbox and FPS selection dropdown to the settings UI.&#10;- Integrated new settings with `Klippy.gd` to apply changes dynamically using `_apply_display_settings`.&#10;- Extended save/load system to persist VSync and FPS settings." />
     <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
@@ -644,7 +647,8 @@
     <MESSAGE value="Add &quot;Clean Marble&quot; pupil assets for Klippy  &#10;&#10;- Added `KlippyLeftPupil.png` and `KlippyRightPupil.png` textures for the &quot;Clean Marble&quot; cosmetic set.  &#10;- Included `.import` metadata for texture compression and processing." />
     <MESSAGE value="Add `can_rotate` property to control spin behavior for objects&#10;&#10;- Introduced `can_rotate` to allow or prevent sprite rotation based on object type.&#10;- Updated `PetBody.gd` to respect `can_rotate` during drag, spin, and air interactions for more realistic behavior.&#10;- Disabled rotation for `WardrobeBody` to reflect its upright, non-rolling nature." />
     <MESSAGE value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
-    <option name="LAST_COMMIT_MESSAGE" value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
+    <MESSAGE value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

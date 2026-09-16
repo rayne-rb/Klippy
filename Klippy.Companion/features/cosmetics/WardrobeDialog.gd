@@ -24,24 +24,11 @@ var _active_row_index := -1
 
 
 func _ready() -> void:
-	title = "Wardrobe"
-	# Fixed rather than fit-to-content: reset_size() (see setup()) would need
-	# to run after the freshly-added rows' first layout pass, which happens on
-	# the next idle frame, not synchronously within setup() itself.
-	size = Vector2i(340, 240)
+	_row_list = RockyTheme.setup_window(self, "Wardrobe")
+	# setup_window() wires close_requested to the plain hide() every other
+	# dialog wants; this one also has a picker sub-window to take down.
+	close_requested.disconnect(hide)
 	close_requested.connect(close_all)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	add_child(margin)
-
-	_row_list = VBoxContainer.new()
-	_row_list.add_theme_constant_override("separation", 8)
-	margin.add_child(_row_list)
 
 	# Built once up front rather than lazily per-open, so reopening this
 	# dialog (see setup()) never has to worry about tearing an in-progress
