@@ -38,7 +38,7 @@ const MAX_FOOD_ITEMS := 8
 
 # Jelly only turns up in the portal's random draw once Klippy has some levels
 # on him (see [constant LevelUnlocks.JELLY_FOOD]), and even then rarely.
-const JELLY_SPAWN_CHANCE := 0.02
+const JELLY_SPAWN_CHANCE := 0.05
 
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
