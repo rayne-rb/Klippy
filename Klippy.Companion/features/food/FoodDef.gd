@@ -19,3 +19,7 @@ extends Resource
 @export var bounce_damping_override: float = -1.0
 ## Whether impacts land no throw damage for the buff's duration.
 @export var damage_immune: bool = false
+## XP and mood granted every bounce (not just damaging ones) for the buff's
+## duration. 0 means that bounce reward is off.
+@export var bounce_xp_reward: float = 0.0
+@export var bounce_mood_reward: float = 0.0

@@ -13,9 +13,7 @@
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/leveling/LevelUnlocks.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,30 +209,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00015" summary="Add feeding system with stats management to Klippy&#10;&#10;- Introduced `PetStats` to track and emit hunger and feeding states.&#10;- Added `SettingsPanel` with toggles for feeding and hunger visibility.&#10;- Enabled feeding through context menu with dynamic state management.&#10;- Integrated hunger updates with real-time UI feedback.">
-      <option name="closed" value="true" />
-      <created>1788968509883</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1788968509883</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.&#10;- Integrated hover">
-      <option name="closed" value="true" />
-      <created>1788968708661</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1788968708661</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Add `StatusTooltip` and enhance food tracking&#10;&#10;- Introduced `StatusTooltip` for displaying dynamic status above windows with real-time repositioning.&#10;- Replaced hunger mechanics with food tracking, including decay, feeding, and death states.&#10;- Updated `PetStats` and `SettingsPanel` to reflect food-based behavior.">
-      <option name="closed" value="true" />
-      <created>1788969411701</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1788969411701</updated>
     </task>
     <task id="LOCAL-00018" summary="Add save/load system and improve settings/state management&#10;&#10;- Introduced `SaveData` utility for saving and loading game state.&#10;- Enhanced `SettingsPanel` with a toggle for food visibility and emitted a signal for updates.&#10;- Implemented offline decay mechanic in `PetStats` to apply food decay during inactivity.&#10;- Updated `Klippy` to persist state across sessions, including size, food, and settings.&#10;- Replaced quit logic with a save-before-exit function to ensure data integrity.">
       <option name="closed" value="true" />
@@ -604,7 +578,31 @@
       <option name="project" value="LOCAL" />
       <updated>1789545969788</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Add jelly food type with buff mechanics and spawn logic&#10;&#10;- Introduced &quot;Jelly&quot; to the `FoodCatalog` with unique properties including bounce damping override, damage immunity, and a timed buff duration.&#10;- Updated `PetBody.gd` to use instance-specific bounce damping.&#10;- Implemented food buff system in `Klippy.gd` with support for timed effects and reversion upon expiration.&#10;- Added rare Jelly spawning with level-based unlock and randomness via `_roll_summon_food_type`.">
+      <option name="closed" value="true" />
+      <created>1789546355619</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1789546355619</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Enable draggable header for borderless windows in `RockyTheme`&#10;&#10;- Added input handling to the header for dragging the window using left mouse button. &#10;- Set `mouse_filter` on header elements to pass through events properly.">
+      <option name="closed" value="true" />
+      <created>1789546753117</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1789546753117</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Increase Jelly spawn chance from 2% to 5% for improved availability">
+      <option name="closed" value="true" />
+      <created>1789546766543</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1789546766543</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -625,9 +623,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
-    <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
-    <MESSAGE value="Refactor food spawning and consumption logic to reduce memory&#10;&#10;- Introduced `consumed` signal in `FoodBody` to handle food item lifecycle.&#10;- Added object pooling for efficient reuse of food windows.&#10;- Reduced maximum food items to 8 for better performance and management.&#10;- Modularized UI logic for settings, status, and confirmation dialogs." />
     <MESSAGE value="Add IntelliJ IDEA project configuration files and update Godot project settings" />
     <MESSAGE value="Refactor food mechanics and update project structure&#10;&#10;- Introduced `active_food_items` and `food_window_pool` arrays for efficient food management.  &#10;- Added constants (`FOOD_WINDOW_SIZE`, `FOOD_MASS`, `MAX_FOOD_ITEMS`) in `Klippy.gd`.  &#10;- Adjusted `.idea" />
     <MESSAGE value=" structure.  &#10;- Moved `FoodBagBody.gd` and related files to `features/food` for modularity." />
@@ -650,7 +645,10 @@
     <MESSAGE value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
     <MESSAGE value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
     <MESSAGE value="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level." />
+    <MESSAGE value="Add jelly food type with buff mechanics and spawn logic&#10;&#10;- Introduced &quot;Jelly&quot; to the `FoodCatalog` with unique properties including bounce damping override, damage immunity, and a timed buff duration.&#10;- Updated `PetBody.gd` to use instance-specific bounce damping.&#10;- Implemented food buff system in `Klippy.gd` with support for timed effects and reversion upon expiration.&#10;- Added rare Jelly spawning with level-based unlock and randomness via `_roll_summon_food_type`." />
+    <MESSAGE value="Enable draggable header for borderless windows in `RockyTheme`&#10;&#10;- Added input handling to the header for dragging the window using left mouse button. &#10;- Set `mouse_filter` on header elements to pass through events properly." />
+    <MESSAGE value="Increase Jelly spawn chance from 2% to 5% for improved availability" />
+    <option name="LAST_COMMIT_MESSAGE" value="Increase Jelly spawn chance from 2% to 5% for improved availability" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -42,4 +42,6 @@ static func _ensure_initialized() -> void:
 	jelly.buff_duration = 20.0
 	jelly.bounce_damping_override = 0.95
 	jelly.damage_immune = true
+	jelly.bounce_xp_reward = 0.1
+	jelly.bounce_mood_reward = 0.5
 	_defs[jelly.id] = jelly

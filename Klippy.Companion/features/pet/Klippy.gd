@@ -127,6 +127,8 @@ var pet_level: PetLevel
 ## [method _on_food_buff_expired] reverts everything it touched once it fires.
 var food_buff_timer: Timer
 var damage_immune := false
+var bounce_xp_reward := 0.0
+var bounce_mood_reward := 0.0
 
 var dvd_mode := false
 
@@ -928,12 +930,16 @@ func _apply_food_buff(def: FoodDef) -> void:
 	if def.bounce_damping_override >= 0.0:
 		bounce_damping = def.bounce_damping_override
 	damage_immune = def.damage_immune
+	bounce_xp_reward = def.bounce_xp_reward
+	bounce_mood_reward = def.bounce_mood_reward
 	food_buff_timer.start(def.buff_duration)
 
 
 func _on_food_buff_expired() -> void:
 	bounce_damping = BOUNCE_DAMPING
 	damage_immune = false
+	bounce_xp_reward = 0.0
+	bounce_mood_reward = 0.0
 
 
 ## Drops a food item at [param local_position] (relative to the bag window's
@@ -1072,6 +1078,10 @@ func _on_rotation_changed(angle: float) -> void:
 func _on_energetic_bounce(impact_speed: float) -> void:
 	if impact_speed >= DAMAGE_SPEED_THRESHOLD and not damage_immune:
 		stats.apply_throw_damage()
+	if bounce_xp_reward > 0.0:
+		pet_level.add_xp(bounce_xp_reward)
+	if bounce_mood_reward > 0.0:
+		stats.apply_play_boost(bounce_mood_reward)
 	_maybe_complain()
 
 
