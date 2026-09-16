@@ -29,7 +29,7 @@ func _ready() -> void:
 	# to run after the freshly-added rows' first layout pass, which happens on
 	# the next idle frame, not synchronously within setup() itself.
 	size = Vector2i(340, 240)
-	close_requested.connect(hide)
+	close_requested.connect(close_all)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -49,6 +49,17 @@ func _ready() -> void:
 	_picker = CosmeticPickerDialog.new()
 	add_child(_picker)
 	_picker.item_selected.connect(_on_picker_item_selected)
+
+
+## Closes the row list and whichever category's picker grid happened to be
+## left open — [member _picker] is a separate sub-[Window], so hiding this
+## one alone wouldn't take it down too. Named distinctly rather than
+## overriding [method Window.hide]: Godot only dispatches its own internal
+## calls to the native method, so a same-named override would silently miss
+## those (and the engine treats it as an error here regardless).
+func close_all() -> void:
+	_picker.hide()
+	hide()
 
 
 func setup(initial: Dictionary) -> void:

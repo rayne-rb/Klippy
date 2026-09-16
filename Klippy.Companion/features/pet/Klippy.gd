@@ -389,6 +389,8 @@ func _toggle_wardrobe() -> void:
 	var window := wardrobe.get_window()
 	if window.visible:
 		window.hide()
+		if wardrobe_dialog:
+			wardrobe_dialog.close_all()
 	else:
 		window.show()
 
