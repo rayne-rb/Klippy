@@ -8,6 +8,7 @@ extends RefCounted
 
 const DEFAULT := "default"
 const CLEAN_MARBLE := "clean_marble"
+const OBSIDIAN := "obsidian"
 
 static var _defs: Dictionary = {}
 static var _initialized := false
@@ -40,3 +41,9 @@ static func _ensure_initialized() -> void:
 	marble_expression.texture = preload("res://assets/KlippyCosmetics/Expressions/CleanMarble/KlippyIconicSmile.png")
 	marble_expression.required_level = LevelUnlocks.MARBLE_COSMETICS
 	_defs[marble_expression.id] = marble_expression
+
+	var obsidian_expression := CosmeticPartDef.new()
+	obsidian_expression.id = OBSIDIAN
+	obsidian_expression.display_name = "Obsidian"
+	obsidian_expression.texture = preload("res://assets/KlippyCosmetics/Expressions/Obsidian/KlippyExpression.png")
+	_defs[obsidian_expression.id] = obsidian_expression

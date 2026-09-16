@@ -7,6 +7,7 @@ extends RefCounted
 ## cosmetic needs to know the specific list.
 
 const DEFAULT := "default"
+const OBSIDIAN := "obsidian"
 
 static var _defs: Dictionary = {}
 static var _initialized := false
@@ -33,3 +34,10 @@ static func _ensure_initialized() -> void:
 	default_eyes.texture = preload("res://assets/KlippyCosmetics/Eyes/Default/KlippyLeftEye.png")
 	default_eyes.right_texture = preload("res://assets/KlippyCosmetics/Eyes/Default/KlippyRightEye.png")
 	_defs[default_eyes.id] = default_eyes
+
+	var obsidian_eyes := CosmeticPartDef.new()
+	obsidian_eyes.id = OBSIDIAN
+	obsidian_eyes.display_name = "Obsidian"
+	obsidian_eyes.texture = preload("res://assets/KlippyCosmetics/Eyes/Obsidian/KlippyLeftEye.png")
+	obsidian_eyes.right_texture = preload("res://assets/KlippyCosmetics/Eyes/Obsidian/KlippyRightEye.png")
+	_defs[obsidian_eyes.id] = obsidian_eyes
