@@ -322,13 +322,13 @@ func _process_thrown(delta: float, window: Window) -> void:
 		_set_state(State.IDLE)
 
 
-## With [member monitor_border_wrap], re-emerges the pet from the facing
-## border of the screen at [param dir] (+1 right, -1 left) when that
-## neighbour screen exists. Velocity is preserved, so he keeps flying in the
-## same direction on the other side.
+## With [member monitor_border_wrap], re-emerges the pet from the border of
+## the screen that physically faces the border he just crossed ([param dir]
+## +1 = he crossed this screen's right border, -1 = left). Velocity is
+## preserved, so he keeps flying in the same direction on the other side.
 func _wrap_to_neighbor_screen(dir: int, window: Window) -> bool:
-	var neighbor := window.current_screen + dir
-	if neighbor < 0 or neighbor >= DisplayServer.get_screen_count():
+	var neighbor := neighbor_screen_across(window.current_screen, dir)
+	if neighbor == -1:
 		return false
 
 	var rect := DisplayServer.screen_get_usable_rect(neighbor)
@@ -338,3 +338,27 @@ func _wrap_to_neighbor_screen(dir: int, window: Window) -> bool:
 	window.position = Vector2i(Vector2(new_x, new_y))
 	window.current_screen = neighbor
 	return true
+
+
+## The screen whose edge physically faces [param screen]'s `side` border
+## (+1 right, -1 left): a monitor whose opposing edge sits at the same x and
+## whose vertical range overlaps. Screen indices don't follow the physical
+## layout, so adjacency is measured from real geometry. Returns -1 when
+## nothing abuts that border.
+static func neighbor_screen_across(screen: int, side: int) -> int:
+	var count := DisplayServer.get_screen_count()
+	if screen < 0 or screen >= count:
+		return -1
+	var rect := Rect2(DisplayServer.screen_get_position(screen), DisplayServer.screen_get_size(screen))
+	for i in count:
+		if i == screen:
+			continue
+		var other := Rect2(DisplayServer.screen_get_position(i), DisplayServer.screen_get_size(i))
+		var vertical_overlap := rect.position.y < other.end.y and other.position.y < rect.end.y
+		if not vertical_overlap:
+			continue
+		if side > 0 and absf(other.position.x - rect.end.x) <= 8.0:
+			return i
+		if side < 0 and absf(other.end.x - rect.position.x) <= 8.0:
+			return i
+	return -1

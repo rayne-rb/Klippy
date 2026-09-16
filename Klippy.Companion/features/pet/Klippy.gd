@@ -607,9 +607,15 @@ func _on_food_portal_opened(portal: FoodPortal) -> void:
 func _summon_portals() -> void:
 	if not travel_portals.is_empty():
 		return
-	var screens := maxi(DisplayServer.get_screen_count(), 1)
 	var blue_screen := get_window().current_screen
-	var red_screen := (blue_screen + 1) % screens if screens > 1 else blue_screen
+	var red_screen := blue_screen
+	if DisplayServer.get_screen_count() > 1:
+		var across := neighbor_screen_across(blue_screen, 1)
+		if across == -1:
+			across = neighbor_screen_across(blue_screen, -1)
+		if across == -1:
+			across = (blue_screen + 1) % DisplayServer.get_screen_count()
+		red_screen = across
 	_spawn_portal("blue", blue_screen, 0.25)
 	_spawn_portal("red", red_screen, 0.75)
 	_update_portal_menu_items()
