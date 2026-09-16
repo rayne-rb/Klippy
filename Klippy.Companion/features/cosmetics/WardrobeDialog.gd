@@ -21,6 +21,7 @@ var _rows: Array[Dictionary] = []
 var _row_list: VBoxContainer
 var _picker: CosmeticPickerDialog
 var _active_row_index := -1
+var _pet_level: PetLevel
 
 
 func _ready() -> void:
@@ -49,7 +50,8 @@ func close_all() -> void:
 	hide()
 
 
-func setup(initial: Dictionary) -> void:
+func setup(initial: Dictionary, pet_level: PetLevel) -> void:
+	_pet_level = pet_level
 	for row in _rows:
 		var container := row.container as Control
 		_row_list.remove_child(container)
@@ -66,10 +68,22 @@ func setup(initial: Dictionary) -> void:
 		initial.get("pupils", PupilsCatalog.DEFAULT), pupils_selected)
 
 
+## Only options Klippy's current level has reached — locked options (see
+## [member CosmeticPartDef.required_level]) simply don't appear yet, rather
+## than showing as a disabled/mystery entry.
+func _unlocked_ids(ids_fn: Callable, get_def_fn: Callable) -> Array:
+	var unlocked := []
+	for id in ids_fn.call():
+		var def: CosmeticPartDef = get_def_fn.call(id)
+		if _pet_level.is_unlocked(def.required_level):
+			unlocked.append(id)
+	return unlocked
+
+
 func _add_row(label_text: String, ids_fn: Callable, get_def_fn: Callable,
 		initial_id: String, changed_signal: Signal) -> void:
 	var row_index := _rows.size()
-	var ids: Array = ids_fn.call()
+	var ids: Array = _unlocked_ids(ids_fn, get_def_fn)
 	var index := maxi(ids.find(initial_id), 0)
 
 	var container := HBoxContainer.new()
@@ -110,14 +124,14 @@ func _add_row(label_text: String, ids_fn: Callable, get_def_fn: Callable,
 
 func _refresh_row(row_index: int) -> void:
 	var row: Dictionary = _rows[row_index]
-	var ids: Array = row.ids_fn.call()
+	var ids: Array = _unlocked_ids(row.ids_fn, row.get_def_fn)
 	var def: CosmeticPartDef = row.get_def_fn.call(ids[row.index])
 	(row.field_button as Button).text = def.display_name
 
 
 func _on_arrow_pressed(row_index: int, direction: int) -> void:
 	var row: Dictionary = _rows[row_index]
-	var ids: Array = row.ids_fn.call()
+	var ids: Array = _unlocked_ids(row.ids_fn, row.get_def_fn)
 	row.index = wrapi(row.index + direction, 0, ids.size())
 	_refresh_row(row_index)
 	(row.changed_signal as Signal).emit(ids[row.index])
@@ -126,12 +140,12 @@ func _on_arrow_pressed(row_index: int, direction: int) -> void:
 func _on_field_pressed(row_index: int) -> void:
 	_active_row_index = row_index
 	var row: Dictionary = _rows[row_index]
-	_picker.open_for(row.label, row.ids_fn.call(), row.get_def_fn)
+	_picker.open_for(row.label, _unlocked_ids(row.ids_fn, row.get_def_fn), row.get_def_fn)
 
 
 func _on_picker_item_selected(id: String) -> void:
 	var row: Dictionary = _rows[_active_row_index]
-	var ids: Array = row.ids_fn.call()
+	var ids: Array = _unlocked_ids(row.ids_fn, row.get_def_fn)
 	row.index = ids.find(id)
 	_refresh_row(_active_row_index)
 	(row.changed_signal as Signal).emit(id)

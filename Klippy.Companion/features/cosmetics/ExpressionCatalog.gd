@@ -38,4 +38,5 @@ static func _ensure_initialized() -> void:
 	marble_expression.id = CLEAN_MARBLE
 	marble_expression.display_name = "Clean Marble"
 	marble_expression.texture = preload("res://assets/KlippyCosmetics/Expressions/CleanMarble/KlippyIconicSmile.png")
+	marble_expression.required_level = LevelUnlocks.MARBLE_COSMETICS
 	_defs[marble_expression.id] = marble_expression

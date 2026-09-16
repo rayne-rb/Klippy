@@ -2,7 +2,9 @@ class_name StatusDialog
 extends Window
 
 var stats: PetStats
+var pet_level: PetLevel
 var _vbox: VBoxContainer
+var level_label: Label
 var food_status_label: Label
 var food_value_label: Label
 var mood_status_label: Label
@@ -15,8 +17,15 @@ func _ready() -> void:
 	_vbox = RockyTheme.setup_window(self, "Status")
 
 
-func setup(pet_stats: PetStats) -> void:
+func setup(pet_stats: PetStats, level: PetLevel) -> void:
 	stats = pet_stats
+	pet_level = level
+
+	level_label = Label.new()
+	_vbox.add_child(level_label)
+	pet_level.level_changed.connect(_on_level_changed)
+	pet_level.xp_changed.connect(_on_xp_changed)
+	_update_level_label()
 
 	food_status_label = Label.new()
 	_vbox.add_child(food_status_label)
@@ -72,3 +81,17 @@ func _on_mood_changed(value: float) -> void:
 func _on_health_changed(value: float) -> void:
 	health_status_label.text = "Health: %s" % stats.get_health_status()
 	health_value_label.text = "%.1f / %.0f" % [value, PetStats.MAX_HEALTH]
+
+
+func _on_level_changed(_new_level: int) -> void:
+	_update_level_label()
+
+
+func _on_xp_changed(_value: float) -> void:
+	_update_level_label()
+
+
+func _update_level_label() -> void:
+	level_label.text = "Level %d (%.1f / %.0f XP)" % [
+		pet_level.level, pet_level.xp_into_level(), PetLevel.XP_PER_LEVEL
+	]

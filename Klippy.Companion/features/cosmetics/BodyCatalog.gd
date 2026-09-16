@@ -37,4 +37,5 @@ static func _ensure_initialized() -> void:
 	marble_body.id = CLEAN_MARBLE
 	marble_body.display_name = "Clean Marble"
 	marble_body.texture = preload("res://assets/KlippyCosmetics/Bodies/CleanMarble/KlippyBody.png")
+	marble_body.required_level = LevelUnlocks.MARBLE_COSMETICS
 	_defs[marble_body.id] = marble_body

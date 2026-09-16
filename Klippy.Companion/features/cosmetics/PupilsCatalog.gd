@@ -40,4 +40,5 @@ static func _ensure_initialized() -> void:
 	marble_pupils.display_name = "Clean Marble"
 	marble_pupils.texture = preload("res://assets/KlippyCosmetics/Pupils/CleanMarble/KlippyLeftPupil.png")
 	marble_pupils.right_texture = preload("res://assets/KlippyCosmetics/Pupils/CleanMarble/KlippyRightPupil.png")
+	marble_pupils.required_level = LevelUnlocks.MARBLE_COSMETICS
 	_defs[marble_pupils.id] = marble_pupils

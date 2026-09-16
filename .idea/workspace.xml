@@ -11,9 +11,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPickerDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPickerDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPartDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/CosmeticPartDef.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/PupilsCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/PupilsCatalog.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,23 +51,23 @@
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.654770369624556" />
-      <entry key="MS500" value="4.076224596572144" />
-      <entry key="S2" value="5.408143887415152" />
-      <entry key="S5" value="5.752504861959616" />
-      <entry key="S10" value="5.874378167003142" />
-      <entry key="S30" value="5.95770161694895" />
-      <entry key="S60" value="5.978797249270666" />
-      <entry key="M2" value="5.989385196687867" />
-      <entry key="M5" value="5.995750851071531" />
-      <entry key="M10" value="5.997874887193247" />
-      <entry key="M15" value="5.998583138466876" />
-      <entry key="M30" value="5.999291509394886" />
-      <entry key="H1" value="5.999645739736386" />
-      <entry key="H2" value="5.999822866127755" />
-      <entry key="H4" value="5.999911623161381" />
-      <entry key="D1" value="7.969051113522166" />
-      <entry key="W1" value="44.2740197620001" />
+      <entry key="MS100" value="1.5430461585862183" />
+      <entry key="MS500" value="3.9678652305188344" />
+      <entry key="S2" value="5.369544317315404" />
+      <entry key="S5" value="5.735884228770089" />
+      <entry key="S10" value="5.865859288466008" />
+      <entry key="S30" value="5.954814497225316" />
+      <entry key="S60" value="5.9773476795892" />
+      <entry key="M2" value="5.988658903851494" />
+      <entry key="M5" value="5.995459971306439" />
+      <entry key="M10" value="5.997729386812879" />
+      <entry key="M15" value="5.9984861247649315" />
+      <entry key="M30" value="5.999242995847684" />
+      <entry key="H1" value="5.9996346839928165" />
+      <entry key="H2" value="6.008711093571338" />
+      <entry key="H4" value="6.230994410615417" />
+      <entry key="D1" value="10.63102952885878" />
+      <entry key="W1" value="46.97071675248841" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -84,23 +89,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="1.6407962416164705" />
-      <entry key="MS500" value="4.068739318284438" />
-      <entry key="S2" value="5.405646939322494" />
-      <entry key="S5" value="5.751441870525737" />
-      <entry key="S10" value="5.873835329271599" />
-      <entry key="S30" value="5.957518088230109" />
-      <entry key="S60" value="5.978705158083156" />
-      <entry key="M2" value="5.989339069085781" />
-      <entry key="M5" value="5.99573238031" />
-      <entry key="M10" value="5.9978656485224695" />
-      <entry key="M15" value="5.998576978621669" />
-      <entry key="M30" value="5.999288429106546" />
-      <entry key="H1" value="5.999644199500771" />
-      <entry key="H2" value="5.999822095987085" />
-      <entry key="H4" value="5.99991123808529" />
-      <entry key="D1" value="7.9690509681075135" />
-      <entry key="W1" value="44.27401952295366" />
+      <entry key="MS100" value="1.5320623412290095" />
+      <entry key="MS500" value="3.9610879617279338" />
+      <entry key="S2" value="5.367112915912434" />
+      <entry key="S5" value="5.7348326109724" />
+      <entry key="S10" value="5.865319372628972" />
+      <entry key="S30" value="5.95463129912591" />
+      <entry key="S60" value="5.977255671434139" />
+      <entry key="M2" value="5.9886127970549" />
+      <entry key="M5" value="5.995441503878344" />
+      <entry key="M10" value="5.997720148975841" />
+      <entry key="M15" value="5.998479965290333" />
+      <entry key="M30" value="5.9992399156520095" />
+      <entry key="H1" value="5.9996331437769825" />
+      <entry key="H2" value="6.0087103222940055" />
+      <entry key="H4" value="6.230994010709451" />
+      <entry key="D1" value="10.63102938017404" />
+      <entry key="W1" value="46.97071652210872" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -209,14 +214,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00013" summary="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions. &#10;- Included probabilistic logic and cooldown system for complaint generation.">
-      <option name="closed" value="true" />
-      <created>1788967220623</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1788967220623</updated>
     </task>
     <task id="LOCAL-00014" summary="Add SpeechBubble and Dialogue systems with interactions&#10;&#10;- Introduced `SpeechBubble` for displaying anchored text above windows, with auto-hide and repositioning mechanics.&#10;- Added `Dialogue` class to handle random greetings and complaints.&#10;- Integrated double-click greetings and bounce-triggered complaints into Klippy's interactions.&#10;- Included probabilistic logic and cooldown system for complaint generation.">
       <option name="closed" value="true" />
@@ -602,7 +599,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789540271928</updated>
     </task>
-    <option name="localTasksCounter" value="62" />
+    <task id="LOCAL-00062" summary="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates.">
+      <option name="closed" value="true" />
+      <created>1789543803317</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1789543803317</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -623,7 +628,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add VSync toggle and FPS selection to settings panel&#10;&#10;- Introduced `vsync_toggled` and `fps_selected` signals in `SettingsPanel`.&#10;- Added VSync checkbox and FPS selection dropdown to the settings UI.&#10;- Integrated new settings with `Klippy.gd` to apply changes dynamically using `_apply_display_settings`.&#10;- Extended save/load system to persist VSync and FPS settings." />
     <MESSAGE value="Add initial README with project overview, requirements, features, and export instructions" />
     <MESSAGE value="Update `.idea/workspace.xml` with task tracking and new edit completion features" />
     <MESSAGE value="Add drag spin mechanics and improve rotation recovery logic&#10;&#10;- Introduced `drag_spin_target` with mouse wheel adjustment for spin control during dragging.&#10;- Enhanced sprite rotation recovery to seamlessly align with `drag_spin_target`.&#10;- Refactored input handling in `PetBody.gd` to incorporate new spin mechanics." />
@@ -648,7 +652,8 @@
     <MESSAGE value="Add `can_rotate` property to control spin behavior for objects&#10;&#10;- Introduced `can_rotate` to allow or prevent sprite rotation based on object type.&#10;- Updated `PetBody.gd` to respect `can_rotate` during drag, spin, and air interactions for more realistic behavior.&#10;- Disabled rotation for `WardrobeBody` to reflect its upright, non-rolling nature." />
     <MESSAGE value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
     <MESSAGE value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
+    <MESSAGE value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -68,6 +68,7 @@ const RIGHT_PUPIL_BOUNDS := Rect2(-19.0, -15.0, 38.0, 30.0)
 const PLAY_MIN_HEALTH := 60.0
 const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
+const PLAY_XP_REWARD := 0.1
 
 var food_spawner: FoodSpawner
 
@@ -116,6 +117,7 @@ var current_pupils_id := PupilsCatalog.DEFAULT
 var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
 var stats: PetStats
+var pet_level: PetLevel
 
 var dvd_mode := false
 
@@ -147,6 +149,7 @@ func _ready() -> void:
 	var settings_data: Dictionary = save_data.get("settings", {})
 	var meta_data: Dictionary = save_data.get("meta", {})
 	var food_bag_data: Dictionary = save_data.get("food_bag", {})
+	var level_data: Dictionary = save_data.get("level", {})
 
 	stats = PetStats.new()
 	add_child(stats)
@@ -159,6 +162,10 @@ func _ready() -> void:
 		var elapsed: float = Time.get_unix_time_from_system() - float(meta_data["saved_at"])
 		stats.apply_offline_progress(elapsed)
 	stats.feeding_enabled_changed.connect(_on_feeding_enabled_changed)
+
+	pet_level = PetLevel.new()
+	add_child(pet_level)
+	pet_level.load_xp(level_data.get("xp", 0.0))
 
 	food_spawner = FoodSpawner.new()
 	add_child(food_spawner)
@@ -315,7 +322,7 @@ func _open_status() -> void:
 	if status_dialog == null:
 		status_dialog = StatusDialog.new()
 		add_child(status_dialog)
-		status_dialog.setup(stats)
+		status_dialog.setup(stats, pet_level)
 		status_dialog.set_show_food_value(show_food_value)
 		status_dialog.set_show_mood_value(show_mood_value)
 		status_dialog.set_show_health_value(show_health_value)
@@ -332,7 +339,7 @@ func _open_dev_tools() -> void:
 	if dev_tools_dialog == null:
 		dev_tools_dialog = DevToolsDialog.new()
 		add_child(dev_tools_dialog)
-		dev_tools_dialog.setup(stats)
+		dev_tools_dialog.setup(stats, pet_level)
 		dev_tools_dialog.bounce_triggered.connect(trigger_bounce_now)
 		dev_tools_dialog.close_requested.connect(_on_dev_tools_closed)
 	dev_tools_dialog.popup_centered()
@@ -460,7 +467,7 @@ func _open_cosmetic_picker() -> void:
 		"expression": current_expression_id,
 		"eyes": current_eyes_id,
 		"pupils": current_pupils_id,
-	})
+	}, pet_level)
 	wardrobe_dialog.popup()
 	call_deferred("_reposition_wardrobe_dialog")
 
@@ -627,6 +634,7 @@ func _save_state() -> void:
 		},
 		"food_bag": contained_counts,
 		"reminders": reminder_scheduler.to_save_data(),
+		"level": {"xp": pet_level.xp},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -1067,6 +1075,7 @@ func _on_state_exit(old_state: State) -> void:
 	play_tracking_active = false
 	if play_distance_traveled >= PLAY_DISTANCE_THRESHOLD and stats.health > PLAY_MIN_HEALTH:
 		stats.apply_play_boost(PLAY_MOOD_BOOST)
+		pet_level.add_xp(PLAY_XP_REWARD)
 
 
 func _reset_bounce() -> void:
