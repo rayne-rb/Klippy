@@ -10,32 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyAppleFood.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyAppleFood.png.import" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyJellyFood.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyJellyFood.png.import" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyXpGem.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/assets/Food/KlippyXpGem.png.import" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/app/App.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/app/App.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableBagBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableBagBody.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableBody.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodCatalog.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableCatalog.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableDef.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodDef.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableDef.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodPortal.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumablePortal.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodPortal.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumablePortal.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableSpawner.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd.uid" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/consumables/ConsumableSpawner.gd.uid" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/portals/TravelPortal.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/portals/TravelPortal.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/remote/RemoteControl.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/remote/RemoteControl.gd" afterDir="false" />
-    </list>
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,12 +29,12 @@
     &quot;assignee&quot;: &quot;rayne-rb&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/rayne-rb/Klippy",
-    "accountId": "f3c0c962-7d3f-435d-946d-aff98318fd86"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/rayne-rb/Klippy&quot;,
+    &quot;accountId&quot;: &quot;f3c0c962-7d3f-435d-946d-aff98318fd86&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Klippy.Server/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -250,22 +225,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00031" summary="Increase impact speed threshold for damage calculation&#10;&#10;- Updated `DAMAGE_SPEED_THRESHOLD` in `Klippy.gd` from 400.0 to 800.0.">
-      <option name="closed" value="true" />
-      <created>1789023663686</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1789023663686</updated>
-    </task>
-    <task id="LOCAL-00032" summary="Add developer tools dialog and state system refactor&#10;&#10;- Introduced `DevToolsDialog` to allow manual adjustment of pet stats with UI controls.&#10;- Added `state` property and `State` enum to replace `dragging` boolean in `PetBody`.&#10;- Refactored physics and input handling to accommodate state transitions (`IDLE`, `DRAGGING`, `THROWN`).&#10;- Updated `SettingsPanel` and context menu to toggle developer tools visibility.&#10;- Implemented debug methods in `Stats.gd` for direct stat modification.">
-      <option name="closed" value="true" />
-      <created>1789025197543</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1789025197544</updated>
     </task>
     <task id="LOCAL-00033" summary="Update idle bounce mechanics and health regeneration logic&#10;&#10;- Refactored idle bounce behavior for hungry pets with configurable burst intervals and cycles.&#10;- Added stricter type annotation for health regeneration in `Stats.gd`.">
       <option name="closed" value="true" />
@@ -643,7 +602,23 @@
       <option name="project" value="LOCAL" />
       <updated>1789638030797</updated>
     </task>
-    <option name="localTasksCounter" value="80" />
+    <task id="LOCAL-00080" summary="Convert &quot;Food&quot; system terminology to &quot;Consumable&quot; for greater versatility&#10;&#10;- Renamed all occurrences of &quot;Food&quot; to &quot;Consumable&quot; across classes, variables, methods, and assets.&#10;- Updated file paths and imports to reflect the change (e.g., `FoodBagBody.gd` to `ConsumableBagBody.gd`).&#10;- Refactored spawning, storage, and behavior logic to accommodate more general item types.&#10;- Maintained compatibility with existing save/load systems by adjusting key references.">
+      <option name="closed" value="true" />
+      <created>1789649497554</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1789649497554</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Add Coin consumable with Klippy Point rewards and spawning logic&#10;&#10;- Introduced &quot;Coin&quot; consumable to `ConsumableCatalog` with unique properties: no hunger benefit and instant Klippy Point rewards.&#10;- Added rare Coin spawn logic to `_roll_summon_consumable_type` in `Klippy.gd`.&#10;- Updated consumable consumption logic to grant Klippy Points upon use.">
+      <option name="closed" value="true" />
+      <created>1789649698451</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1789649698451</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -664,8 +639,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add `FoodCatalog` and refactor food system for modularity&#10;&#10;- Introduced `FoodCatalog` and `FoodDef` for centralized food definitions, enabling easier addition of new food types.&#10;- Updated `Klippy.gd` and related files to support dynamic food spawning using `FoodCatalog`.&#10;- Replaced hardcoded food types and textures with catalog-driven definitions.&#10;- Improved food spawning, saving, and loading processes to handle multiple food types." />
-    <MESSAGE value="Add `CosmeticCatalog` and refactor Klippy's cosmetic system&#10;&#10;- Introduced `CosmeticCatalog` and `CosmeticSetDef` for centralized management of cosmetic presets, enabling streamlined addition of new looks.&#10;- Updated `Klippy.gd` with dynamic cosmetic application logic and wardrobe management.&#10;- Added new art assets for &quot;Default&quot; and &quot;Clean Marble&quot; cosmetic sets.&#10;- Implemented `WardrobeBody` for GUI-based cosmetic selection.&#10;- Removed obsolete texture files and references for unused assets." />
     <MESSAGE value="Add &quot;Clean Marble&quot; pupil assets for Klippy  &#10;&#10;- Added `KlippyLeftPupil.png` and `KlippyRightPupil.png` textures for the &quot;Clean Marble&quot; cosmetic set.  &#10;- Included `.import` metadata for texture compression and processing." />
     <MESSAGE value="Add `can_rotate` property to control spin behavior for objects&#10;&#10;- Introduced `can_rotate` to allow or prevent sprite rotation based on object type.&#10;- Updated `PetBody.gd` to respect `can_rotate` during drag, spin, and air interactions for more realistic behavior.&#10;- Disabled rotation for `WardrobeBody` to reflect its upright, non-rolling nature." />
     <MESSAGE value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
@@ -689,7 +662,9 @@
     <MESSAGE value="Introduce Klippy Points as new in-game currency&#10;&#10;- Added `KlippyPoints` class for managing currency, including earning, spending, and debugging adjustments.&#10;- Integrated currency details into `StatusDialog` for live updates and display.&#10;- Updated save/load logic in `Klippy.gd` to persist Klippy Points." />
     <MESSAGE value="Introduce Klippy Points as new in-game currency&#10;&#10;- Added `KlippyPoints` class for managing currency, including earning, spending, and debugging adjustments.&#10;- Integrated currency details into `StatusDialog` for live updates and display.&#10;- Updated save/load logic in `Klippy.gd` to persist Klippy Points.&#10; Enhanced `DevToolsDialog` with debugging controls for Klippy Points.&#10;- Adjusted food spawning and feeding logic to use `PetBody` as the central anchor for positional calculations. &#10;- Introduced `_content_inset` support across relevant bodies for better interaction bounds." />
     <MESSAGE value="Refactor windowing system for Klippy to improve positioning and interaction behavior&#10;&#10;- Moved Klippy's initialization into a secondary window to resolve OS-induced positioning issues.&#10;- Added content margins for precise positioning against screen edges and other windows.&#10;- Refactored collision resolution to prevent bodies from moving out of bounds during interaction.&#10;- Updated main scene from `Klippy.tscn` to `App.tscn` with a hidden primary window for hosting the secondary one.&#10;- Simplified `_content_inset` usage across relevant scripts." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor windowing system for Klippy to improve positioning and interaction behavior&#10;&#10;- Moved Klippy's initialization into a secondary window to resolve OS-induced positioning issues.&#10;- Added content margins for precise positioning against screen edges and other windows.&#10;- Refactored collision resolution to prevent bodies from moving out of bounds during interaction.&#10;- Updated main scene from `Klippy.tscn` to `App.tscn` with a hidden primary window for hosting the secondary one.&#10;- Simplified `_content_inset` usage across relevant scripts." />
+    <MESSAGE value="Convert &quot;Food&quot; system terminology to &quot;Consumable&quot; for greater versatility&#10;&#10;- Renamed all occurrences of &quot;Food&quot; to &quot;Consumable&quot; across classes, variables, methods, and assets.&#10;- Updated file paths and imports to reflect the change (e.g., `FoodBagBody.gd` to `ConsumableBagBody.gd`).&#10;- Refactored spawning, storage, and behavior logic to accommodate more general item types.&#10;- Maintained compatibility with existing save/load systems by adjusting key references." />
+    <MESSAGE value="Add Coin consumable with Klippy Point rewards and spawning logic&#10;&#10;- Introduced &quot;Coin&quot; consumable to `ConsumableCatalog` with unique properties: no hunger benefit and instant Klippy Point rewards.&#10;- Added rare Coin spawn logic to `_roll_summon_consumable_type` in `Klippy.gd`.&#10;- Updated consumable consumption logic to grant Klippy Points upon use." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Coin consumable with Klippy Point rewards and spawning logic&#10;&#10;- Introduced &quot;Coin&quot; consumable to `ConsumableCatalog` with unique properties: no hunger benefit and instant Klippy Point rewards.&#10;- Added rare Coin spawn logic to `_roll_summon_consumable_type` in `Klippy.gd`.&#10;- Updated consumable consumption logic to grant Klippy Points upon use." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
