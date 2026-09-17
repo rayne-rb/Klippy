@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Klippy"
-run/main_scene="res://features/pet/Klippy.tscn"
+run/main_scene="res://features/app/App.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 run/max_fps=30
 run/low_processor_mode=true
@@ -27,8 +27,8 @@ KlippyLink="*res://features/link/KlippyLink.gd"
 
 [display]
 
-window/size/viewport_width=200
-window/size/viewport_height=200
+window/size/viewport_width=1
+window/size/viewport_height=1
 window/size/resizable=false
 window/size/borderless=true
 window/size/always_on_top=true

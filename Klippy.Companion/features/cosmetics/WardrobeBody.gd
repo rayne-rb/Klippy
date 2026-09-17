@@ -58,7 +58,3 @@ func _on_drag_ended() -> void:
 	var moved := get_window().position - _press_window_position
 	if maxi(absi(moved.x), absi(moved.y)) <= CLICK_DRAG_THRESHOLD:
 		opened.emit()
-
-
-func _content_inset() -> float:
-	return WINDOW_MARGIN

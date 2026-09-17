@@ -52,6 +52,18 @@ var can_rotate := true
 var raw_polygon: PackedVector2Array = PackedVector2Array()
 var mask_points: PackedVector2Array = PackedVector2Array()
 
+## How far the actual visible art falls short of this body's window edge on
+## each side, measured from [member mask_points] (so it stays right across
+## cosmetic/size changes, which rebuild those). Some art — Klippy's body,
+## drawn with headroom for a hat layered on top — doesn't fill the square its
+## window allots it, so resting flush against a wall using the window's own
+## edge as the reference leaves a gap the size of that unused border. Bodies
+## whose art already fills its window (the food bag) keep these at zero.
+var content_margin_left := 0.0
+var content_margin_top := 0.0
+var content_margin_right := 0.0
+var content_margin_bottom := 0.0
+
 
 func _ready() -> void:
 	sprite = _resolve_sprite()
@@ -107,6 +119,18 @@ func _rebuild_mask_points() -> void:
 	mask_points.resize(raw_polygon.size())
 	for i in raw_polygon.size():
 		mask_points[i] = (raw_polygon[i] - center) * sprite.scale
+
+	var min_point := mask_points[0]
+	var max_point := mask_points[0]
+	for point in mask_points:
+		min_point = min_point.min(point)
+		max_point = max_point.max(point)
+
+	var half_size := Vector2(get_window().size) / 2.0
+	content_margin_left = half_size.x + min_point.x
+	content_margin_top = half_size.y + min_point.y
+	content_margin_right = half_size.x - max_point.x
+	content_margin_bottom = half_size.y - max_point.y
 
 
 func _rotated_mask_points(angle: float) -> PackedVector2Array:
@@ -203,6 +227,16 @@ func _resolve_body_collision(other: PetBody, delta: float) -> void:
 		window.position += Vector2i(normal * correction * (other.mass / total_mass))
 		other_window.position -= Vector2i(normal * correction * (mass / total_mass))
 
+		# A resting pair only ends up here at all when neither is approaching
+		# the other (see the early return below once the impulse math starts),
+		# so this push is the only thing touching their position this tick —
+		# unlike a real bounce, nothing downstream clamps it back onto the
+		# screen. A body already resting flush against an edge (see
+		# [method _content_inset]) has no room left to give before this shoves
+		# it past that edge instead of just into its neighbor.
+		window.position = Vector2i(_clamp_to_rest_bounds(window, _screen_rest_bounds(window)))
+		other_window.position = Vector2i(_clamp_to_rest_bounds(other_window, other._screen_rest_bounds(other_window)))
+
 	# Friction along the contact tangent, independent of whether the pair is
 	# approaching or separating along the normal this tick — otherwise two
 	# bodies just resting against each other (food piled on food in the bag,
@@ -259,6 +293,13 @@ func _run_state_physics(delta: float, window: Window) -> void:
 			_process_thrown(delta, window)
 		State.IDLE:
 			_process_idle_base(delta, window)
+			# _resolve_body_collision keeps nudging a resting body every tick it
+			# overlaps another (the food bag parked against Klippy, say) — it's
+			# a plain position push with no floor/wall check of its own, run
+			# from outside this body's own state machine entirely, so nothing
+			# else here would otherwise stop that from walking it past an edge
+			# tick by tick.
+			window.position = Vector2i(_clamp_to_rest_bounds(window, _screen_rest_bounds(window)))
 
 
 func _process_dragging(delta: float, window: Window) -> void:
@@ -316,6 +357,26 @@ func _content_inset() -> float:
 	return 0.0
 
 
+## Where this body's window is allowed to sit on [param window]'s current
+## screen, in the same terms [method _process_thrown] bounces against —
+## [method _resolve_body_collision] also uses this to keep its plain
+## positional push (no floor/wall check of its own) from shoving a resting
+## body past the edge a rest with room to spare would have absorbed unnoticed.
+func _screen_rest_bounds(window: Window) -> Rect2:
+	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
+	var size := Vector2(window.size)
+	var inset := _content_inset()
+	var min_x := bounds.position.x - inset - content_margin_left
+	var max_x := bounds.position.x + bounds.size.x - size.x + inset + content_margin_right
+	var min_y := bounds.position.y - inset - content_margin_top
+	var max_y := bounds.position.y + bounds.size.y - size.y + inset + content_margin_bottom
+	return Rect2(Vector2(min_x, min_y), Vector2(max_x - min_x, max_y - min_y))
+
+
+func _clamp_to_rest_bounds(window: Window, rest_bounds: Rect2) -> Vector2:
+	return Vector2(window.position).clamp(rest_bounds.position, rest_bounds.end)
+
+
 func _process_thrown(delta: float, window: Window) -> void:
 	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)
@@ -323,15 +384,13 @@ func _process_thrown(delta: float, window: Window) -> void:
 
 	velocity.y += GRAVITY * delta
 
-	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
-	var size := Vector2(window.size)
+	var rest_bounds := _screen_rest_bounds(window)
 	var pos := Vector2(window.position) + velocity * delta
 
-	var inset := _content_inset()
-	var min_x := bounds.position.x - inset
-	var max_x := bounds.position.x + bounds.size.x - size.x + inset
-	var min_y := bounds.position.y - inset
-	var floor_y := bounds.position.y + bounds.size.y - size.y + inset
+	var min_x := rest_bounds.position.x
+	var max_x := rest_bounds.end.x
+	var min_y := rest_bounds.position.y
+	var floor_y := rest_bounds.end.y
 
 	var direct_roll := false
 

@@ -81,10 +81,6 @@ func movement_delta_this_tick() -> Vector2i:
 	return get_window().position - tick_start_position
 
 
-func _content_inset() -> float:
-	return WINDOW_MARGIN
-
-
 func _on_drag_started(_event: InputEventMouseButton) -> void:
 	grabbed.emit()
 

@@ -164,7 +164,6 @@ var dvd_mode := false
 var show_hitbox := false
 
 var current_size := 200
-var _window_margin := 0.0
 
 var show_food_value := false
 var show_mood_value := false
@@ -314,7 +313,7 @@ func _ready() -> void:
 	food_buff_timer.timeout.connect(_on_food_buff_expired)
 	add_child(food_buff_timer)
 
-	get_tree().root.close_requested.connect(_on_quit_requested)
+	get_window().close_requested.connect(_on_quit_requested)
 
 
 func _on_show_food_toggled(enabled: bool) -> void:
@@ -1077,7 +1076,6 @@ func _apply_size(new_size: int) -> void:
 	# of current_size/roll_radius/mass entirely — it exists purely so a worn
 	# hat has room to swing through without the window clipping it.
 	var margin := int(round(HAT_SWING_MARGIN * (new_size / TEXTURE_SIZE)))
-	_window_margin = margin
 	var window_size_v := new_size_v + Vector2i.ONE * (margin * 2)
 
 	window.content_scale_size = window_size_v
@@ -1098,10 +1096,6 @@ func _apply_size(new_size: int) -> void:
 func _recompute_physical_properties() -> void:
 	roll_radius = current_size * 0.45
 	mass = pow(current_size / REFERENCE_SIZE, 2.0)
-
-
-func _content_inset() -> float:
-	return _window_margin
 
 
 func _process(delta: float) -> void:
@@ -1324,15 +1318,13 @@ func _process_idle_base(delta: float, window: Window) -> void:
 
 
 func _process_dvd(delta: float, window: Window) -> void:
-	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
-	var size := Vector2(window.size)
+	var rest_bounds := _screen_rest_bounds(window)
 	var pos := Vector2(window.position) + velocity * delta
 
-	var inset := _content_inset()
-	var min_x := bounds.position.x - inset
-	var max_x := bounds.position.x + bounds.size.x - size.x + inset
-	var min_y := bounds.position.y - inset
-	var max_y := bounds.position.y + bounds.size.y - size.y + inset
+	var min_x := rest_bounds.position.x
+	var max_x := rest_bounds.end.x
+	var min_y := rest_bounds.position.y
+	var max_y := rest_bounds.end.y
 
 	if pos.x < min_x:
 		pos.x = min_x
