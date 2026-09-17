@@ -16,6 +16,7 @@ const WARDROBE_ID := 9
 const REMINDERS_ID := 10
 const SUMMON_PORTALS_ID := 11
 const BANISH_PORTALS_ID := 12
+const SLEEP_ID := 13
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -85,6 +86,16 @@ const PLAY_DISTANCE_THRESHOLD := 400.0
 const PLAY_MOOD_BOOST := 1.5
 const PLAY_XP_REWARD := 0.1
 
+## A sleeping Klippy wakes on either a hard-enough throw (checked where he
+## enters [constant State.THROWN] and on every bounce) or being shaken while
+## dragged: [constant SLEEP_WAKE_SHAKE_REVERSALS] fast direction reversals
+## within a rolling [constant SLEEP_WAKE_SHAKE_WINDOW] window (see
+## [method _on_drag_move]).
+const SLEEP_WAKE_THROW_SPEED := 500.0
+const SLEEP_WAKE_SHAKE_SPEED := 500.0
+const SLEEP_WAKE_SHAKE_WINDOW := 0.6
+const SLEEP_WAKE_SHAKE_REVERSALS := 3
+
 var food_spawner: FoodSpawner
 
 var active_food_items: Array[Window] = []
@@ -98,6 +109,10 @@ var bounce_cycles_done := 0
 
 var play_tracking_active := false
 var play_distance_traveled := 0.0
+
+var _shake_prev_velocity := Vector2.ZERO
+var _shake_reversal_count := 0
+var _shake_window_timer := 0.0
 
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
@@ -183,6 +198,7 @@ func _ready() -> void:
 	stats.health = stats_data.get("health", PetStats.MAX_HEALTH)
 	stats.feeding_enabled = stats_data.get("feeding_enabled", false)
 	stats.is_dead = stats_data.get("is_dead", false)
+	stats.is_sleeping = stats_data.get("is_sleeping", false)
 	if meta_data.has("saved_at"):
 		var elapsed: float = Time.get_unix_time_from_system() - float(meta_data["saved_at"])
 		stats.apply_offline_progress(elapsed)
@@ -218,6 +234,7 @@ func _ready() -> void:
 	context_menu.add_item("Wardrobe", WARDROBE_ID)
 	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
 	context_menu.add_item("Status", STATUS_ID)
+	context_menu.add_check_item("Sleep", SLEEP_ID)
 	context_menu.add_item("Reminders", REMINDERS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Connection", CONNECTION_ID)
@@ -228,6 +245,8 @@ func _ready() -> void:
 	add_child(context_menu)
 	_on_feeding_enabled_changed(stats.feeding_enabled)
 	stats.died.connect(_update_revive_item)
+	stats.sleep_changed.connect(_on_sleep_changed)
+	_update_sleep_menu_item(stats.is_sleeping)
 	_update_revive_item()
 	_update_dev_tools_item()
 
@@ -671,6 +690,7 @@ func _save_state() -> void:
 			"health": stats.health,
 			"feeding_enabled": stats.feeding_enabled,
 			"is_dead": stats.is_dead,
+			"is_sleeping": stats.is_sleeping,
 		},
 		"settings": {
 			"show_food_value": show_food_value,
@@ -730,6 +750,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_toggle_wardrobe()
 		REMINDERS_ID:
 			_open_reminders()
+		SLEEP_ID:
+			_toggle_sleep()
 
 
 func _update_revive_item() -> void:
@@ -739,6 +761,28 @@ func _update_revive_item() -> void:
 			context_menu.add_item("Revive", REVIVE_ID)
 	elif index != -1:
 		context_menu.remove_item(index)
+
+
+func _toggle_sleep() -> void:
+	stats.set_sleeping(not stats.is_sleeping)
+
+
+## Only reached via the [signal PetStats.sleep_changed] signal, never the
+## ready-time sync (see [method _update_sleep_menu_item]) — so this always
+## speaks for a real transition, not just loading a save that was left asleep.
+func _on_sleep_changed(sleeping: bool) -> void:
+	_update_sleep_menu_item(sleeping)
+	_say("Zzz..." if sleeping else Dialogue.random_wake_up())
+
+
+func _update_sleep_menu_item(sleeping: bool) -> void:
+	context_menu.set_item_checked(context_menu.get_item_index(SLEEP_ID), sleeping)
+
+
+## Only called while actually sleeping (both wake paths check first), so this
+## always represents a real wake rather than a no-op toggle.
+func _wake_up() -> void:
+	stats.set_sleeping(false)
 
 
 func _on_feeding_enabled_changed(_enabled: bool) -> void:
@@ -1049,7 +1093,7 @@ func _recompute_physical_properties() -> void:
 
 func _process(delta: float) -> void:
 	_update_pupils(delta)
-	if not stats.is_dead:
+	if not stats.is_dead and not stats.is_sleeping:
 		pet_level.apply_passive_gain(delta, stats.get_mood_status() == "Ecstatic")
 
 
@@ -1123,7 +1167,31 @@ func _on_rotation_changed(angle: float) -> void:
 		queue_redraw()
 
 
+## Shake-to-wake: counts fast reversals in drag direction, since a shake looks
+## like velocity repeatedly flipping sign rather than a single hard flick.
+## [member _shake_window_timer] ages the count out so slow, deliberate
+## dragging never accumulates into an accidental wake.
+func _on_drag_move(velocity: Vector2, delta: float) -> void:
+	if not stats.is_sleeping:
+		return
+
+	_shake_window_timer -= delta
+	if _shake_window_timer <= 0.0:
+		_shake_reversal_count = 0
+
+	if velocity.length() >= SLEEP_WAKE_SHAKE_SPEED and _shake_prev_velocity.dot(velocity) < 0.0:
+		_shake_reversal_count += 1
+		_shake_window_timer = SLEEP_WAKE_SHAKE_WINDOW
+		if _shake_reversal_count >= SLEEP_WAKE_SHAKE_REVERSALS:
+			_shake_reversal_count = 0
+			_wake_up()
+
+	_shake_prev_velocity = velocity
+
+
 func _on_energetic_bounce(impact_speed: float) -> void:
+	if stats.is_sleeping and impact_speed >= SLEEP_WAKE_THROW_SPEED:
+		_wake_up()
 	if impact_speed >= DAMAGE_SPEED_THRESHOLD and not damage_immune:
 		stats.apply_throw_damage()
 	if bounce_xp_reward > 0.0:
@@ -1165,6 +1233,8 @@ func _on_state_enter(new_state: State) -> void:
 	elif new_state == State.THROWN:
 		play_tracking_active = not dvd_mode
 		play_distance_traveled = 0.0
+		if stats.is_sleeping and velocity.length() >= SLEEP_WAKE_THROW_SPEED:
+			_wake_up()
 
 
 func _on_state_exit(old_state: State) -> void:

@@ -5,6 +5,7 @@ signal food_changed(value: float)
 signal mood_changed(value: float)
 signal health_changed(value: float)
 signal feeding_enabled_changed(enabled: bool)
+signal sleep_changed(sleeping: bool)
 signal died
 signal revived
 
@@ -17,6 +18,12 @@ const THROW_MOOD_LOSS := 0.5
 const STARVATION_HEALTH_DECAY_RATE := 20.0 / 3600.0
 const HEALING_FOOD_THRESHOLD := 50.0
 const HEALTH_REGEN_RATE := 20.0 / 3600.0
+
+## Asleep, food drains slower and health regen is faster (see [method _advance]
+## and [method _apply_healing]); passive XP gain is separately gated off in
+## [method Klippy._process] since that lives outside PetStats entirely.
+const SLEEP_FOOD_DECAY_SCALE := 0.5
+const SLEEP_HEALTH_REGEN_SCALE := 2.0
 
 const MAX_MOOD := 100.0
 const MOOD_MID := 50.0
@@ -43,6 +50,7 @@ var food := MAX_FOOD
 var mood := MOOD_MID
 var health := MAX_HEALTH
 var is_dead := false
+var is_sleeping := false
 
 
 func _process(delta: float) -> void:
@@ -57,7 +65,8 @@ func _advance(delta: float) -> void:
 	if not feeding_enabled or is_dead or delta <= 0.0:
 		return
 
-	food = max(food - FOOD_DECAY_RATE * delta, 0.0)
+	var food_decay_rate := FOOD_DECAY_RATE * (SLEEP_FOOD_DECAY_SCALE if is_sleeping else 1.0)
+	food = max(food - food_decay_rate * delta, 0.0)
 	food_changed.emit(food)
 
 	if food <= 0.0:
@@ -78,7 +87,8 @@ func _apply_healing(delta: float) -> void:
 	if food_percent <= HEALING_FOOD_THRESHOLD or health >= MAX_HEALTH:
 		return
 
-	var health_gain: float = min(HEALTH_REGEN_RATE * delta, MAX_HEALTH - health)
+	var health_regen_rate := HEALTH_REGEN_RATE * (SLEEP_HEALTH_REGEN_SCALE if is_sleeping else 1.0)
+	var health_gain: float = min(health_regen_rate * delta, MAX_HEALTH - health)
 	if health_gain <= 0.0:
 		return
 
@@ -158,6 +168,9 @@ func revive() -> void:
 	health = MAX_HEALTH
 	food_changed.emit(food)
 	health_changed.emit(health)
+	if is_sleeping:
+		is_sleeping = false
+		sleep_changed.emit(false)
 	revived.emit()
 
 
@@ -178,6 +191,13 @@ func feed(amount: float) -> void:
 func set_feeding_enabled(enabled: bool) -> void:
 	feeding_enabled = enabled
 	feeding_enabled_changed.emit(enabled)
+
+
+func set_sleeping(sleeping: bool) -> void:
+	if is_dead or sleeping == is_sleeping:
+		return
+	is_sleeping = sleeping
+	sleep_changed.emit(is_sleeping)
 
 
 func get_status() -> String:

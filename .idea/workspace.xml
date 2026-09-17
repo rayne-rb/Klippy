@@ -12,9 +12,10 @@
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/BodyCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/ExpressionCatalog.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/EyesCatalog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/EyesCatalog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/dialogue/Dialogue.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/dialogue/Dialogue.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/stats/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/stats/Stats.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,14 +211,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00026" summary="Prevent feeding logic from executing while dragging">
-      <option name="closed" value="true" />
-      <created>1789018634916</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1789018634916</updated>
     </task>
     <task id="LOCAL-00027" summary="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state.">
       <option name="closed" value="true" />
@@ -603,7 +596,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789553145200</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="Add &quot;Obsidian&quot; cosmetics set for Klippy&#10;&#10;- Introduced the &quot;Obsidian&quot; theme for bodies, eyes, pupils, and expressions, with new texture assets.&#10;- Updated `BodyCatalog`, `EyesCatalog`, `PupilsCatalog`, and `ExpressionCatalog` to include &quot;Obsidian&quot; entries.">
+      <option name="closed" value="true" />
+      <created>1789571241616</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1789571241616</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -624,7 +625,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Add `_can_rest` logic to improve idle state handling and update food collision mechanics&#10;&#10;- Introduced `_can_rest` to prevent bag-contained objects from prematurely entering idle state.&#10;- Enhanced food collision resolution for better interaction between fast-moving objects and bag walls.&#10;- Updated `FoodBody` to track all instances for collision checks.&#10;- Adjusted `FoodBagBody` to carry food during movement and resolve wall collisions more accurately. &#10;- Made windows unfocusable for consistency across components." />
     <MESSAGE value="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals." />
     <MESSAGE value="Add `FoodPortal` for spawning visual effects  &#10;&#10;- Introduced `FoodPortal` with animated opening/closing and vortex visuals for summoning food.  &#10;- Updated `FoodBagBody.gd` to adjust `WINDOW_MARGIN` for dynamic alignment.  &#10;- Modified `Klippy.gd` to use `FoodPortal` for spawning food at the portal's position." />
     <MESSAGE value="Prevent feeding logic from executing when the window is not visible." />
@@ -649,7 +649,8 @@
     <MESSAGE value="Add XP progress bar to Status Dialog and theme updates for ProgressBar styling&#10;&#10;- Added `xp_bar` to `StatusDialog` to visually represent XP progress.&#10;- Updated `RockyTheme` to define consistent styling for `ProgressBar` elements." />
     <MESSAGE value="Add XP Gem food type with instant XP reward&#10;&#10;- Introduced &quot;XP Gem&quot; to `FoodCatalog` with unique properties, including no hunger benefit and a large instant XP grant.&#10;- Updated `FoodDef` to support `xp_reward` for one-time XP bonuses.&#10;- Added rare XP Gem spawn logic to `_roll_summon_food_type` in `Klippy.gd`." />
     <MESSAGE value="Improve collision resolution with friction and slop adjustments  &#10;&#10;- Added `PENETRATION_SLOP` to reduce jitter in resting body collisions by ignoring minimal overlaps.  &#10;- Enhanced collision handling to include friction, preventing indefinite sliding on contact surfaces.  &#10;- Updated restitution logic to cancel minor velocities below `REST_SPEED`, reducing visual vibration.  &#10;- Refactored method signatures to include `delta` for time-dependent calculations." />
-    <option name="LAST_COMMIT_MESSAGE" value="Improve collision resolution with friction and slop adjustments  &#10;&#10;- Added `PENETRATION_SLOP` to reduce jitter in resting body collisions by ignoring minimal overlaps.  &#10;- Enhanced collision handling to include friction, preventing indefinite sliding on contact surfaces.  &#10;- Updated restitution logic to cancel minor velocities below `REST_SPEED`, reducing visual vibration.  &#10;- Refactored method signatures to include `delta` for time-dependent calculations." />
+    <MESSAGE value="Add &quot;Obsidian&quot; cosmetics set for Klippy&#10;&#10;- Introduced the &quot;Obsidian&quot; theme for bodies, eyes, pupils, and expressions, with new texture assets.&#10;- Updated `BodyCatalog`, `EyesCatalog`, `PupilsCatalog`, and `ExpressionCatalog` to include &quot;Obsidian&quot; entries." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add &quot;Obsidian&quot; cosmetics set for Klippy&#10;&#10;- Introduced the &quot;Obsidian&quot; theme for bodies, eyes, pupils, and expressions, with new texture assets.&#10;- Updated `BodyCatalog`, `EyesCatalog`, `PupilsCatalog`, and `ExpressionCatalog` to include &quot;Obsidian&quot; entries." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

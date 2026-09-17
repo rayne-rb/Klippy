@@ -168,6 +168,13 @@ func _on_drag_ended() -> void:
 	pass
 
 
+## Fires every physics tick while dragging, with the drag velocity just
+## computed for this frame. Lets a subclass notice being shaken (Klippy wakes
+## from sleep on it; see [method Klippy._on_drag_move]).
+func _on_drag_move(_velocity: Vector2, _delta: float) -> void:
+	pass
+
+
 func _on_rotation_changed(angle: float) -> void:
 	_update_passthrough_mask(angle)
 
@@ -276,6 +283,7 @@ func _process_dragging(delta: float, window: Window) -> void:
 	var new_pos := old_pos.lerp(target_pos, follow_t)
 	if delta > 0.0:
 		velocity = (new_pos - old_pos) / delta
+		_on_drag_move(velocity, delta)
 	window.position = Vector2i(new_pos)
 
 	if can_rotate and sprite.rotation != drag_spin_target:
