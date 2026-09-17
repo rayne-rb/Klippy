@@ -42,6 +42,7 @@ const MAX_CONSUMABLE_ITEMS := 8
 # on him (see [constant LevelUnlocks.JELLY_FOOD]), and even then rarely.
 const JELLY_SPAWN_CHANCE := 0.05
 const XP_GEM_SPAWN_CHANCE := 0.05
+const COIN_SPAWN_CHANCE := 0.05
 
 const HUNGRY_BOUNCE_AMPLITUDE := 28.0
 const HUNGRY_BOUNCE_SPEED := 10.0
@@ -950,13 +951,15 @@ func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: T
 
 
 ## What the portal drops: almost always an apple, but a rare jelly once
-## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]), and a
-## separately-rolled rare XP gem regardless of level.
+## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]), and
+## separately-rolled rare XP gems and coins regardless of level.
 func _roll_summon_consumable_type() -> String:
 	if pet_level.is_unlocked(LevelUnlocks.JELLY_FOOD) and randf() < JELLY_SPAWN_CHANCE:
 		return ConsumableCatalog.JELLY
 	if randf() < XP_GEM_SPAWN_CHANCE:
 		return ConsumableCatalog.XP_GEM
+	if randf() < COIN_SPAWN_CHANCE:
+		return ConsumableCatalog.COIN
 	return ConsumableCatalog.APPLE
 
 
@@ -1019,6 +1022,8 @@ func _on_consumable_item_consumed(window: Window) -> void:
 	var def := ConsumableCatalog.get_def(body.consumable_type)
 	if def.xp_reward > 0.0:
 		pet_level.add_xp(def.xp_reward)
+	if def.points_reward > 0:
+		klippy_points.add_points(def.points_reward)
 	_apply_consumable_buff(def)
 	body.set_physics_process(false)
 	window.hide()

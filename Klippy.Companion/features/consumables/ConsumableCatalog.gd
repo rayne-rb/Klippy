@@ -9,6 +9,7 @@ extends RefCounted
 const APPLE := "apple"
 const JELLY := "jelly"
 const XP_GEM := "xp_gem"
+const COIN := "coin"
 
 static var _defs: Dictionary = {}
 static var _initialized := false
@@ -56,3 +57,12 @@ static func _ensure_initialized() -> void:
 	xp_gem.feed_amount = 0.0
 	xp_gem.xp_reward = 100.0
 	_defs[xp_gem.id] = xp_gem
+
+	var coin := ConsumableDef.new()
+	coin.id = COIN
+	coin.display_name = "Coin"
+	coin.texture = preload("res://assets/Consumables/KlippyCoin.png")
+	# Currency, not a snack — no hunger benefit, just Klippy Points.
+	coin.feed_amount = 0.0
+	coin.points_reward = 10
+	_defs[coin.id] = coin

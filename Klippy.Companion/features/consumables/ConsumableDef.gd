@@ -28,3 +28,7 @@ extends Resource
 ## XP granted once, the instant this consumable is eaten — unlike the bounce
 ## rewards above, not tied to any buff duration. 0 means none.
 @export var xp_reward: float = 0.0
+
+## Klippy Points granted once, the instant this consumable is eaten. 0 means
+## none.
+@export var points_reward: int = 0
