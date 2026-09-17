@@ -10,7 +10,7 @@ const FEED_ID := 3
 const STATUS_ID := 4
 const REVIVE_ID := 5
 const DEV_TOOLS_ID := 6
-const SUMMON_FOOD_ID := 7
+const SUMMON_CONSUMABLE_ID := 7
 const CONNECTION_ID := 8
 const WARDROBE_ID := 9
 const REMINDERS_ID := 10
@@ -34,9 +34,9 @@ const DAMAGE_SPEED_THRESHOLD := 1200.0
 const COMPLAINT_CHANCE := 0.12
 const COMPLAINT_COOLDOWN := 4.0
 
-const FOOD_WINDOW_SIZE := 60
-const FOOD_MASS := 0.3
-const MAX_FOOD_ITEMS := 8
+const CONSUMABLE_WINDOW_SIZE := 60
+const CONSUMABLE_MASS := 0.3
+const MAX_CONSUMABLE_ITEMS := 8
 
 # Jelly only turns up in the portal's random draw once Klippy has some levels
 # on him (see [constant LevelUnlocks.JELLY_FOOD]), and even then rarely.
@@ -97,10 +97,10 @@ const SLEEP_WAKE_SHAKE_SPEED := 500.0
 const SLEEP_WAKE_SHAKE_WINDOW := 0.6
 const SLEEP_WAKE_SHAKE_REVERSALS := 3
 
-var food_spawner: FoodSpawner
+var consumable_spawner: ConsumableSpawner
 
-var active_food_items: Array[Window] = []
-var food_window_pool: Array[Window] = []
+var active_consumable_items: Array[Window] = []
+var consumable_window_pool: Array[Window] = []
 
 var idle_base_y := 0
 var bounce_timer := 0.0
@@ -121,7 +121,7 @@ var status_dialog: StatusDialog
 var skills_dialog: SkillsDialog
 var close_confirm_dialog: Window
 var dev_tools_dialog: DevToolsDialog
-var food_bag: FoodBagBody
+var consumable_bag: ConsumableBagBody
 var connection_dialog: PairingDialog
 var reminder_dialog: ReminderDialog
 var wardrobe: WardrobeBody
@@ -154,9 +154,9 @@ var stats: PetStats
 var pet_level: PetLevel
 var klippy_points: KlippyPoints
 
-## Backs whatever food buff (jelly's bounciness, say) is currently active;
-## [method _on_food_buff_expired] reverts everything it touched once it fires.
-var food_buff_timer: Timer
+## Backs whatever consumable buff (jelly's bounciness, say) is currently active;
+## [method _on_consumable_buff_expired] reverts everything it touched once it fires.
+var consumable_buff_timer: Timer
 var damage_immune := false
 var bounce_xp_reward := 0.0
 var bounce_mood_reward := 0.0
@@ -191,7 +191,7 @@ func _ready() -> void:
 	var stats_data: Dictionary = save_data.get("stats", {})
 	var settings_data: Dictionary = save_data.get("settings", {})
 	var meta_data: Dictionary = save_data.get("meta", {})
-	var food_bag_data: Dictionary = save_data.get("food_bag", {})
+	var consumable_bag_data: Dictionary = save_data.get("consumable_bag", {})
 	var level_data: Dictionary = save_data.get("level", {})
 	var points_data: Dictionary = save_data.get("klippy_points", {})
 
@@ -216,16 +216,16 @@ func _ready() -> void:
 	add_child(klippy_points)
 	klippy_points.load_points(int(points_data.get("points", 0)))
 
-	food_spawner = FoodSpawner.new()
-	add_child(food_spawner)
-	food_spawner.setup(stats, self)
-	food_spawner.availability_changed.connect(_update_feed_menu_state)
+	consumable_spawner = ConsumableSpawner.new()
+	add_child(consumable_spawner)
+	consumable_spawner.setup(stats, self)
+	consumable_spawner.availability_changed.connect(_update_feed_menu_state)
 
 	# Lets the server and the phone drive the pet. Everything it can reach is
 	# handed over explicitly here, so the pet keeps working with the link absent.
 	remote_control = RemoteControl.new()
 	add_child(remote_control)
-	remote_control.setup(stats, food_spawner, _say, _set_dvd_mode)
+	remote_control.setup(stats, consumable_spawner, _say, _set_dvd_mode)
 
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
@@ -238,7 +238,7 @@ func _ready() -> void:
 
 	context_menu = PopupMenu.new()
 	context_menu.add_item("Feed", FEED_ID)
-	context_menu.add_item("Summon Food", SUMMON_FOOD_ID)
+	context_menu.add_item("Summon Consumable", SUMMON_CONSUMABLE_ID)
 	context_menu.add_item("Wardrobe", WARDROBE_ID)
 	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
 	context_menu.add_item("Status", STATUS_ID)
@@ -259,22 +259,22 @@ func _ready() -> void:
 	_update_revive_item()
 	_update_dev_tools_item()
 
-	_create_food_bag()
+	_create_consumable_bag()
 	_create_wardrobe()
 	# The bag's art isn't a simple rectangle, so anywhere clever picked ahead
 	# of time risks landing just outside it — dead center is the one point
-	# guaranteed to be inside, and food-vs-food collision spreads the pile
+	# guaranteed to be inside, and consumable-vs-consumable collision spreads the pile
 	# back out over the following few ticks. They still need a tiny nudge
 	# apart from each other first, though: exactly-coincident items have no
 	# meaningful direction to push apart along, so left dead-on-top of one
 	# another they'd just stay stacked forever.
-	var bag_center := Vector2i(food_bag.get_window().size) / 2
+	var bag_center := Vector2i(consumable_bag.get_window().size) / 2
 	var jitter_index := 0
-	for food_id in food_bag_data:
-		var stored_count: int = int(food_bag_data[food_id])
+	for consumable_id in consumable_bag_data:
+		var stored_count: int = int(consumable_bag_data[consumable_id])
 		for i in stored_count:
 			var jitter := Vector2(cos(jitter_index * 2.4), sin(jitter_index * 2.4)) * 5.0
-			_spawn_contained_food(food_id, bag_center + Vector2i(jitter))
+			_spawn_contained_consumable(consumable_id, bag_center + Vector2i(jitter))
 			jitter_index += 1
 
 	var saved_size: int = klippy_data.get("size", current_size)
@@ -311,10 +311,10 @@ func _ready() -> void:
 	complaint_cooldown_timer.wait_time = COMPLAINT_COOLDOWN
 	add_child(complaint_cooldown_timer)
 
-	food_buff_timer = Timer.new()
-	food_buff_timer.one_shot = true
-	food_buff_timer.timeout.connect(_on_food_buff_expired)
-	add_child(food_buff_timer)
+	consumable_buff_timer = Timer.new()
+	consumable_buff_timer.one_shot = true
+	consumable_buff_timer.timeout.connect(_on_consumable_buff_expired)
+	add_child(consumable_buff_timer)
 
 	get_window().close_requested.connect(_on_quit_requested)
 
@@ -431,20 +431,20 @@ func _on_dev_tools_closed() -> void:
 	dev_tools_dialog = null
 
 
-func _create_food_bag() -> void:
+func _create_consumable_bag() -> void:
 	var window := Window.new()
 	window.borderless = true
 	window.transparent = true
 	window.always_on_top = true
 	window.unfocusable = true
 
-	var art_scale := FoodBagBody.TARGET_HEIGHT / FoodBagBody.BACK_TEXTURE.get_size().y
-	var visual_size := Vector2(FoodBagBody.BACK_TEXTURE.get_size()) * art_scale
-	var window_size := Vector2i(visual_size) + Vector2i.ONE * (FoodBagBody.WINDOW_MARGIN * 2)
+	var art_scale := ConsumableBagBody.TARGET_HEIGHT / ConsumableBagBody.BACK_TEXTURE.get_size().y
+	var visual_size := Vector2(ConsumableBagBody.BACK_TEXTURE.get_size()) * art_scale
+	var window_size := Vector2i(visual_size) + Vector2i.ONE * (ConsumableBagBody.WINDOW_MARGIN * 2)
 	window.size = window_size
 	window.content_scale_size = window_size
 
-	var body := FoodBagBody.new()
+	var body := ConsumableBagBody.new()
 	body.position = Vector2(window_size) / 2.0
 	body.roll_radius = minf(visual_size.x, visual_size.y) * 0.45
 	body.klippy = self
@@ -456,17 +456,17 @@ func _create_food_bag() -> void:
 	window.position = klippy_window.position + Vector2i(-window_size.x - 10, 0)
 	window.visible = false
 
-	body.grabbed.connect(_raise_contained_food)
-	food_bag = body
+	body.grabbed.connect(_raise_contained_consumables)
+	consumable_bag = body
 
 
-func _toggle_food_bag() -> void:
-	var window := food_bag.get_window()
+func _toggle_consumable_bag() -> void:
+	var window := consumable_bag.get_window()
 	if window.visible:
 		window.hide()
 	else:
 		window.show()
-		_raise_contained_food()
+		_raise_contained_consumables()
 
 
 func _create_wardrobe() -> void:
@@ -491,7 +491,7 @@ func _create_wardrobe() -> void:
 	add_child(window)
 
 	var klippy_window := get_window()
-	# Above-and-left of Klippy, distinct from the food bag's position (directly
+	# Above-and-left of Klippy, distinct from the consumable bag's position (directly
 	# left, same y) so the two spawnable props don't stack on top of each other.
 	window.position = klippy_window.position + Vector2i(-window_size.x - 10, -window_size.y - 10)
 	window.visible = false
@@ -568,10 +568,10 @@ func _reposition_wardrobe_dialog() -> void:
 	)
 
 
-func _raise_contained_food() -> void:
-	for window in active_food_items:
-		var body := window.get_child(0) as FoodBody
-		if body.contained_in == food_bag:
+func _raise_contained_consumables() -> void:
+	for window in active_consumable_items:
+		var body := window.get_child(0) as ConsumableBody
+		if body.contained_in == consumable_bag:
 			window.move_to_foreground()
 
 
@@ -692,10 +692,10 @@ func _on_size_selected(new_size: int) -> void:
 
 func _save_state() -> void:
 	var contained_counts := {}
-	for window in active_food_items:
-		var body := window.get_child(0) as FoodBody
-		if body.contained_in == food_bag:
-			contained_counts[body.food_type] = contained_counts.get(body.food_type, 0) + 1
+	for window in active_consumable_items:
+		var body := window.get_child(0) as ConsumableBody
+		if body.contained_in == consumable_bag:
+			contained_counts[body.consumable_type] = contained_counts.get(body.consumable_type, 0) + 1
 
 	SaveData.save_data({
 		"klippy": {
@@ -723,7 +723,7 @@ func _save_state() -> void:
 			"vsync_enabled": vsync_enabled,
 			"target_fps": target_fps,
 		},
-		"food_bag": contained_counts,
+		"consumable_bag": contained_counts,
 		"reminders": reminder_scheduler.to_save_data(),
 		"level": {"xp": pet_level.xp},
 		"klippy_points": {"points": klippy_points.points},
@@ -757,14 +757,14 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:
-			_toggle_food_bag()
+			_toggle_consumable_bag()
 		REVIVE_ID:
 			stats.revive()
 			_update_revive_item()
 		DEV_TOOLS_ID:
 			_open_dev_tools()
-		SUMMON_FOOD_ID:
-			_summon_food()
+		SUMMON_CONSUMABLE_ID:
+			_summon_consumable()
 		SUMMON_PORTALS_ID:
 			_summon_portals()
 		BANISH_PORTALS_ID:
@@ -816,34 +816,34 @@ func _on_feeding_enabled_changed(_enabled: bool) -> void:
 
 func _update_feed_menu_state() -> void:
 	context_menu.set_item_disabled(context_menu.get_item_index(FEED_ID), not stats.feeding_enabled)
-	var can_summon := stats.feeding_enabled and active_food_items.size() < MAX_FOOD_ITEMS
-	context_menu.set_item_disabled(context_menu.get_item_index(SUMMON_FOOD_ID), not can_summon)
+	var can_summon := stats.feeding_enabled and active_consumable_items.size() < MAX_CONSUMABLE_ITEMS
+	context_menu.set_item_disabled(context_menu.get_item_index(SUMMON_CONSUMABLE_ID), not can_summon)
 
 
-func _summon_food() -> void:
-	if active_food_items.size() >= MAX_FOOD_ITEMS:
+func _summon_consumable() -> void:
+	if active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
 
-	var portal := FoodPortal.new()
+	var portal := ConsumablePortal.new()
 	# A brand-new Window defaults to the primary screen regardless of where
 	# Klippy actually is, so on a multi-monitor setup the portal would open
 	# wherever screen 0 is rather than next to the pet.
 	portal.current_screen = get_window().current_screen
 	add_child(portal)
-	portal.opened.connect(_on_food_portal_opened.bind(portal))
+	portal.opened.connect(_on_consumable_portal_opened.bind(portal))
 
 
-## Spawns the food only once the portal is actually open (see
-## [signal FoodPortal.opened]), then repositions/launches it out of the
-## portal's center instead of [method _spawn_food_body]'s normal
+## Spawns the consumable only once the portal is actually open (see
+## [signal ConsumablePortal.opened]), then repositions/launches it out of the
+## portal's center instead of [method _spawn_consumable_body]'s normal
 ## next-to-Klippy default.
-func _on_food_portal_opened(portal: FoodPortal) -> void:
-	_spawn_food_body(_roll_summon_food_type())
-	if active_food_items.is_empty():
+func _on_consumable_portal_opened(portal: ConsumablePortal) -> void:
+	_spawn_consumable_body(_roll_summon_consumable_type())
+	if active_consumable_items.is_empty():
 		return
 
-	var window: Window = active_food_items.back()
-	var body := window.get_child(0) as FoodBody
+	var window: Window = active_consumable_items.back()
+	var body := window.get_child(0) as ConsumableBody
 	var portal_center := portal.position + Vector2i(portal.size) / 2
 	window.position = portal_center - window.size / 2
 
@@ -952,53 +952,53 @@ func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: T
 ## What the portal drops: almost always an apple, but a rare jelly once
 ## Klippy is levelled enough (see [constant LevelUnlocks.JELLY_FOOD]), and a
 ## separately-rolled rare XP gem regardless of level.
-func _roll_summon_food_type() -> String:
+func _roll_summon_consumable_type() -> String:
 	if pet_level.is_unlocked(LevelUnlocks.JELLY_FOOD) and randf() < JELLY_SPAWN_CHANCE:
-		return FoodCatalog.JELLY
+		return ConsumableCatalog.JELLY
 	if randf() < XP_GEM_SPAWN_CHANCE:
-		return FoodCatalog.XP_GEM
-	return FoodCatalog.APPLE
+		return ConsumableCatalog.XP_GEM
+	return ConsumableCatalog.APPLE
 
 
-func _spawn_food_body(food_type: String) -> void:
-	if active_food_items.size() >= MAX_FOOD_ITEMS:
+func _spawn_consumable_body(consumable_type: String) -> void:
+	if active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
 
 	var window: Window
-	var body: FoodBody
+	var body: ConsumableBody
 
-	if not food_window_pool.is_empty():
-		window = food_window_pool.pop_back()
-		body = window.get_child(0) as FoodBody
+	if not consumable_window_pool.is_empty():
+		window = consumable_window_pool.pop_back()
+		body = window.get_child(0) as ConsumableBody
 	else:
 		window = Window.new()
 		window.borderless = true
 		window.transparent = true
 		window.always_on_top = true
 		window.unfocusable = true
-		var window_size := Vector2i(FOOD_WINDOW_SIZE, FOOD_WINDOW_SIZE)
+		var window_size := Vector2i(CONSUMABLE_WINDOW_SIZE, CONSUMABLE_WINDOW_SIZE)
 		window.size = window_size
 		window.content_scale_size = window_size
 
-		body = FoodBody.new()
+		body = ConsumableBody.new()
 		body.position = Vector2(window_size) / 2.0
-		body.roll_radius = FOOD_WINDOW_SIZE * 0.45
+		body.roll_radius = CONSUMABLE_WINDOW_SIZE * 0.45
 
 		var sprite2d := Sprite2D.new()
 		body.add_child(sprite2d)
 		window.add_child(body)
 
 		add_child(window)
-		body.consumed.connect(_on_food_item_consumed.bind(window))
+		body.consumed.connect(_on_consumable_item_consumed.bind(window))
 
-	body.mass = FOOD_MASS
+	body.mass = CONSUMABLE_MASS
 	body.stats = stats
 	body.klippy = self
-	body.bag = food_bag
+	body.bag = consumable_bag
 	body.contained_in = null
-	# A pooled window's sprite still carries whatever food it last held, so this
+	# A pooled window's sprite still carries whatever consumable it last held, so this
 	# has to be re-applied every spawn rather than only when the window is built.
-	body.apply_food_type(food_type)
+	body.apply_consumable_type(consumable_type)
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
 	body.drag_spin_target = 0.0
@@ -1010,30 +1010,30 @@ func _spawn_food_body(food_type: String) -> void:
 	window.position = klippy_window.position + Vector2i(klippy_window.size.x + 10, 0)
 	window.show()
 
-	active_food_items.append(window)
+	active_consumable_items.append(window)
 	_update_feed_menu_state()
 
 
-func _on_food_item_consumed(window: Window) -> void:
-	var body := window.get_child(0) as FoodBody
-	var def := FoodCatalog.get_def(body.food_type)
+func _on_consumable_item_consumed(window: Window) -> void:
+	var body := window.get_child(0) as ConsumableBody
+	var def := ConsumableCatalog.get_def(body.consumable_type)
 	if def.xp_reward > 0.0:
 		pet_level.add_xp(def.xp_reward)
-	_apply_food_buff(def)
+	_apply_consumable_buff(def)
 	body.set_physics_process(false)
 	window.hide()
-	active_food_items.erase(window)
-	if food_window_pool.size() < MAX_FOOD_ITEMS:
-		food_window_pool.append(window)
+	active_consumable_items.erase(window)
+	if consumable_window_pool.size() < MAX_CONSUMABLE_ITEMS:
+		consumable_window_pool.append(window)
 	else:
 		window.queue_free()
 	_update_feed_menu_state()
 
 
 ## Starts (or refreshes, if one is already running) whatever timed buff
-## [param def] carries. A food with no [member FoodDef.buff_duration] leaves
+## [param def] carries. A consumable with no [member ConsumableDef.buff_duration] leaves
 ## Klippy untouched.
-func _apply_food_buff(def: FoodDef) -> void:
+func _apply_consumable_buff(def: ConsumableDef) -> void:
 	if def.buff_duration <= 0.0:
 		return
 
@@ -1042,27 +1042,27 @@ func _apply_food_buff(def: FoodDef) -> void:
 	damage_immune = def.damage_immune
 	bounce_xp_reward = def.bounce_xp_reward
 	bounce_mood_reward = def.bounce_mood_reward
-	food_buff_timer.start(def.buff_duration)
+	consumable_buff_timer.start(def.buff_duration)
 
 
-func _on_food_buff_expired() -> void:
+func _on_consumable_buff_expired() -> void:
 	bounce_damping = BOUNCE_DAMPING
 	damage_immune = false
 	bounce_xp_reward = 0.0
 	bounce_mood_reward = 0.0
 
 
-## Drops a food item at [param local_position] (relative to the bag window's
+## Drops a consumable item at [param local_position] (relative to the bag window's
 ## top-left) and lets physics take it from there — whether it actually lands
 ## in the "stored" zone is discovered on the next physics tick, same as if a
-## player had dropped it there by hand (see [method FoodBody._check_bag]).
-func _spawn_contained_food(food_type: String, local_position: Vector2i) -> void:
-	_spawn_food_body(food_type)
-	if active_food_items.is_empty():
+## player had dropped it there by hand (see [method ConsumableBody._check_bag]).
+func _spawn_contained_consumable(consumable_type: String, local_position: Vector2i) -> void:
+	_spawn_consumable_body(consumable_type)
+	if active_consumable_items.is_empty():
 		return
 
-	var window: Window = active_food_items.back()
-	var bag_window := food_bag.get_window()
+	var window: Window = active_consumable_items.back()
+	var bag_window := consumable_bag.get_window()
 	window.position = bag_window.position + local_position
 
 

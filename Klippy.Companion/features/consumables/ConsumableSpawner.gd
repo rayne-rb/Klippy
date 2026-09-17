@@ -1,11 +1,12 @@
-class_name FoodSpawner
+class_name ConsumableSpawner
 extends Node
 
-## Owns everything about food items: the windows they live in, the pool they are
-## recycled through, and the texture they are drawn with.
+## Owns everything about consumable items: the windows they live in, the pool
+## they are recycled through, and the texture they are drawn with.
 ##
-## Pulled out of Klippy so the pet only has to ask for a snack and be told whether
-## one is available; how food is made and reclaimed is nobody else's business.
+## Pulled out of Klippy so the pet only has to ask for a snack and be told
+## whether one is available; how a consumable is made and reclaimed is
+## nobody else's business.
 
 ## Emitted when spawning becomes possible or impossible, so a menu can enable or
 ## disable its Feed entry without polling.
@@ -22,7 +23,7 @@ var _active: Array[Window] = []
 var _pool: Array[Window] = []
 
 
-## [param anchor] is the body food should appear beside and be eaten at.
+## [param anchor] is the body a consumable should appear beside and be eaten at.
 func setup(stats: PetStats, anchor: PetBody) -> void:
 	_stats = stats
 	_anchor = anchor
@@ -36,28 +37,29 @@ func can_spawn() -> bool:
 	return _stats != null and _stats.feeding_enabled and _active.size() < MAX_ITEMS
 
 
-## Drops one food item next to the anchor. Returns false when there is no room.
-func spawn(food_type: String = FoodCatalog.APPLE) -> bool:
+## Drops one consumable item next to the anchor. Returns false when there is no room.
+func spawn(consumable_type: String = ConsumableCatalog.APPLE) -> bool:
 	if _active.size() >= MAX_ITEMS:
 		return false
 
 	var window: Window
-	var body: FoodBody
+	var body: ConsumableBody
 
 	if not _pool.is_empty():
 		window = _pool.pop_back()
-		body = window.get_child(0) as FoodBody
+		body = window.get_child(0) as ConsumableBody
 	else:
 		window = _build_window()
-		body = window.get_child(0) as FoodBody
+		body = window.get_child(0) as ConsumableBody
 		body.consumed.connect(_on_consumed.bind(window))
 
 	body.mass = MASS
 	body.stats = _stats
 	body.klippy = _anchor
-	# A pooled window's sprite still carries whatever food it last held, so this
-	# has to be re-applied every spawn rather than only when the window is built.
-	body.apply_food_type(food_type)
+	# A pooled window's sprite still carries whatever consumable it last held,
+	# so this has to be re-applied every spawn rather than only when the
+	# window is built.
+	body.apply_consumable_type(consumable_type)
 	body.velocity = Vector2.ZERO
 	body.angular_velocity = 0.0
 	body.drag_spin_target = 0.0
@@ -85,7 +87,7 @@ func _build_window() -> Window:
 	window.size = window_size
 	window.content_scale_size = window_size
 
-	var body := FoodBody.new()
+	var body := ConsumableBody.new()
 	body.position = Vector2(window_size) / 2.0
 	body.roll_radius = WINDOW_SIZE * 0.45
 
@@ -102,7 +104,7 @@ func _build_window() -> Window:
 
 
 func _on_consumed(window: Window) -> void:
-	var body := window.get_child(0) as FoodBody
+	var body := window.get_child(0) as ConsumableBody
 	body.set_physics_process(false)
 	window.hide()
 	_active.erase(window)

@@ -1,4 +1,4 @@
-class_name FoodBagBody
+class_name ConsumableBagBody
 extends PetBody
 
 signal grabbed
@@ -21,14 +21,14 @@ var klippy: Klippy
 
 ## The background art's silhouette, in the wall texture's own (unscaled,
 ## unrotated) pixel space — same canvas as [member raw_polygon], since both
-## images share one aligned canvas. This is the zone that marks food as
-## "stored".
+## images share one aligned canvas. This is the zone that marks a consumable
+## as "stored".
 var interior_polygon: PackedVector2Array
 
 ## This window's position as of the start of the current physics tick, before
-## dragging/throw physics moves it — [method FoodBody._check_bag] diffs
-## against this to carry contained food along with the bag instead of
-## leaving it behind whenever the bag itself is picked up and moved.
+## dragging/throw physics moves it — [method ConsumableBody._check_bag] diffs
+## against this to carry contained consumables along with the bag instead of
+## leaving them behind whenever the bag itself is picked up and moved.
 var tick_start_position: Vector2i
 
 
@@ -105,26 +105,28 @@ func _rotated_interior_points() -> PackedVector2Array:
 	return points
 
 
-## Bounces [param food] off the wall art's traced outline — the same
+## Bounces [param item] off the wall art's traced outline — the same
 ## closest-point-on-segment approach [method PetBody._resolve_body_collision]
 ## uses for circle-circle, just against a polyline instead of another circle.
-## This is what lets the bag actually hold food in rather than just marking it
-## stored: an item has to physically be unable to roll out through the wall.
+## This is what lets the bag actually hold consumables in rather than just
+## marking them stored: an item has to physically be unable to roll out
+## through the wall.
 ##
-## [param prev_local_center] is where [param food] was (in this window's local
+## [param prev_local_center] is where [param item] was (in this window's local
 ## space) before it moved this tick. A simple "is it close to the wall right
 ## now" check misses anything moving fast enough to land clean on the far
 ## side of the wall's thin ink line in a single tick — always possible now
-## that food never rests (see [method FoodBody._can_rest]), since gravity
-## keeps building speed for as long as nothing catches it — so this first
-## checks whether the food's whole path this tick crossed the wall at all.
-func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2, delta: float) -> void:
+## that a bagged item never rests (see [method ConsumableBody._can_rest]),
+## since gravity keeps building speed for as long as nothing catches it — so
+## this first checks whether the item's whole path this tick crossed the wall
+## at all.
+func resolve_consumable_wall_collision(item: ConsumableBody, prev_local_center: Vector2, delta: float) -> void:
 	if raw_polygon.is_empty():
 		return
 
 	var wall := _rotated_mask_points(sprite.rotation)
-	var food_window := food.get_window()
-	var local_center := Vector2(food_window.position - get_window().position) + Vector2(food_window.size) / 2.0
+	var item_window := item.get_window()
+	var local_center := Vector2(item_window.position - get_window().position) + Vector2(item_window.size) / 2.0
 	var edge_count := wall.size()
 
 	if prev_local_center != local_center:
@@ -140,9 +142,9 @@ func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2, del
 			if normal.dot(local_center - prev_local_center) > 0.0:
 				normal = -normal
 
-			var corrected := (crossing as Vector2) + normal * food.roll_radius
-			food_window.position = Vector2i(corrected - Vector2(food_window.size) / 2.0) + get_window().position
-			_bounce_food(food, normal, delta)
+			var corrected := (crossing as Vector2) + normal * item.roll_radius
+			item_window.position = Vector2i(corrected - Vector2(item_window.size) / 2.0) + get_window().position
+			_bounce_consumable(item, normal, delta)
 			return
 
 	var closest_dist := INF
@@ -154,41 +156,41 @@ func resolve_food_wall_collision(food: FoodBody, prev_local_center: Vector2, del
 			closest_dist = d
 			closest_point = point
 
-	if closest_dist >= food.roll_radius or closest_dist <= 0.0:
+	if closest_dist >= item.roll_radius or closest_dist <= 0.0:
 		return
 
 	var normal := (local_center - closest_point) / closest_dist
-	var overlap := food.roll_radius - closest_dist
+	var overlap := item.roll_radius - closest_dist
 	var correction := maxf(overlap - PENETRATION_SLOP, 0.0)
 	if correction > 0.0:
-		food_window.position += Vector2i(normal * correction)
-	_bounce_food(food, normal, delta)
+		item_window.position += Vector2i(normal * correction)
+	_bounce_consumable(item, normal, delta)
 
 
 ## Below [constant PetBody.REST_SPEED], a full restitution bounce would just
-## hand the tiny downward velocity gravity re-adds every tick (bagged food
-## never rests, see [method FoodBody._can_rest]) straight back as an outward
-## one — forever, since nothing else ever removes it. Cancelling the inward
-## component instead of reflecting it (same call the real floor makes in
-## [method PetBody._process_thrown]) lets contact with the wall actually go
+## hand the tiny downward velocity gravity re-adds every tick (a bagged item
+## never rests, see [method ConsumableBody._can_rest]) straight back as an
+## outward one — forever, since nothing else ever removes it. Cancelling the
+## inward component instead of reflecting it (same call the real floor makes
+## in [method PetBody._process_thrown]) lets contact with the wall actually go
 ## quiet instead of visibly vibrating.
-func _bounce_food(food: FoodBody, normal: Vector2, delta: float) -> void:
-	var approach_speed := food.velocity.dot(-normal)
+func _bounce_consumable(item: ConsumableBody, normal: Vector2, delta: float) -> void:
+	var approach_speed := item.velocity.dot(-normal)
 	if approach_speed <= 0.0:
 		return
 
 	if approach_speed <= REST_SPEED:
-		food.velocity += approach_speed * normal
+		item.velocity += approach_speed * normal
 	else:
-		food.velocity += (1.0 + BOUNCE_DAMPING) * approach_speed * normal
+		item.velocity += (1.0 + BOUNCE_DAMPING) * approach_speed * normal
 
 	# Friction along the wall so resting/sliding contact bleeds speed instead
 	# of gliding frictionlessly — gravity's component along a tilted wall
 	# segment would otherwise keep sliding it sideways indefinitely once it
 	# can no longer bounce (the REST_SPEED case above).
 	var tangent := Vector2(-normal.y, normal.x)
-	var tangential_speed := food.velocity.dot(tangent)
-	food.velocity += (move_toward(tangential_speed, 0.0, FRICTION * delta) - tangential_speed) * tangent
+	var tangential_speed := item.velocity.dot(tangent)
+	item.velocity += (move_toward(tangential_speed, 0.0, FRICTION * delta) - tangential_speed) * tangent
 
-	if food.state != State.THROWN:
-		food._set_state(State.THROWN)
+	if item.state != State.THROWN:
+		item._set_state(State.THROWN)

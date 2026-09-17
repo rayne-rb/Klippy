@@ -42,7 +42,7 @@ var monitor_border_wrap := false
 var bounce_damping := BOUNCE_DAMPING
 
 ## Whether landings, air spin and drag-wheel spin are allowed to turn this
-## body's sprite at all. Round bodies (Klippy, food) roll realistically as
+## body's sprite at all. Round bodies (Klippy, consumables) roll realistically as
 ## [member roll_radius] converts their linear velocity to spin; an upright
 ## prop with no floor-contact roll of its own (the wardrobe) would otherwise
 ## pick up an arbitrary, never-recovered tilt from any residual velocity left
@@ -58,7 +58,7 @@ var mask_points: PackedVector2Array = PackedVector2Array()
 ## drawn with headroom for a hat layered on top — doesn't fill the square its
 ## window allots it, so resting flush against a wall using the window's own
 ## edge as the reference leaves a gap the size of that unused border. Bodies
-## whose art already fills its window (the food bag) keep these at zero.
+## whose art already fills its window (the consumable bag) keep these at zero.
 var content_margin_left := 0.0
 var content_margin_top := 0.0
 var content_margin_right := 0.0
@@ -239,8 +239,8 @@ func _resolve_body_collision(other: PetBody, delta: float) -> void:
 
 	# Friction along the contact tangent, independent of whether the pair is
 	# approaching or separating along the normal this tick — otherwise two
-	# bodies just resting against each other (food piled on food in the bag,
-	# say) keep gliding past one another indefinitely, since nothing else
+	# bodies just resting against each other (consumables piled on consumables
+	# in the bag, say) keep gliding past one another indefinitely, since nothing else
 	# ever touches their sideways velocity.
 	var tangent := Vector2(-normal.y, normal.x)
 	var relative_tangential_speed := (velocity - other.velocity).dot(tangent)
@@ -256,8 +256,8 @@ func _resolve_body_collision(other: PetBody, delta: float) -> void:
 
 	# Below REST_SPEED, a full-restitution bounce would just hand back
 	# whatever tiny closing speed gravity re-added since last tick — forever,
-	# for anything that never settles into IDLE (bagged food piled on other
-	# food, say; see [method FoodBody._can_rest]). Cancelling the closing
+	# for anything that never settles into IDLE (bagged consumables piled on
+	# other consumables, say; see [method ConsumableBody._can_rest]). Cancelling the closing
 	# speed instead of reflecting it stops that from ever starting, while a
 	# real throw/impact still bounces normally.
 	var restitution := 0.0 if -approach_speed <= REST_SPEED else BOUNCE_DAMPING
@@ -294,7 +294,7 @@ func _run_state_physics(delta: float, window: Window) -> void:
 		State.IDLE:
 			_process_idle_base(delta, window)
 			# _resolve_body_collision keeps nudging a resting body every tick it
-			# overlaps another (the food bag parked against Klippy, say) — it's
+			# overlaps another (the consumable bag parked against Klippy, say) — it's
 			# a plain position push with no floor/wall check of its own, run
 			# from outside this body's own state machine entirely, so nothing
 			# else here would otherwise stop that from walking it past an edge
@@ -339,7 +339,7 @@ func _process_idle_base(_delta: float, _window: Window) -> void:
 	pass
 
 
-## Bodies that should never settle into a static [constant State.IDLE] (a food
+## Bodies that should never settle into a static [constant State.IDLE] (a consumable
 ## item rolling around a bag, say — it has no floor of its own to rest on, so
 ## going idle the instant gravity zeroes its velocity for a tick just leaves
 ## it frozen wherever that happened) can override this to keep physics

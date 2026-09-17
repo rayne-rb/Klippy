@@ -155,7 +155,7 @@ func _rim_color() -> Color:
 	return PALETTE[_kind][1]
 
 
-## The same swirl FoodPortal wears, drawn in this portal's own colours.
+## The same swirl ConsumablePortal wears, drawn in this portal's own colours.
 static func _make_texture(core: Color, rim: Color) -> ImageTexture:
 	var image := Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGBA8)
 	var center := Vector2(SIZE, SIZE) / 2.0

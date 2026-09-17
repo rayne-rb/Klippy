@@ -15,14 +15,14 @@ extends Node
 const STATS_INTERVAL := 5.0
 
 var _stats: PetStats
-var _spawner: FoodSpawner
+var _spawner: ConsumableSpawner
 var _speak: Callable
 var _set_dvd: Callable
 var _stats_timer := 0.0
 var _stats_dirty := false
 
 
-func setup(stats: PetStats, spawner: FoodSpawner, speak: Callable, set_dvd: Callable) -> void:
+func setup(stats: PetStats, spawner: ConsumableSpawner, speak: Callable, set_dvd: Callable) -> void:
 	_stats = stats
 	_spawner = spawner
 	_speak = speak
@@ -45,7 +45,7 @@ func setup(stats: PetStats, spawner: FoodSpawner, speak: Callable, set_dvd: Call
 func _on_event_received(type: String, payload: Dictionary, _source: String) -> void:
 	match type:
 		LinkEvents.PET_FEED:
-			var count: int = clampi(int(payload.get("count", 1)), 1, FoodSpawner.MAX_ITEMS)
+			var count: int = clampi(int(payload.get("count", 1)), 1, ConsumableSpawner.MAX_ITEMS)
 			for _i in count:
 				if not _spawner.spawn():
 					break

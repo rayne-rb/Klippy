@@ -8,7 +8,7 @@ signal opened
 const TEXTURE: Texture2D = preload("res://assets/KlippyWardrobe.png")
 
 ## Rendered height of the wardrobe art on screen; width follows from the
-## texture's own aspect ratio. Matches FoodBagBody.TARGET_HEIGHT so the two
+## texture's own aspect ratio. Matches ConsumableBagBody.TARGET_HEIGHT so the two
 ## spawnable props read as the same visual scale next to Klippy.
 const TARGET_HEIGHT := 300.0
 
@@ -31,7 +31,7 @@ var _press_window_position: Vector2i
 
 func _ready() -> void:
 	# A wardrobe is an upright cabinet, not a ball — it shouldn't pick up spin
-	# from throws/bounces/drag-wheel the way Klippy and food do.
+	# from throws/bounces/drag-wheel the way Klippy and consumables do.
 	can_rotate = false
 
 	var wardrobe_sprite := Sprite2D.new()

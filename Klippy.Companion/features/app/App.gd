@@ -4,7 +4,7 @@ extends Node
 ## position gets silently reset by the OS between physics ticks in a way
 ## secondary [Window] nodes never exhibit — that's what left his landing
 ## bounce unable to settle (see [method PetBody._process_thrown]) even after
-## the food bag and wardrobe, which are already built as secondary windows,
+## the consumable bag and wardrobe, which are already built as secondary windows,
 ## were fixed to rest flush with the screen edge. Spawning him into his own
 ## secondary window, the same way, sidesteps the problem instead of chasing
 ## it. This root only exists to keep the real primary window out of sight and
@@ -30,7 +30,7 @@ func _ready() -> void:
 
 	# DisplayServer only registers a Window's id once it has actually been
 	# shown at least once — hiding it before this point (as opposed to right
-	# after, the way the food bag and wardrobe do it) leaves Klippy's
+	# after, the way the consumable bag and wardrobe do it) leaves Klippy's
 	# mouse-passthrough setup unable to find it. So this stays visible=true
 	# (the default) through creation; the primary window itself can't be
 	# hidden at all (Godot refuses), which is why it's kept 1x1 via project
@@ -42,7 +42,7 @@ func _ready() -> void:
 	# Klippy starts State.IDLE with zero velocity like every PetBody, which
 	# never moves on its own — nothing was ever dropping him onto the floor
 	# on launch; center-screen (see above) is just where he'd stay forever.
-	# The food bag and wardrobe only ever reach the floor because the player
+	# The consumable bag and wardrobe only ever reach the floor because the player
 	# drags and releases them, which throws them into gravity. A zero-velocity
 	# THROWN is a no-op too (PetBody._process_thrown bails straight back to
 	# IDLE when velocity is exactly zero), so this needs a tiny downward nudge

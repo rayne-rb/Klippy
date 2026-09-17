@@ -1,12 +1,12 @@
-class_name FoodPortal
+class_name ConsumablePortal
 extends Window
 
 ## A brief animated glow that opens at the middle of the screen and closes
-## again, giving summoned food somewhere to visibly pop out of instead of
-## just appearing next to Klippy.
+## again, giving a summoned consumable somewhere to visibly pop out of instead
+## of just appearing next to Klippy.
 
-## Fired the instant the portal finishes opening — spawn the food now, so it
-## looks like it came out of the portal rather than appearing before or
+## Fired the instant the portal finishes opening — spawn the consumable now,
+## so it looks like it came out of the portal rather than appearing before or
 ## after it's actually open.
 signal opened
 
