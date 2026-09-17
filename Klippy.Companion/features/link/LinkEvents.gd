@@ -24,3 +24,14 @@ const DEVICE_DISCONNECTED := "device.disconnected"
 const LINK_WELCOME := "link.welcome"
 const LINK_PING := "link.ping"
 const LINK_PONG := "link.pong"
+
+# Audio cast control. The audio itself never touches the link — the server captures
+# and encodes it, the phone receives it over UDP. All the Companion does is ask a
+# phone to listen and read back what came of it.
+const AUDIO_CAST_REQUEST := "audio.cast.request"
+const AUDIO_CAST_STATE := "audio.cast.state"
+
+# Device kinds, mirroring DeviceKind.cs in Klippy.Shared. Kept here with the event
+# names for the same reason: it is a wire constant the server decides, not ours.
+const KIND_COMPANION := "companion"
+const KIND_MOBILE := "mobile"

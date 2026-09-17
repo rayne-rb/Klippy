@@ -25,6 +25,10 @@ func setup(pet_stats: PetStats, level: PetLevel, points: KlippyPoints) -> void:
 	pet_level = level
 	klippy_points = points
 
+	# Keeps itself current off the link; the Connection window is where the
+	# details (and the way out) live.
+	_vbox.add_child(LinkStatusChip.new())
+
 	level_label = Label.new()
 	_vbox.add_child(level_label)
 
