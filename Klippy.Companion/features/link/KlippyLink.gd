@@ -23,6 +23,9 @@ signal pairing_code_ready(code: String)
 ## Pairing could not be completed. Discovery starts over shortly after.
 signal pairing_failed(reason: String)
 
+## The set of other devices on this server changed. See [member peers].
+signal peers_changed
+
 enum State {
 	OFFLINE,     ## Nothing going on yet.
 	SEARCHING,   ## Looking for a server on the network.
@@ -38,6 +41,12 @@ const RECONNECT_DELAY := 3.0
 const FAILURES_BEFORE_REDISCOVERY := 2
 
 var state: State = State.OFFLINE
+
+## The other devices currently on this server, as [code]{id, kind, name}[/code].
+## Filled from the welcome message and kept in step by the presence events, so a
+## slice can ask what else is out there without a round trip. Cleared whenever the
+## socket is not open: an old list is worse than no list.
+var peers: Array[Dictionary] = []
 
 var _settings: LinkSettings
 var _discovery: ServerDiscovery
@@ -86,15 +95,39 @@ func is_connected_to_server() -> bool:
 
 ## Sends an event to the server, which routes it to the other devices.
 ## Silently does nothing when offline: events are moments, not a queue to catch up on.
-func publish(type: String, payload: Variant = null) -> void:
+##
+## [param target] addresses one device by id (see [member peers]) rather than everyone.
+## A command meant for a particular phone has to say so: the server then delivers it
+## to that device alone.
+func publish(type: String, payload: Variant = null, target: String = "") -> void:
 	if state != State.CONNECTED or _socket == null:
 		return
 
 	var envelope := {"type": type}
 	if payload != null:
 		envelope["payload"] = payload
+	if target != "":
+		envelope["target"] = target
 
 	_socket.send_text(JSON.stringify(envelope))
+
+
+## Where the server's HTTP API lives, or "" when there is no paired server yet.
+## For the odd thing the link does not carry — state that only changes, and so is
+## only announced, while a slice may open long after the last announcement.
+func server_url() -> String:
+	if _settings == null or not _settings.is_paired():
+		return ""
+	return _settings.base_url
+
+
+## The connected devices of one kind, e.g. [constant LinkEvents.KIND_MOBILE].
+func peers_of_kind(kind: String) -> Array[Dictionary]:
+	var matching: Array[Dictionary] = []
+	for peer in peers:
+		if peer.get("kind", "") == kind:
+			matching.append(peer)
+	return matching
 
 
 ## Throws away the current pairing and goes looking for a server again.
@@ -109,6 +142,13 @@ func _set_state(new_state: State) -> void:
 		return
 	state = new_state
 	print("[link] %s" % State.keys()[state].to_lower())
+
+	# Everything known about the other devices was learned through the socket that
+	# just went away, so none of it survives the socket closing.
+	if state != State.CONNECTED and not peers.is_empty():
+		peers.clear()
+		peers_changed.emit()
+
 	state_changed.emit(state)
 
 
@@ -276,7 +316,54 @@ func _drain_packets() -> void:
 		if typeof(envelope.get("payload")) == TYPE_DICTIONARY:
 			payload = envelope["payload"]
 
+		# Presence is read here rather than in a slice: every slice that cared would
+		# otherwise keep its own copy of the same bookkeeping. The event still goes
+		# out afterwards, so nothing is swallowed.
+		_track_presence(type, payload)
+
 		event_received.emit(type, payload, str(envelope.get("source", "")))
+
+
+## Keeps [member peers] in step with the welcome message and the presence events.
+func _track_presence(type: String, payload: Dictionary) -> void:
+	match type:
+		LinkEvents.LINK_WELCOME:
+			peers.clear()
+			for entry in payload.get("peers", []):
+				if typeof(entry) == TYPE_DICTIONARY:
+					peers.append(_peer_from(entry))
+			peers_changed.emit()
+
+		LinkEvents.DEVICE_CONNECTED:
+			var arrival := _peer_from(payload)
+			if arrival["id"] == "":
+				return
+			# A device whose socket died without a close frame is announced again with
+			# no disconnect in between, so replace rather than append.
+			_forget_peer(arrival["id"])
+			peers.append(arrival)
+			peers_changed.emit()
+
+		LinkEvents.DEVICE_DISCONNECTED:
+			if _forget_peer(str(payload.get("deviceId", ""))):
+				peers_changed.emit()
+
+
+func _peer_from(payload: Dictionary) -> Dictionary:
+	return {
+		"id": str(payload.get("deviceId", "")),
+		"kind": str(payload.get("deviceKind", "")),
+		"name": str(payload.get("deviceName", "")),
+	}
+
+
+## Drops a peer by id. Returns whether there was one to drop.
+func _forget_peer(device_id: String) -> bool:
+	for index in peers.size():
+		if peers[index]["id"] == device_id:
+			peers.remove_at(index)
+			return true
+	return false
 
 
 func _maybe_ping(delta: float) -> void:

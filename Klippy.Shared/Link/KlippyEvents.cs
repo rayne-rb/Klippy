@@ -85,4 +85,15 @@ public static class KlippyEvents
     /// <see cref="Audio.AudioCastStatePayload"/>. Carries no key.
     /// </summary>
     public const string AudioCastState = "audio.cast.state";
+
+    /// <summary>
+    /// Companion to one phone, targeted: please start listening to this PC's audio,
+    /// or stop. Payload: <see cref="Audio.AudioCastRequestPayload"/>.
+    ///
+    /// The phone answers it by running its own <see cref="AudioCastStart"/> negotiation,
+    /// rather than the server pushing an unasked-for <see cref="AudioCastOffer"/> at it.
+    /// The phone is the only end that knows whether it can actually play right now, and
+    /// this way that stays true however the cast was set off.
+    /// </summary>
+    public const string AudioCastRequest = "audio.cast.request";
 }

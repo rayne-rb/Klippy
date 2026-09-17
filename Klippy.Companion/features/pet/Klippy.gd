@@ -16,6 +16,7 @@ const WARDROBE_ID := 9
 const REMINDERS_ID := 10
 const SUMMON_PORTALS_ID := 11
 const BANISH_PORTALS_ID := 12
+const SKILLS_ID := 13
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -102,6 +103,7 @@ var play_distance_traveled := 0.0
 var context_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
+var skills_dialog: SkillsDialog
 var close_confirm_dialog: Window
 var dev_tools_dialog: DevToolsDialog
 var food_bag: FoodBagBody
@@ -218,6 +220,7 @@ func _ready() -> void:
 	context_menu.add_item("Wardrobe", WARDROBE_ID)
 	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
 	context_menu.add_item("Status", STATUS_ID)
+	context_menu.add_item("Skills", SKILLS_ID)
 	context_menu.add_item("Reminders", REMINDERS_ID)
 	context_menu.add_item("DVD", DVD_ID)
 	context_menu.add_item("Connection", CONNECTION_ID)
@@ -373,6 +376,19 @@ func _open_status() -> void:
 func _on_status_closed() -> void:
 	status_dialog.queue_free()
 	status_dialog = null
+
+
+func _open_skills() -> void:
+	if skills_dialog == null:
+		skills_dialog = SkillsDialog.new()
+		add_child(skills_dialog)
+		skills_dialog.close_requested.connect(_on_skills_closed)
+	skills_dialog.popup_centered()
+
+
+func _on_skills_closed() -> void:
+	skills_dialog.queue_free()
+	skills_dialog = null
 
 
 func _open_dev_tools() -> void:
@@ -709,6 +725,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_open_settings()
 		STATUS_ID:
 			_open_status()
+		SKILLS_ID:
+			_open_skills()
 		DVD_ID:
 			_toggle_dvd_mode()
 		FEED_ID:

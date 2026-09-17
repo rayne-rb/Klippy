@@ -56,6 +56,25 @@ public sealed record AudioCastStartPayload
 }
 
 /// <summary>
+/// Companion to one phone, targeted: start listening to this PC, or stop.
+///
+/// Deliberately not the same payload as <see cref="AudioCastStartPayload"/>: that one
+/// is a listener speaking for itself and is only ever a start, while this one is a
+/// third party asking, and has to be able to ask for the opposite too.
+/// </summary>
+public sealed record AudioCastRequestPayload
+{
+    /// <summary>True to begin listening, false to stop.</summary>
+    public required bool Enabled { get; init; }
+
+    /// <summary>Which output to capture. Null takes the platform default.</summary>
+    public string? DeviceId { get; init; }
+
+    /// <summary>1 or 2, passed straight through to the phone's own start request.</summary>
+    public int Channels { get; init; } = 2;
+}
+
+/// <summary>
 /// Server to one listener, targeted: where to send the hello and how to prove it.
 ///
 /// The key is ephemeral and per-listener, which is what keeps an unauthenticated UDP

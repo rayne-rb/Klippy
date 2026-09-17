@@ -73,7 +73,10 @@ quality, aimed at the lowest latency the stack allows.
 | Playback | Android `AudioTrack` as Media/Music, so speaker, wired and Bluetooth are one code path |
 
 Control and negotiation ride the Link (`audio.cast.start` / `.stop` / `.offer` /
-`.state`); only the bytes go over UDP. The media socket is unauthenticated by nature, so
+`.state`); only the bytes go over UDP. It can be set off from either end: the phone's
+own **Listen** button, or **Skills → Audio Relay** on the Companion, which sends
+`audio.cast.request` to one phone and leaves that phone to run the same start it would
+have run itself — the phone is the only end that knows whether it can play right now. The media socket is unauthenticated by nature, so
 each listener is handed an ephemeral 128-bit stream key in a targeted offer and repeats
 it as a keepalive — which also makes the stream self-healing, since the server takes the
 listener's endpoint from whatever address the hello arrived from. A phone that changes

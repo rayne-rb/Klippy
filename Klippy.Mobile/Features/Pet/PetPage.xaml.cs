@@ -1,6 +1,7 @@
 using Klippy.Mobile.Features.Link;
 #if ANDROID
 using Klippy.Mobile.Features.AudioCast;
+using Klippy.Shared.Audio;
 #endif
 using Klippy.Shared.Link;
 using Klippy.Shared.Link.Payloads;
@@ -144,6 +145,16 @@ public partial class PetPage : ContentPage
                 Note($"{envelope.PayloadAs<DevicePresencePayload>()?.DeviceName} went offline.");
                 break;
 
+#if ANDROID
+            case KlippyEvents.AudioCastRequest:
+                if (envelope.PayloadAs<AudioCastRequestPayload>() is { } relay)
+                {
+                    OnRelayRequested(relay);
+                }
+
+                break;
+#endif
+
             case KlippyEvents.LinkWelcome:
                 var welcome = envelope.PayloadAs<WelcomePayload>();
                 Note(welcome?.Peers.Count > 0
@@ -241,6 +252,41 @@ public partial class PetPage : ContentPage
         finally
         {
             CastButton.IsEnabled = true;
+        }
+    }
+
+    /// <summary>
+    /// The Companion asking this phone to play the PC's audio, or to stop.
+    ///
+    /// The same path as the button, minus the notification prompt: a request that
+    /// arrives while the phone is in a pocket has nobody to answer a permission dialog,
+    /// and the cast runs without it — all that is lost is the service's notification.
+    /// </summary>
+    private async void OnRelayRequested(AudioCastRequestPayload request)
+    {
+        if (!request.Enabled)
+        {
+            if (_cast.IsCasting)
+            {
+                Note("The PC stopped the audio relay.");
+                await _cast.StopAsync();
+            }
+
+            return;
+        }
+
+        if (_cast.IsCasting)
+        {
+            return;
+        }
+
+        Note("The PC asked this phone to play its audio.");
+        CastStatusLabel.Text = "Asking the server for a stream\u2026";
+
+        if (!await _cast.StartAsync(request.Channels, request.DeviceId))
+        {
+            CastStatusLabel.Text = "The server didn't start a stream. Try again.";
+            Note("Could not start the audio relay.");
         }
     }
 
