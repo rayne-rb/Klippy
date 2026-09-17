@@ -307,6 +307,15 @@ func _can_rest() -> bool:
 	return true
 
 
+## Invisible padding baked into this body's window beyond its visible art
+## (room for a worn hat to swing through, a bag's grab margin, ...). Screen
+## edges are where the art should stop, not where the window's outer edge
+## stops, so bodies with such padding override this — otherwise they rest/
+## bounce a gap short of the actual screen edge.
+func _content_inset() -> float:
+	return 0.0
+
+
 func _process_thrown(delta: float, window: Window) -> void:
 	if velocity == Vector2.ZERO and _can_rest():
 		_set_state(State.IDLE)
@@ -318,10 +327,11 @@ func _process_thrown(delta: float, window: Window) -> void:
 	var size := Vector2(window.size)
 	var pos := Vector2(window.position) + velocity * delta
 
-	var min_x := float(bounds.position.x)
-	var max_x := bounds.position.x + bounds.size.x - size.x
-	var min_y := float(bounds.position.y)
-	var floor_y := bounds.position.y + bounds.size.y - size.y
+	var inset := _content_inset()
+	var min_x := bounds.position.x - inset
+	var max_x := bounds.position.x + bounds.size.x - size.x + inset
+	var min_y := bounds.position.y - inset
+	var floor_y := bounds.position.y + bounds.size.y - size.y + inset
 
 	var direct_roll := false
 

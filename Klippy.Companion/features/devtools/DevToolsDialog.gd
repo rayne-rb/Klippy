@@ -5,15 +5,18 @@ signal bounce_triggered
 
 const ADJUST_STEP := 10.0
 const XP_ADJUST_STEP := 100.0
+const POINTS_ADJUST_STEP := 10
 
 var stats: PetStats
 var pet_level: PetLevel
+var klippy_points: KlippyPoints
 var level_label: Label
 
 
-func setup(pet_stats: PetStats, level: PetLevel) -> void:
+func setup(pet_stats: PetStats, level: PetLevel, points: KlippyPoints) -> void:
 	stats = pet_stats
 	pet_level = level
+	klippy_points = points
 	var vbox := RockyTheme.setup_window(self, "Dev Tools")
 
 	_add_stat_row(vbox, "Food", stats.debug_adjust_food)
@@ -28,6 +31,7 @@ func setup(pet_stats: PetStats, level: PetLevel) -> void:
 
 	_add_stat_row(vbox, "XP", pet_level.debug_adjust_xp, XP_ADJUST_STEP)
 	_add_int_stat_row(vbox, "Level", pet_level.debug_adjust_level)
+	_add_int_stat_row(vbox, "KP", klippy_points.debug_adjust_points, POINTS_ADJUST_STEP)
 
 	var bounce_button := Button.new()
 	bounce_button.text = "Trigger Bounce"

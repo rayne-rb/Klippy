@@ -150,6 +150,7 @@ var speech_bubble: SpeechBubble
 var complaint_cooldown_timer: Timer
 var stats: PetStats
 var pet_level: PetLevel
+var klippy_points: KlippyPoints
 
 ## Backs whatever food buff (jelly's bounciness, say) is currently active;
 ## [method _on_food_buff_expired] reverts everything it touched once it fires.
@@ -163,6 +164,7 @@ var dvd_mode := false
 var show_hitbox := false
 
 var current_size := 200
+var _window_margin := 0.0
 
 var show_food_value := false
 var show_mood_value := false
@@ -190,6 +192,7 @@ func _ready() -> void:
 	var meta_data: Dictionary = save_data.get("meta", {})
 	var food_bag_data: Dictionary = save_data.get("food_bag", {})
 	var level_data: Dictionary = save_data.get("level", {})
+	var points_data: Dictionary = save_data.get("klippy_points", {})
 
 	stats = PetStats.new()
 	add_child(stats)
@@ -208,9 +211,13 @@ func _ready() -> void:
 	add_child(pet_level)
 	pet_level.load_xp(level_data.get("xp", 0.0))
 
+	klippy_points = KlippyPoints.new()
+	add_child(klippy_points)
+	klippy_points.load_points(int(points_data.get("points", 0)))
+
 	food_spawner = FoodSpawner.new()
 	add_child(food_spawner)
-	food_spawner.setup(stats, get_window())
+	food_spawner.setup(stats, self)
 	food_spawner.availability_changed.connect(_update_feed_menu_state)
 
 	# Lets the server and the phone drive the pet. Everything it can reach is
@@ -381,7 +388,7 @@ func _open_status() -> void:
 	if status_dialog == null:
 		status_dialog = StatusDialog.new()
 		add_child(status_dialog)
-		status_dialog.setup(stats, pet_level)
+		status_dialog.setup(stats, pet_level, klippy_points)
 		status_dialog.set_show_food_value(show_food_value)
 		status_dialog.set_show_mood_value(show_mood_value)
 		status_dialog.set_show_health_value(show_health_value)
@@ -398,7 +405,7 @@ func _open_dev_tools() -> void:
 	if dev_tools_dialog == null:
 		dev_tools_dialog = DevToolsDialog.new()
 		add_child(dev_tools_dialog)
-		dev_tools_dialog.setup(stats, pet_level)
+		dev_tools_dialog.setup(stats, pet_level, klippy_points)
 		dev_tools_dialog.bounce_triggered.connect(trigger_bounce_now)
 		dev_tools_dialog.close_requested.connect(_on_dev_tools_closed)
 	dev_tools_dialog.popup_centered()
@@ -704,6 +711,7 @@ func _save_state() -> void:
 		"food_bag": contained_counts,
 		"reminders": reminder_scheduler.to_save_data(),
 		"level": {"xp": pet_level.xp},
+		"klippy_points": {"points": klippy_points.points},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -968,7 +976,7 @@ func _spawn_food_body(food_type: String) -> void:
 
 	body.mass = FOOD_MASS
 	body.stats = stats
-	body.klippy_window = get_window()
+	body.klippy = self
 	body.bag = food_bag
 	body.contained_in = null
 	# A pooled window's sprite still carries whatever food it last held, so this
@@ -1069,6 +1077,7 @@ func _apply_size(new_size: int) -> void:
 	# of current_size/roll_radius/mass entirely — it exists purely so a worn
 	# hat has room to swing through without the window clipping it.
 	var margin := int(round(HAT_SWING_MARGIN * (new_size / TEXTURE_SIZE)))
+	_window_margin = margin
 	var window_size_v := new_size_v + Vector2i.ONE * (margin * 2)
 
 	window.content_scale_size = window_size_v
@@ -1089,6 +1098,10 @@ func _apply_size(new_size: int) -> void:
 func _recompute_physical_properties() -> void:
 	roll_radius = current_size * 0.45
 	mass = pow(current_size / REFERENCE_SIZE, 2.0)
+
+
+func _content_inset() -> float:
+	return _window_margin
 
 
 func _process(delta: float) -> void:
@@ -1315,10 +1328,11 @@ func _process_dvd(delta: float, window: Window) -> void:
 	var size := Vector2(window.size)
 	var pos := Vector2(window.position) + velocity * delta
 
-	var min_x := float(bounds.position.x)
-	var max_x := bounds.position.x + bounds.size.x - size.x
-	var min_y := float(bounds.position.y)
-	var max_y := bounds.position.y + bounds.size.y - size.y
+	var inset := _content_inset()
+	var min_x := bounds.position.x - inset
+	var max_x := bounds.position.x + bounds.size.x - size.x + inset
+	var min_y := bounds.position.y - inset
+	var max_y := bounds.position.y + bounds.size.y - size.y + inset
 
 	if pos.x < min_x:
 		pos.x = min_x

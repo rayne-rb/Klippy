@@ -4,7 +4,7 @@ extends PetBody
 signal consumed
 
 var stats: PetStats
-var klippy_window: Window
+var klippy: PetBody
 var bag: FoodBagBody
 var contained_in: FoodBagBody
 var food_type: String = FoodCatalog.APPLE
@@ -128,15 +128,17 @@ func _check_bag(delta: float, pre_move_position: Vector2i) -> void:
 
 
 func _check_feeding() -> void:
-	if klippy_window == null or stats == null:
+	if klippy == null or stats == null:
 		return
 	if not get_window().visible:
 		return
 
-	var klippy_rect := Rect2i(klippy_window.position, klippy_window.size)
-	var food_rect := Rect2i(get_window().position, get_window().size)
+	var klippy_window := klippy.get_window()
+	var food_window := get_window()
+	var klippy_center := Vector2(klippy_window.position) + Vector2(klippy_window.size) / 2.0
+	var food_center := Vector2(food_window.position) + Vector2(food_window.size) / 2.0
 
-	if klippy_rect.intersects(food_rect):
+	if klippy_center.distance_to(food_center) <= klippy.roll_radius + roll_radius:
 		stats.feed(FoodCatalog.get_def(food_type).feed_amount)
 		consumed.emit()
 

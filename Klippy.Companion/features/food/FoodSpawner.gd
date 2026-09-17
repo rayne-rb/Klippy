@@ -17,13 +17,13 @@ const MAX_ITEMS := 8
 const SPAWN_GAP := 10
 
 var _stats: PetStats
-var _anchor: Window
+var _anchor: PetBody
 var _active: Array[Window] = []
 var _pool: Array[Window] = []
 
 
-## [param anchor] is the window food should appear beside and be eaten at.
-func setup(stats: PetStats, anchor: Window) -> void:
+## [param anchor] is the body food should appear beside and be eaten at.
+func setup(stats: PetStats, anchor: PetBody) -> void:
 	_stats = stats
 	_anchor = anchor
 
@@ -54,7 +54,7 @@ func spawn(food_type: String = FoodCatalog.APPLE) -> bool:
 
 	body.mass = MASS
 	body.stats = _stats
-	body.klippy_window = _anchor
+	body.klippy = _anchor
 	# A pooled window's sprite still carries whatever food it last held, so this
 	# has to be re-applied every spawn rather than only when the window is built.
 	body.apply_food_type(food_type)
@@ -65,7 +65,8 @@ func spawn(food_type: String = FoodCatalog.APPLE) -> bool:
 	body.sprite.rotation = 0.0
 	body.set_physics_process(true)
 
-	window.position = _anchor.position + Vector2i(_anchor.size.x + SPAWN_GAP, 0)
+	var anchor_window := _anchor.get_window()
+	window.position = anchor_window.position + Vector2i(anchor_window.size.x + SPAWN_GAP, 0)
 	window.show()
 
 	_active.append(window)

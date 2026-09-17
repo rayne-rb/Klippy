@@ -3,9 +3,11 @@ extends Window
 
 var stats: PetStats
 var pet_level: PetLevel
+var klippy_points: KlippyPoints
 var _vbox: VBoxContainer
 var level_label: Label
 var xp_bar: ProgressBar
+var points_label: Label
 var food_status_label: Label
 var food_value_label: Label
 var mood_status_label: Label
@@ -18,9 +20,10 @@ func _ready() -> void:
 	_vbox = RockyTheme.setup_window(self, "Status")
 
 
-func setup(pet_stats: PetStats, level: PetLevel) -> void:
+func setup(pet_stats: PetStats, level: PetLevel, points: KlippyPoints) -> void:
 	stats = pet_stats
 	pet_level = level
+	klippy_points = points
 
 	level_label = Label.new()
 	_vbox.add_child(level_label)
@@ -34,6 +37,11 @@ func setup(pet_stats: PetStats, level: PetLevel) -> void:
 	pet_level.level_changed.connect(_on_level_changed)
 	pet_level.xp_changed.connect(_on_xp_changed)
 	_update_level_label()
+
+	points_label = Label.new()
+	_vbox.add_child(points_label)
+	klippy_points.points_changed.connect(_on_points_changed)
+	_on_points_changed(klippy_points.points)
 
 	food_status_label = Label.new()
 	_vbox.add_child(food_status_label)
@@ -97,6 +105,10 @@ func _on_level_changed(_new_level: int) -> void:
 
 func _on_xp_changed(_value: float) -> void:
 	_update_level_label()
+
+
+func _on_points_changed(value: int) -> void:
+	points_label.text = "Klippy Points: %d" % value
 
 
 func _update_level_label() -> void:

@@ -11,11 +11,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/dialogue/Dialogue.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/dialogue/Dialogue.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/cosmetics/WardrobeBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/devtools/DevToolsDialog.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBagBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodBody.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/food/FoodSpawner.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/PetBody.gd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/stats/Stats.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/stats/Stats.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/stats/StatusDialog.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,14 +214,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00027" summary="Add revive mechanics and integrate with context menu&#10;&#10;- Introduced `revive()` method to reset `is_dead` state and restore food levels.&#10;- Added revive option to the context menu, dynamically shown based on death state.&#10;- Updated complaints and double-click interactions to respect the `is_dead` state.">
-      <option name="closed" value="true" />
-      <created>1789018864713</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1789018864713</updated>
     </task>
     <task id="LOCAL-00028" summary="Add health mechanics and integrate with UI and stats system&#10;&#10;- Introduced `health` property with decay, regeneration, and status thresholds.&#10;- Added `health_changed` signal for real-time updates.&#10;- Enhanced `StatusDialog` and `SettingsPanel` with health value toggles and displays.&#10;- Adjusted mood logic to consider health status.&#10;- Updated save/load system to persist health state.">
       <option name="closed" value="true" />
@@ -604,7 +599,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789571241616</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="Add sleep mechanics for Klippy&#10;&#10;- Introduced the ability for Klippy to sleep, with reduced food decay and enhanced health regeneration during sleep.&#10;- Added shake-to-wake and throw-to-wake interactions to exit sleep state.&#10;- Updated `Stats.gd` to track sleep state and added relevant signals for transitions.&#10;- Enhanced context menu with a toggle for sleep and dynamic status changes.&#10;- Integrated random wake-up dialogues for a more interactive experience.">
+      <option name="closed" value="true" />
+      <created>1789626601862</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1789626601862</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -625,7 +628,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Improve food spawning offsets and update bag collision handling&#10;&#10;- Improved food spawning jitter for better spread and collision resolution.&#10;- Enhanced bag wall collision logic to retain food inside when the bag is invisible.&#10;- Adjusted rendering order to ensure food remains visible over bag visuals." />
     <MESSAGE value="Add `FoodPortal` for spawning visual effects  &#10;&#10;- Introduced `FoodPortal` with animated opening/closing and vortex visuals for summoning food.  &#10;- Updated `FoodBagBody.gd` to adjust `WINDOW_MARGIN` for dynamic alignment.  &#10;- Modified `Klippy.gd` to use `FoodPortal` for spawning food at the portal's position." />
     <MESSAGE value="Prevent feeding logic from executing when the window is not visible." />
     <MESSAGE value="Add pupil tracking mechanics and art assets for Klippy&#10;&#10;- Introduced left and right pupil tracking based on mouse position.&#10;- Added new art assets for Klippy's body, details, and facial components.&#10;- Updated `Klippy.tscn` to integrate new textures and structured nodes for facial features.&#10;- Implemented `_update_pupils` logic to dynamically follow the cursor while maintaining bounds." />
@@ -650,7 +652,8 @@
     <MESSAGE value="Add XP Gem food type with instant XP reward&#10;&#10;- Introduced &quot;XP Gem&quot; to `FoodCatalog` with unique properties, including no hunger benefit and a large instant XP grant.&#10;- Updated `FoodDef` to support `xp_reward` for one-time XP bonuses.&#10;- Added rare XP Gem spawn logic to `_roll_summon_food_type` in `Klippy.gd`." />
     <MESSAGE value="Improve collision resolution with friction and slop adjustments  &#10;&#10;- Added `PENETRATION_SLOP` to reduce jitter in resting body collisions by ignoring minimal overlaps.  &#10;- Enhanced collision handling to include friction, preventing indefinite sliding on contact surfaces.  &#10;- Updated restitution logic to cancel minor velocities below `REST_SPEED`, reducing visual vibration.  &#10;- Refactored method signatures to include `delta` for time-dependent calculations." />
     <MESSAGE value="Add &quot;Obsidian&quot; cosmetics set for Klippy&#10;&#10;- Introduced the &quot;Obsidian&quot; theme for bodies, eyes, pupils, and expressions, with new texture assets.&#10;- Updated `BodyCatalog`, `EyesCatalog`, `PupilsCatalog`, and `ExpressionCatalog` to include &quot;Obsidian&quot; entries." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add &quot;Obsidian&quot; cosmetics set for Klippy&#10;&#10;- Introduced the &quot;Obsidian&quot; theme for bodies, eyes, pupils, and expressions, with new texture assets.&#10;- Updated `BodyCatalog`, `EyesCatalog`, `PupilsCatalog`, and `ExpressionCatalog` to include &quot;Obsidian&quot; entries." />
+    <MESSAGE value="Add sleep mechanics for Klippy&#10;&#10;- Introduced the ability for Klippy to sleep, with reduced food decay and enhanced health regeneration during sleep.&#10;- Added shake-to-wake and throw-to-wake interactions to exit sleep state.&#10;- Updated `Stats.gd` to track sleep state and added relevant signals for transitions.&#10;- Enhanced context menu with a toggle for sleep and dynamic status changes.&#10;- Integrated random wake-up dialogues for a more interactive experience." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add sleep mechanics for Klippy&#10;&#10;- Introduced the ability for Klippy to sleep, with reduced food decay and enhanced health regeneration during sleep.&#10;- Added shake-to-wake and throw-to-wake interactions to exit sleep state.&#10;- Updated `Stats.gd` to track sleep state and added relevant signals for transitions.&#10;- Enhanced context menu with a toggle for sleep and dynamic status changes.&#10;- Integrated random wake-up dialogues for a more interactive experience." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
