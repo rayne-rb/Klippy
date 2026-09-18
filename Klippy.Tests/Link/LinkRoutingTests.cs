@@ -142,51 +142,6 @@ public sealed class LinkRoutingTests
         Assert.NotNull(await theirs.Socket.NextAsync());
     }
 
-    [Fact]
-    public async Task A_visitor_is_not_told_the_households_business()
-    {
-        using var world = new World();
-        var pc = world.Connect("tulonga's pc", Tulonga);
-        var guest = world.Connect("a friend's pc", Tulonga, DeviceKind.Visitor);
-
-        // Approving a visitor puts it in the approver's account, so it is in the group by
-        // every measure routing has. What keeps it out is the kind, not the account.
-        world.Registry.BroadcastToGroup(Tulonga, Envelope(KlippyEvents.ClipboardEntry), pc.DeviceId);
-        world.Registry.BroadcastToGroup(Tulonga, Envelope(KlippyEvents.PetStats), pc.DeviceId);
-        world.Registry.BroadcastToGroup(Tulonga, Envelope(KlippyEvents.AudioCastState), pc.DeviceId);
-
-        Assert.False(await guest.Socket.ReceivedAnythingAsync());
-    }
-
-    [Fact]
-    public async Task A_visitor_is_told_what_the_visit_needs()
-    {
-        using var world = new World();
-        var pc = world.Connect("tulonga's pc", Tulonga);
-        var guest = world.Connect("a friend's pc", Tulonga, DeviceKind.Visitor);
-
-        // Presence, so it can find the Companion to address and notice it leaving.
-        world.Registry.BroadcastToGroup(Tulonga, Envelope(KlippyEvents.DeviceConnected), pc.DeviceId);
-        Assert.NotNull(await guest.Socket.NextAsync());
-
-        // And the host's half of the visit, addressed straight at it.
-        Assert.True(world.Registry.TrySendWithinGroup(
-            guest.DeviceId, Tulonga, Envelope(KlippyEvents.VisitArrived)));
-        Assert.NotNull(await guest.Socket.NextAsync());
-    }
-
-    [Fact]
-    public async Task A_visitor_cannot_be_handed_a_stream_offer()
-    {
-        using var world = new World();
-        var guest = world.Connect("a friend's pc", Tulonga, DeviceKind.Visitor);
-
-        // The offer carries the ephemeral key for this PC's system audio. It is sent
-        // straight at a device rather than published, so this path needs the check too.
-        Assert.False(world.Registry.SendTo(guest.DeviceId, Envelope(KlippyEvents.AudioCastOffer)));
-        Assert.False(await guest.Socket.ReceivedAnythingAsync());
-    }
-
     private static LinkEnvelope Envelope(string type) => LinkEnvelope.Create(type);
 
     /// <summary>A registry with connections in it, each pumping into a socket we can read.</summary>
@@ -197,12 +152,11 @@ public sealed class LinkRoutingTests
 
         public LinkRegistry Registry { get; } = new(NullLogger<LinkRegistry>.Instance);
 
-        public (Guid DeviceId, Guid? OwnerUserId, FakeSocket Socket) Connect(
-            string name, Guid? ownerUserId, string deviceKind = DeviceKind.Companion)
+        public (Guid DeviceId, Guid? OwnerUserId, FakeSocket Socket) Connect(string name, Guid? ownerUserId)
         {
             var socket = new FakeSocket();
             var connection = new LinkConnection(
-                Guid.NewGuid(), deviceKind, name, ownerUserId, socket, NullLogger.Instance);
+                Guid.NewGuid(), DeviceKind.Companion, name, ownerUserId, socket, NullLogger.Instance);
 
             Registry.AddAsync(connection).GetAwaiter().GetResult();
             _connections.Add(connection);

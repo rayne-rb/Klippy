@@ -70,8 +70,7 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
     /// </summary>
     public bool SendTo(Guid deviceId, LinkEnvelope envelope)
     {
-        if (!_connections.TryGetValue(deviceId, out var connection)
-            || !VisitorPolicy.MayReceive(connection.DeviceKind, envelope.Type))
+        if (!_connections.TryGetValue(deviceId, out var connection))
         {
             return false;
         }
@@ -97,9 +96,7 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
             return false;
         }
 
-        if (!_connections.TryGetValue(deviceId, out var connection)
-            || connection.OwnerUserId != owner
-            || !VisitorPolicy.MayReceive(connection.DeviceKind, envelope.Type))
+        if (!_connections.TryGetValue(deviceId, out var connection) || connection.OwnerUserId != owner)
         {
             return false;
         }
@@ -124,11 +121,6 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
                 continue;
             }
 
-            if (!VisitorPolicy.MayReceive(connection.DeviceKind, envelope.Type))
-            {
-                continue;
-            }
-
             connection.Enqueue(envelope);
             delivered++;
         }
@@ -149,12 +141,6 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
             }
 
             if (exceptDeviceId is { } skip && connection.DeviceId == skip)
-            {
-                continue;
-            }
-
-            // A guest hears the visit and who is here, not the household's business.
-            if (!VisitorPolicy.MayReceive(connection.DeviceKind, envelope.Type))
             {
                 continue;
             }

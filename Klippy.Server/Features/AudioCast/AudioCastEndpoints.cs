@@ -34,12 +34,6 @@ public static class AudioCastEndpoints
                 return Results.Unauthorized();
             }
 
-            if (!VisitorPolicy.MayUseAccountFeatures(device.DeviceKind))
-            {
-                return Results.Json(
-                    new { error = VisitorPolicy.Refusal }, statusCode: StatusCodes.Status403Forbidden);
-            }
-
             // No account means a group of one, so the only cast it can be told about is
             // its own.
             var visible = device.OwnerUserId is { } owner
@@ -87,14 +81,6 @@ public static class AudioCastEndpoints
         {
             // Refused before the upgrade so the client gets a real status code.
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return;
-        }
-
-        // The other door onto this PC's audio. A visiting device is refused at both.
-        if (!VisitorPolicy.MayUseAccountFeatures(device.DeviceKind))
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync(VisitorPolicy.Refusal);
             return;
         }
 

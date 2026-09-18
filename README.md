@@ -199,15 +199,17 @@ There is no email anywhere in this, and so no verification and no password reset
 An admin sets a new password and tells the person; that is the whole recovery story, which
 suits a server that lives on a shelf in the same room.
 
-### Visiting devices
+### What this means for visits
 
-A friend's Companion pairs here as a `visitor` so their pet can stand on this monitor, and
-approving one puts it in an account like any other device. It is held to the visit and
-nothing else: it may send only `visit.arrive`, `visit.recall` and `visit.speak`, hears only
-the host's half of the visit and who is connected, and is refused the clipboard and the
-audio cast outright. Without that a guest's machine could read the household's clipboard
-and ask the server to cast this PC's audio to it — both of which it could, before
-`VisitorPolicy` existed.
+A visit connects two Companions that are already devices on this server, picked from the
+connected ones. Those are ordinary devices with ordinary tokens, so they are scoped like
+everything else: **a Companion only sees the Companions in its own account**, and that is
+the set a visit can choose from.
+
+So visits work between your own machines — your desktop and your laptop — and two different
+people on one server cannot currently see each other to visit at all. If visits are meant
+to cross accounts, that wants a deliberate exception: the `visit.*` events allowed across
+the boundary while everything else stays inside it. Nothing does that today.
 
 ## Architecture
 

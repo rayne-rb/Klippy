@@ -184,26 +184,15 @@ public static class ClipboardEndpoints
     }
 
     /// <summary>
-    /// The caller, or the answer to give them instead.
-    ///
-    /// Two refusals, not one: an unknown token is not signed in, and a visiting device is
-    /// signed in but has no business here — it is another person's machine, paired only
-    /// so their pet can stand on this monitor. See <see cref="VisitorPolicy"/>.
+    /// The caller, or the answer to give them instead. Every endpoint here starts with it,
+    /// so the one refusal they share is written once.
     /// </summary>
     private static async Task<(PairedDeviceRow? Device, IResult? Refusal)> ResolveAsync(
         HttpContext context, PairingService pairing, CancellationToken ct)
     {
         var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
 
-        if (device is null)
-        {
-            return (null, Results.Unauthorized());
-        }
-
-        return VisitorPolicy.MayUseAccountFeatures(device.DeviceKind)
-            ? (device, null)
-            : (null, Results.Json(
-                new { error = VisitorPolicy.Refusal }, statusCode: StatusCodes.Status403Forbidden));
+        return device is null ? (null, Results.Unauthorized()) : (device, null);
     }
 
     private static IResult Answer(ClipboardService.AddResult result) =>
