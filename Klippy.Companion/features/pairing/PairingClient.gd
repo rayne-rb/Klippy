@@ -35,7 +35,7 @@ func _ready() -> void:
 	set_process(false)
 
 
-func begin(base_url: String, device_name: String, platform: String, device_kind: String = "companion") -> void:
+func begin(base_url: String, device_name: String, platform: String) -> void:
 	_base_url = base_url.rstrip("/")
 	_request_id = ""
 	_polls = 0
@@ -43,7 +43,7 @@ func begin(base_url: String, device_name: String, platform: String, device_kind:
 	_polling = false
 
 	var body := JSON.stringify({
-		"deviceKind": device_kind,
+		"deviceKind": "companion",
 		"deviceName": device_name,
 		"platform": platform,
 	})

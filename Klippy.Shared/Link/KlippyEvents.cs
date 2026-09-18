@@ -121,17 +121,31 @@ public static class KlippyEvents
 
     // ---- Visits -----------------------------------------------------------------
     //
-    // A Companion whose pet has jumped into a friend portal pairs with the other
-    // user's server as a "visitor" device and speaks these over that second socket,
-    // always targeted at the companion hosting the visit. The server has no handler
-    // for any of them — it only routes; both ends are Companions. Nothing here is
-    // queued or caught up on: a visit is a live moment, and if it is missed the pet
-    // simply never left home.
+    // A visit connects two Companion devices paired to the same server — the
+    // klippy network is the server's device list — so these ride the ordinary
+    // link, always targeted at the companion on the other end. The server has no
+    // handler for any of them — it only routes; both ends are Companions. Nothing
+    // here is queued or caught up on: a visit is a live moment, and if it is
+    // missed the pet simply never left home.
 
     /// <summary>
-    /// Visitor to host, targeted: my pet jumped into the friend portal and wants to
-    /// appear on your monitor. Payload: <see cref="Payloads.VisitArrivePayload"/>.
-    /// Answered with <see cref="VisitArrived"/>.
+    /// Summoner to the chosen companion, targeted: I picked your monitor — open
+    /// your half of the friend portal. Answered by nothing; the portals open
+    /// together and each side manages its own half from here.
+    /// </summary>
+    public const string VisitOpen = "visit.open";
+
+    /// <summary>
+    /// Summoner to the chosen companion, targeted: take your half of the friend
+    /// portal back down. No payload.
+    /// </summary>
+    public const string VisitClose = "visit.close";
+
+    /// <summary>
+    /// Visitor to host, targeted: my pet jumped into the friend portal and wants
+    /// to appear on your monitor. Payload:
+    /// <see cref="Payloads.VisitArrivePayload"/>. Answered with
+    /// <see cref="VisitArrived"/>.
     /// </summary>
     public const string VisitArrive = "visit.arrive";
 

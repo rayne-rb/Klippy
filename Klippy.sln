@@ -253,11 +253,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stats", "Klippy.Companion\f
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "visit", "Klippy.Companion\features\visit", "{392DA87C-F6F8-4EB2-B7BF-579CECBB8689}"
 	ProjectSection(SolutionItems) = preProject
-		Klippy.Companion\features\visit\GuestLink.gd = Klippy.Companion\features\visit\GuestLink.gd
 		Klippy.Companion\features\visit\VisitDialog.gd = Klippy.Companion\features\visit\VisitDialog.gd
 		Klippy.Companion\features\visit\VisitHost.gd = Klippy.Companion\features\visit\VisitHost.gd
 		Klippy.Companion\features\visit\VisitSession.gd = Klippy.Companion\features\visit\VisitSession.gd
-		Klippy.Companion\features\visit\VisitSettings.gd = Klippy.Companion\features\visit\VisitSettings.gd
 		Klippy.Companion\features\visit\VisitingKlippy.gd = Klippy.Companion\features\visit\VisitingKlippy.gd
 	EndProjectSection
 EndProject
