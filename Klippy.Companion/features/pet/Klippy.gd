@@ -108,6 +108,7 @@ var consumable_spawner: ConsumableSpawner
 
 var active_consumable_items: Array[Window] = []
 var consumable_window_pool: Array[Window] = []
+var consumable_portal_pool: Array[ConsumablePortal] = []
 
 var idle_base_y := 0
 var bounce_timer := 0.0
@@ -914,13 +915,22 @@ func _open_consumable_portal(type_provider: Callable, bypass_cap := false) -> vo
 	if not bypass_cap and active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
 
-	var portal := ConsumablePortal.new()
+	var portal: ConsumablePortal
+	if not consumable_portal_pool.is_empty():
+		portal = consumable_portal_pool.pop_back()
+	else:
+		portal = ConsumablePortal.new()
+		add_child(portal)
+		portal.closed.connect(_on_consumable_portal_closed.bind(portal))
+
+	# CONNECT_ONE_SHOT: a pooled portal is reused across many summons, so this
+	# connection must drop itself after firing or every past summon's spawn
+	# would replay the next time the portal opens.
+	portal.opened.connect(_on_consumable_portal_opened.bind(portal, type_provider, bypass_cap), CONNECT_ONE_SHOT)
 	# A brand-new Window defaults to the primary screen regardless of where
 	# Klippy actually is, so on a multi-monitor setup the portal would open
 	# wherever screen 0 is rather than next to the pet.
-	portal.current_screen = get_window().current_screen
-	add_child(portal)
-	portal.opened.connect(_on_consumable_portal_opened.bind(portal, type_provider, bypass_cap))
+	portal.open(get_window().current_screen)
 
 
 ## Spawns the consumable only once the portal is actually open (see
@@ -940,6 +950,13 @@ func _on_consumable_portal_opened(portal: ConsumablePortal, type_provider: Calla
 	var angle := randf() * TAU
 	body.velocity = Vector2(cos(angle), sin(angle)) * 220.0
 	body.state = PetBody.State.THROWN
+
+
+func _on_consumable_portal_closed(portal: ConsumablePortal) -> void:
+	if consumable_portal_pool.size() < MAX_CONSUMABLE_ITEMS:
+		consumable_portal_pool.append(portal)
+	else:
+		portal.queue_free()
 
 
 ## Travel portals: a linked pair — blue here, red on the next monitor when
@@ -1064,11 +1081,17 @@ func _toggle_sell_portal() -> void:
 
 
 func _open_sell_portal() -> void:
+	var screen := get_window().current_screen
 	sell_portal = SellPortal.new()
-	sell_portal.current_screen = get_window().current_screen
+	sell_portal.current_screen = screen
 	add_child(sell_portal)
 
-	var bounds := DisplayServer.screen_get_usable_rect(sell_portal.current_screen)
+	# Bounds must come from this captured screen, not a re-read of
+	# sell_portal.current_screen — once the portal's window exists, that
+	# getter live-queries its actual position, which right after add_child
+	# is still Godot's default spawn spot on the primary screen (place()
+	# hasn't moved it yet), not the screen just set above.
+	var bounds := DisplayServer.screen_get_usable_rect(screen)
 	var spot := Vector2(bounds.position) + Vector2(bounds.size.x * 0.5, bounds.size.y * 0.75)
 	sell_portal.place(Vector2i(spot))
 

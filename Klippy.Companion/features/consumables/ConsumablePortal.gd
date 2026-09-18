@@ -10,6 +10,10 @@ extends Window
 ## after it's actually open.
 signal opened
 
+## Fired once the close animation finishes, so the caller can recycle this
+## portal instead of freeing it (see [method open]).
+signal closed
+
 const SIZE := 140
 const OPEN_TIME := 0.25
 const HOLD_TIME := 0.2
@@ -26,7 +30,7 @@ func _init() -> void:
 	transparent = true
 	always_on_top = true
 	unfocusable = true
-	visible = true
+	visible = false
 	size = Vector2i(SIZE, SIZE)
 	content_scale_size = Vector2i(SIZE, SIZE)
 
@@ -41,14 +45,25 @@ func _ready() -> void:
 	_sprite.scale = Vector2.ZERO
 	add_child(_sprite)
 
-	var bounds := DisplayServer.screen_get_usable_rect(current_screen)
-	position = bounds.position + bounds.size / 2 - Vector2i(SIZE, SIZE) / 2
-
-	_play()
-
 
 func _process(delta: float) -> void:
+	if not visible:
+		return
 	_sprite.rotation += delta * SPIN_SPEED
+
+
+## Repositions the portal onto [param screen] and plays its open/close
+## animation. Called on every summon — including a portal recycled from the
+## pool (see [signal closed]) — since spinning up a brand-new native window
+## per summon, rather than reusing one, was the actual source of the lag.
+func open(screen: int) -> void:
+	current_screen = screen
+	var bounds := DisplayServer.screen_get_usable_rect(screen)
+	position = bounds.position + bounds.size / 2 - Vector2i(SIZE, SIZE) / 2
+	_sprite.scale = Vector2.ZERO
+	_sprite.rotation = 0.0
+	visible = true
+	_play()
 
 
 func _play() -> void:
@@ -59,7 +74,9 @@ func _play() -> void:
 	tween.tween_interval(HOLD_TIME)
 	tween.tween_property(_sprite, "scale", Vector2.ZERO, CLOSE_TIME) \
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-	tween.tween_callback(queue_free)
+	tween.tween_callback(func():
+		visible = false
+		closed.emit())
 
 
 ## A small violet/cyan vortex, brightest at the core and fading to nothing at
