@@ -13,7 +13,8 @@ Klippy is a Clippy-inspired desktop pet — a small rock that lives on your desk
 - Food, mood, and health stats: feeding, passive healing, starvation, death, and revival
 - Right-click menu: Feed, Summon Food, Summon Portals, Status, Skills, Reminders, DVD mode, Connection, Settings, Close (plus Revive / Dev Tools when relevant)
 - Travel portals: place as many as you like and drag them anywhere (any monitor) — the first summon makes a blue/red pair across monitors; throw Klippy into one and he flies out of the next portal in the chain
-- Friend portal: a green portal onto another Klippy's monitor — both companions paired to the same server, pick the other one and a portal opens on both screens; throw Klippy in and he lives there until called back, and the friend can set reminders through him while he visits
+- Friend portal: a green portal onto another Klippy's monitor — your own other PC, or a friend's, as long as both are paired to the same server; pick one and a portal opens on both screens, then throw Klippy in and he lives there until called back, and the friend can set reminders through him while he visits
+- Knocking: a friend's Klippy is on somebody else's account, so their side asks before a door opens — once, always, or not now — while your own machines let each other straight in
 - Reminders: set a message and a minutes-from-now and Klippy announces it in his speech bubble when it comes due — the bubble repeats until clicked, and reminders persist across launches
 - State persists across launches, including offline progress while closed
 - Pairs with Klippy.Server so the pet can be seen and poked from a phone
@@ -42,7 +43,7 @@ of which folder they sit in.
 | `pairing` | The pairing handshake and the Connection window |
 | `link` | The WebSocket to the server — registered as the `KlippyLink` autoload |
 | `remote` | Turns link events into things the pet does, and vice versa |
-| `visit` | The green friend portal: trips to another user's monitor, hosting visitors, guest reminders |
+| `visit` | The green friend portal: trips to another user's monitor, hosting visitors, answering the door to a friend's Klippy, guest reminders |
 | `clipboard` | Watches this PC's clipboard while the skill is on, and the board of what has been copied |
 
 `shared/` holds only what has no single owner, and `assets/` the art.
@@ -61,6 +62,13 @@ KlippyLink.event_received.connect(_on_event_received)
 message and the presence events — so a slice can ask what is out there (`peers_of_kind`)
 without a round trip, and `publish` takes an optional device id to address one of them
 rather than everyone.
+
+Beside it is `neighbors`: the Klippys on this server belonging to *other* accounts, with
+whose they are. Two lists rather than one, because they mean different things — a peer is
+a device of your own that the link will carry anything to, while a neighbour is somebody
+the server will carry nothing to but a visit. Only the `visit` slice has any business with
+the second, and `is_device_online` asks both, since a friend going offline is announced by
+a different event than one of your own leaving.
 
 The pet itself does not know the link exists. `RemoteControl` is handed the few things
 that can be driven remotely and bridges the two, so the link can be broken or absent

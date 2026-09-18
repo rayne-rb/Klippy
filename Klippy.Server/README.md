@@ -29,6 +29,7 @@ about what is inside them.
 | `PetState` | Tracks the pet's vitals by watching the event stream — the worked example of a slice reacting to events |
 | `Accounts` | Who owns which devices, the sign-in the config UI sits behind, and the first-run setup |
 | `Clipboard` | Entries, who may see them, and the HTTP path the content travels — deliberately not the Link |
+| `Visits` | The one exception to the account boundary: what a visit may carry across it, and the friends list a Companion picks from |
 
 `Common/` and `Data/` hold only what genuinely has no single owner: the server's
 identity on the network, and the connection factory.

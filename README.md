@@ -1,7 +1,8 @@
 # Klippy
 
 A desktop pet that is also a PC assistant, the server that backs it, a phone app that
-can reach it — a way to hear your PC through your phone, and a clipboard they all share.
+can reach it — a way to hear your PC through your phone, a clipboard they all share, and
+pets that can knock on each other's monitors.
 
 | Project | What it is |
 | --- | --- |
@@ -174,6 +175,11 @@ Now a **server account owns devices**. Its devices are each other's peers and no
 else's — the Link will not carry a broadcast or a targeted event across that line, which
 is what makes "my clipboard" mean something and what stops an audio relay being aimed at a
 stranger's phone.
+
+One thing crosses it, on purpose and on a short leash: a visit, because somebody else's
+monitor is the whole point of one. Eight event names, between two Companions, with the
+person on the other side asked first. The whole of the exception is
+[what this means for visits](#what-this-means-for-visits), below.
 
 Devices pair exactly as before, showing a six-character code. What changed is who approves
 it: you sign in to the server, and **approving a device is what puts it in your account**.
