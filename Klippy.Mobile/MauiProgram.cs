@@ -1,5 +1,6 @@
 using Klippy.Mobile.Data;
 using Klippy.Mobile.Features.AudioCast;
+using Klippy.Mobile.Features.Clipboard;
 using Klippy.Mobile.Features.Discovery;
 using Klippy.Mobile.Features.Link;
 using Klippy.Mobile.Features.Pairing;
@@ -32,11 +33,21 @@ public static class MauiProgram
 		builder.Services.AddSingleton<KlippyLinkClient>();
 		builder.Services.AddSingleton<PetPage>();
 
+		builder.Services.AddSingleton<ClipboardSettings>();
+		builder.Services.AddSingleton<ClipboardStore>();
+		builder.Services.AddSingleton<ClipboardApiClient>();
+		builder.Services.AddTransient<ClipboardPage>();
+
 #if ANDROID
 		// The audio sink is the one part of the cast that is platform-specific; the client
 		// above it only knows IAudioSink.
 		builder.Services.AddSingleton<IAudioSink, Platforms.Android.AudioTrackSink>();
 		builder.Services.AddSingleton<AudioCastClient>();
+
+		// Likewise images on the clipboard: MAUI's own Clipboard is text and nothing else.
+		// Registered as the only implementation of a collection the page resolves, so a
+		// platform without one still gets a working text-only tab.
+		builder.Services.AddSingleton<IClipboardImages, Platforms.Android.AndroidClipboardImages>();
 #endif
 
 #if DEBUG

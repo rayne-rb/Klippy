@@ -1,7 +1,7 @@
 # Klippy
 
 A desktop pet that is also a PC assistant, the server that backs it, a phone app that
-can reach it — and, as of the audio cast, a way to hear your PC through your phone.
+can reach it — a way to hear your PC through your phone, and a clipboard they all share.
 
 | Project | What it is |
 | --- | --- |
@@ -97,6 +97,51 @@ dashboard are verified by measurement on this machine; the jitter buffer is veri
 simulation. Windows capture and Android playback are compile-verified only — there is no
 Windows box and no phone attached here. Treat those two ends with suspicion.
 
+## Shared clipboard
+
+Copy on one device, paste on another. Turned on per device, from **Skills → Clipboard** on
+the Companion or the **Clipboard** tab on the phone, and off by default — this is a
+clipboard, so nothing is read until someone says so.
+
+Each device also chooses who its copies are for: **only my devices**, or **everyone on
+this server**. That choice is stamped on each entry as it is copied, so changing it never
+reaches back and re-shares what you copied earlier.
+
+**No clipboard content crosses the Link.** The Link persists every payload that crosses it
+into `link_events`, so a clipboard carried there would be an archive of every password its
+owner ever copied. What travels on it is the news that an entry exists; the content goes
+over HTTP (`/api/clipboard`), fetched by whoever actually wants it, with their own token.
+"Send to my phone" carries an id and nothing more, so a device can only ever end up with
+something it could already have read.
+
+| | |
+| --- | --- |
+| Holds | Text up to 32 KB, and PNG images up to 8 MB |
+| Keeps | The newest 100 entries per account; older ones drop off as new ones arrive |
+| Noticing a copy | The Companion polls once a second — no desktop offers a reliable clipboard-changed signal |
+| On the phone | Android will not let an app read the clipboard unless it is on screen, so the phone shares what you copied when you open the tab, and has a button for the rest of the time |
+| Writing an image back | Godot has no `clipboard_set_image`, so the Companion shells out: `xclip` or `wl-copy` on Linux, PowerShell on Windows |
+
+## Accounts, and who can reach whom
+
+Until the clipboard there was no such thing as "my devices": every device paired to a
+server sat in one flat group, the Link broadcast to all of them, and a targeted event
+could name any of them.
+
+Now a **server account owns devices**. Its devices are each other's peers and nobody
+else's — the Link will not carry a broadcast or a targeted event across that line, which
+is what makes "my clipboard" mean something and what stops an audio relay being aimed at a
+stranger's phone.
+
+Devices pair exactly as before, showing a six-character code. What changed is who approves
+it: you sign in to the server, and **approving a device is what puts it in your account**.
+The first run asks for an admin account and hands it every device already paired, so an
+existing install carries on working.
+
+An admin sees every account's devices and clipboard on the server's own pages. That is
+deliberate — it is the server — and it is worth knowing before putting anything private
+through a server somebody else runs.
+
 ## Architecture
 
 Feature-slice, in all three apps. A slice owns everything it needs — its data access, its
@@ -111,6 +156,8 @@ in the Godot project.
 | Link | ✓ | ✓ | ✓ |
 | Pet | ✓ `PetState` | ✓ `pet` `food` `stats` `dialogue` `remote` | ✓ `Pet` |
 | AudioCast | ✓ | — | ✓ (Android) |
+| Accounts | ✓ | — | — |
+| Clipboard | ✓ | ✓ | ✓ |
 
 `Klippy.Shared` is reserved for what actually crosses the wire: the envelope and event
 names, the pairing and discovery contracts, the audio packet format, and the jitter

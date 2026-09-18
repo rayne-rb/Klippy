@@ -1,11 +1,15 @@
 using Klippy.Tests.AudioCast.Probe;
+using Klippy.Tests.Clipboard.Probe;
 using Microsoft.Extensions.Logging;
 
-// A bench harness for the AudioCast pipeline, run by hand.
+// The hand-run harness for the features a unit test cannot reach on its own.
 //
-// Every failure mode in this feature is timing-related, and timing bugs are miserable
-// to debug in aggregate. This exists so each stage can be proven on its own: capture
-// without a codec, the codec without a network, the server chain without a phone.
+// Most of it is AudioCast, where every failure mode is timing-related and timing bugs are
+// miserable to debug in aggregate, so each stage can be proven alone: capture without a
+// codec, the codec without a network, the server chain without a phone. The clipboard
+// command is here for the same reason in a different shape - its rules are unit-tested,
+// but whether the board comes back scoped to one account can only be asked of a real
+// server with a real database behind it.
 
 var command = args.Length > 0 ? args[0] : "help";
 
@@ -34,6 +38,7 @@ try
         "stream" => await StreamCommand.RunAsync(args, loggerFactory, stopping.Token),
         "cast" => await CastCommand.RunAsync(args, loggerFactory, stopping.Token),
         "jitter" => await JitterCommand.RunAsync(args, loggerFactory, stopping.Token),
+        "clipboard" => await ClipboardCommand.RunAsync(args, stopping.Token),
         _ => Help(),
     };
 }
@@ -47,7 +52,7 @@ static int Help()
 {
     Console.WriteLine(
         """
-        Klippy AudioCast probe
+        Klippy probe
 
           devices
               List the outputs this machine can capture.
@@ -72,6 +77,12 @@ static int Help()
               Step 4 against a running server: pair, ask over the Link, prove the
               ephemeral key over UDP, decode what comes back. Does what a phone
               does. Defaults to --server http://localhost:5068.
+
+          clipboard [--server URL]
+              The clipboard against a running server: pair, then check the board
+              comes back scoped to this account, that a repeated copy is spotted,
+              that an image round-trips byte for byte, and that the size caps
+              hold. Defaults to --server http://localhost:5068.
 
           jitter [--seconds N]
               Step 6. Replay synthetic arrival traces - clean LAN, WiFi, WiFi

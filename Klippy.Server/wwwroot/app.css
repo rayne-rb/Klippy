@@ -15,3 +15,53 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+/* The sign-in, sign-out and first-run pages. Those render as static SSR so that they
+   can write an auth cookie, and a static form has to post real <input> elements with
+   real name attributes — which is what Blazor's own InputText emits and MudBlazor's
+   fields do not. So they are styled here instead, against MudBlazor's CSS variables so
+   they still follow the theme and both colour schemes. */
+
+.klippy-field {
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.klippy-field > span {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--mud-palette-text-secondary);
+}
+
+.klippy-field > input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.625rem 0.75rem;
+    font: inherit;
+    color: var(--mud-palette-text-primary);
+    background-color: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-lines-inputs);
+    border-radius: var(--mud-default-borderradius);
+}
+
+.klippy-field > input:focus {
+    outline: none;
+    border-color: var(--mud-palette-primary);
+}
+
+.klippy-submit {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font: inherit;
+    font-weight: 500;
+    color: var(--mud-palette-primary-text);
+    background-color: var(--mud-palette-primary);
+    border: none;
+    border-radius: var(--mud-default-borderradius);
+    cursor: pointer;
+}
+
+.klippy-submit:hover {
+    background-color: var(--mud-palette-primary-darken);
+}

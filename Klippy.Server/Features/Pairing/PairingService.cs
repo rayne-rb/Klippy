@@ -80,7 +80,16 @@ public sealed class PairingService(
         return await repository.GetOpenRequestsAsync(ct);
     }
 
-    public async Task<bool> ApproveAsync(Guid requestId, CancellationToken ct)
+    /// <summary>
+    /// Approves a pending request and issues the device its token.
+    ///
+    /// <paramref name="ownerUserId"/> is the account the approver was signed in as, and
+    /// it is what puts the new device in that account's group: its peers on the link,
+    /// and the clipboard it can see, all follow from this one value. Null leaves the
+    /// device unowned - a group of one, which is what a script-driven approval gets
+    /// when the server has no admin account to attribute it to.
+    /// </summary>
+    public async Task<bool> ApproveAsync(Guid requestId, Guid? ownerUserId, CancellationToken ct)
     {
         var request = await repository.GetRequestAsync(requestId, ct);
         if (request is null || request.Status != PairingStatus.Pending)
@@ -104,13 +113,15 @@ public sealed class PairingService(
             Platform = request.Platform,
             TokenHash = PairingTokens.Hash(token),
             PairedAt = DateTimeOffset.UtcNow,
+            OwnerUserId = ownerUserId,
         };
 
         await repository.ApproveAsync(request, device, ct);
         approvedTokens.Store(request.RequestId, token);
 
-        logger.LogInformation("Paired {Kind} '{Name}' as {DeviceId}",
-            device.DeviceKind, device.DeviceName, device.DeviceId);
+        logger.LogInformation("Paired {Kind} '{Name}' as {DeviceId} (owner {Owner})",
+            device.DeviceKind, device.DeviceName, device.DeviceId,
+            ownerUserId?.ToString() ?? "none");
 
         notifier.NotifyChanged();
         return true;
@@ -142,6 +153,14 @@ public sealed class PairingService(
 
     public Task<IReadOnlyList<PairedDeviceRow>> GetDevicesAsync(CancellationToken ct) =>
         repository.GetActiveDevicesAsync(ct);
+
+    /// <summary>
+    /// Devices with their owner's name. Null <paramref name="ownerUserId"/> is every
+    /// device, for an admin; anything else is that account's group alone.
+    /// </summary>
+    public Task<IReadOnlyList<PairedDeviceView>> GetDeviceViewsAsync(
+        Guid? ownerUserId, CancellationToken ct) =>
+        repository.GetActiveDeviceViewsAsync(ownerUserId, ct);
 
     public async Task RevokeAsync(Guid deviceId, CancellationToken ct)
     {

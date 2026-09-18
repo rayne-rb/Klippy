@@ -113,6 +113,43 @@ public static class KlippyEvents
     /// </summary>
     public const string MarketPayout = "market.payout";
 
+    // ---- Clipboard --------------------------------------------------------------
+    //
+    // None of these carry what was copied. Reading and writing entries is plain
+    // request/response and goes over HTTP (/api/clipboard), for the same reason the audio
+    // cast keeps its bytes off this socket, plus one of its own: EventDispatcher persists
+    // every payload that crosses the Link into link_events, and a clipboard archived
+    // forever is every password its owner ever copied. What travels here is the fact that
+    // something changed, and an id to go and fetch.
+
+    /// <summary>
+    /// Server to an account's devices, or to everyone for a server-wide entry: something
+    /// was copied. Payload: <see cref="Clipboard.ClipboardEntryPayload"/>. A device that
+    /// cares refetches the board; the payload itself is metadata only.
+    /// </summary>
+    public const string ClipboardEntry = "clipboard.entry";
+
+    /// <summary>
+    /// Server to the same audience: an entry is gone. Payload:
+    /// <see cref="Clipboard.ClipboardRemovedPayload"/>.
+    /// </summary>
+    public const string ClipboardRemoved = "clipboard.removed";
+
+    /// <summary>
+    /// Device to one device of its own account, targeted: put this on your clipboard.
+    /// Payload: <see cref="Clipboard.ClipboardApplyPayload"/>.
+    ///
+    /// Routing refuses to carry this across accounts (see LinkRegistry.TrySendWithinGroup),
+    /// which is the whole of why nobody can paste into a stranger's machine.
+    /// </summary>
+    public const string ClipboardApply = "clipboard.apply";
+
+    /// <summary>
+    /// Device to server: my clipboard skill is on or off, and this is who I copy for.
+    /// Payload: <see cref="Clipboard.ClipboardSharingPayload"/>.
+    /// </summary>
+    public const string ClipboardSharing = "clipboard.sharing";
+
     /// <summary>
     /// Companion to server: I credited myself for this payout, stop resending it.
     /// Payload: <see cref="Payloads.MarketPayoutAckPayload"/>.

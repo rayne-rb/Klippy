@@ -1,13 +1,16 @@
 using Klippy.Server.Common;
 using Klippy.Server.Components;
 using Klippy.Server.Data;
+using Klippy.Server.Features.Accounts;
 using Klippy.Server.Features.AudioCast;
+using Klippy.Server.Features.Clipboard;
 using Klippy.Server.Features.Discovery;
 using Klippy.Server.Features.Link;
 using Klippy.Server.Features.Market;
 using Klippy.Server.Features.Pairing;
 using Klippy.Server.Features.PetState;
 using Klippy.Shared;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using MudBlazor.Services;
@@ -30,12 +33,16 @@ builder.Services.AddSingleton<ServerIdentity>();
 builder.Services.AddKlippyData(builder.Configuration);
 
 // Feature slices. Each one registers everything it needs; nothing here knows their internals.
+// Accounts comes first: it owns the cookie scheme the config UI authenticates with, and
+// the device-to-account ownership the link's routing and the clipboard both read.
+builder.Services.AddAccountsFeature();
 builder.Services.AddPairingFeature();
 builder.Services.AddLinkFeature();
 builder.Services.AddDiscoveryFeature();
 builder.Services.AddPetStateFeature();
 builder.Services.AddAudioCastFeature();
 builder.Services.AddMarketFeature();
+builder.Services.AddClipboardFeature();
 
 var app = builder.Build();
 
@@ -57,7 +64,33 @@ if (!app.Environment.IsDevelopment())
 // Revisit if the server is ever exposed beyond it.
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
+
+// ...but not for the device API. Re-execution runs the failed request through the router
+// again to render /not-found, and it keeps the original method: a DELETE that answered 404
+// comes back 405, because no page handles DELETE, and a POST comes back 400, because
+// antiforgery rejects a posted page carrying no token. Both tell the caller something that
+// is not true, and the clipboard and market clients decide what to say from that status.
+//
+// Switched off per request rather than by branching the pipeline: a branch would take the
+// re-execution with it, and the pages need it.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api")
+        && context.Features.Get<IStatusCodePagesFeature>() is { } statusCodePages)
+    {
+        statusCodePages.Enabled = false;
+    }
+
+    await next(context);
+});
 app.UseWebSockets();
+
+// Before the antiforgery middleware, which needs to know who the caller is. Devices are
+// unaffected either way: they authenticate per request with a bearer token (see
+// PairingService.AuthenticateAsync), not with this cookie.
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -70,6 +103,7 @@ app.MapLinkEndpoints();
 app.MapPetStateEndpoints();
 app.MapAudioCastEndpoints();
 app.MapMarketEndpoints();
+app.MapClipboardEndpoints();
 
 // Start before advertising: the beacon has to carry the port Kestrel actually bound,
 // which is only knowable once it has.

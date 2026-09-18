@@ -1,13 +1,32 @@
 @page "/devices"
+@attribute [Authorize]
 @using Klippy.Server.Features.Link
 @implements IDisposable
 @inject PairingService Pairing
 @inject PairingNotifier Notifier
 @inject LinkRegistry Registry
+@inject AccountService Users
 
 <PageTitle>Devices</PageTitle>
 
 <MudText Typo="Typo.h4" GutterBottom="true">Devices</MudText>
+
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+    @if (_isAdmin)
+    {
+        <text>
+            Every device on this server. Approving one puts it in your own group unless
+            you hand it to another account below.
+        </text>
+    }
+    else
+    {
+        <text>
+            The devices in your group. Approving a device is what makes it yours: it can
+            then see your clipboard and reach your other devices, and nobody else's.
+        </text>
+    }
+</MudText>
 
 <MudText Typo="Typo.h6" Class="mt-6">Waiting to pair</MudText>
 
@@ -75,10 +94,14 @@ else
 else
 {
     <MudTable Items="_devices" Dense="true" Hover="true" Elevation="0" Outlined="true"
-              Breakpoint="Breakpoint.Sm" Class="mt-2" T="PairedDeviceRow">
+              Breakpoint="Breakpoint.Sm" Class="mt-2" T="PairedDeviceView">
         <HeaderContent>
             <MudTh></MudTh>
             <MudTh>Device</MudTh>
+            @if (_isAdmin)
+            {
+                <MudTh>Owner</MudTh>
+            }
             <MudTh>Platform</MudTh>
             <MudTh>Paired</MudTh>
             <MudTh>Last seen</MudTh>
@@ -102,6 +125,29 @@ else
                     @context.DeviceKind
                 </MudChip>
             </MudTd>
+            @if (_isAdmin)
+            {
+                <MudTd DataLabel="Owner">
+                    @* A device with no owner is stranded in a group of one - it happens
+                       when its account is removed - so an admin needs a way to put it
+                       back somewhere without unpairing it. *@
+                    <MudSelect T="Guid?"
+                               Value="context.OwnerUserId"
+                               ValueChanged="owner => ReassignAsync(context, owner)"
+                               Dense="true"
+                               Margin="Margin.Dense"
+                               Variant="Variant.Text"
+                               Style="min-width: 8rem">
+                        <MudSelectItem T="Guid?" Value="@(null)">
+                            <em>nobody</em>
+                        </MudSelectItem>
+                        @foreach (var account in _accounts)
+                        {
+                            <MudSelectItem T="Guid?" Value="@account.UserId">@account.Username</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTd>
+            }
             <MudTd DataLabel="Platform" Class="mud-text-secondary">@context.Platform</MudTd>
             <MudTd DataLabel="Paired" Class="mud-text-secondary">
                 @context.PairedAt.LocalDateTime.ToString("g")
@@ -123,11 +169,22 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
     private IReadOnlyList<PairingRequestRow> _pending = [];
-    private IReadOnlyList<PairedDeviceRow> _devices = [];
+    private IReadOnlyList<PairedDeviceView> _devices = [];
+    private IReadOnlyList<AccountSummary> _accounts = [];
+
+    private Guid? _accountId;
+    private bool _isAdmin;
 
     protected override async Task OnInitializedAsync()
     {
+        var user = (await AuthState).User;
+        _accountId = user.AccountId();
+        _isAdmin = user.IsAdmin();
+
         Notifier.Changed += OnChanged;
         Registry.ConnectionsChanged += OnChanged;
         await ReloadAsync();
@@ -136,7 +193,15 @@ else
     private async Task ReloadAsync()
     {
         _pending = await Pairing.GetOpenRequestsAsync(CancellationToken.None);
-        _devices = await Pairing.GetDevicesAsync(CancellationToken.None);
+
+        // An admin sees the whole server; everyone else sees their own group and has no
+        // way to ask for anyone else's.
+        _devices = await Pairing.GetDeviceViewsAsync(_isAdmin ? null : _accountId, CancellationToken.None);
+
+        if (_isAdmin)
+        {
+            _accounts = await Users.GetSummariesAsync(CancellationToken.None);
+        }
     }
 
     // Raised from a request thread or a socket thread, so hop back onto the circuit
@@ -147,9 +212,33 @@ else
         StateHasChanged();
     });
 
+    /// <summary>
+    /// Approving is what hands the device to an account — this one. The pairing code is
+    /// still the only secret involved, exactly as before; all that is added is whose the
+    /// device becomes.
+    /// </summary>
     private async Task ApproveAsync(Guid requestId)
     {
-        await Pairing.ApproveAsync(requestId, CancellationToken.None);
+        await Pairing.ApproveAsync(requestId, _accountId, CancellationToken.None);
+        await ReloadAsync();
+    }
+
+    private async Task ReassignAsync(PairedDeviceView device, Guid? ownerUserId)
+    {
+        if (ownerUserId is { } owner)
+        {
+            await Users.AssignDeviceAsync(device.DeviceId, owner, CancellationToken.None);
+        }
+        else
+        {
+            await Users.ReleaseDeviceAsync(device.DeviceId, CancellationToken.None);
+        }
+
+        // A live connection carries the owner it was opened with (see LinkConnection), so
+        // the change only means anything once the device comes back. Hang up and let it
+        // reconnect rather than leave it routing to its old group.
+        await Registry.DisconnectAsync(device.DeviceId);
+
         await ReloadAsync();
     }
 

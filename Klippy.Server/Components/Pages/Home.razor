@@ -1,4 +1,5 @@
 @page "/"
+@attribute [Authorize]
 @using Klippy.Server.Common
 @using Klippy.Server.Features.Link
 @implements IDisposable
@@ -30,7 +31,7 @@
     <MudItem xs="12" sm="6">
         <MudPaper Class="pa-4 d-flex flex-column" Style="height: 100%" Outlined="true">
             <MudText Typo="Typo.overline" Class="mud-text-secondary">Connected</MudText>
-            <MudText Typo="Typo.h3" Class="mt-1">@Registry.Connections.Count</MudText>
+            <MudText Typo="Typo.h3" Class="mt-1">@_connected</MudText>
             <div class="mt-auto pt-2">
                 <MudLink Href="devices" Typo="Typo.caption">Manage devices</MudLink>
             </div>
@@ -39,9 +40,39 @@
 </MudGrid>
 
 @code {
-    protected override void OnInitialized() => Registry.ConnectionsChanged += OnChanged;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
 
-    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+    /// <summary>
+    /// Devices online. An admin counts the server; anyone else counts their own account,
+    /// the same set they can actually see on the Devices page.
+    /// </summary>
+    private int _connected;
+
+    private Guid? _accountId;
+    private bool _isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        _accountId = user.AccountId();
+        _isAdmin = user.IsAdmin();
+
+        Registry.ConnectionsChanged += OnChanged;
+        Count();
+    }
+
+    private void Count() =>
+        _connected = _isAdmin
+            ? Registry.Connections.Count
+            : _accountId is { } owner ? Registry.DeviceIdsInGroup(owner).Count : 0;
+
+    // Raised from a socket thread, so hop back onto the circuit before touching state.
+    private void OnChanged() => _ = InvokeAsync(() =>
+    {
+        Count();
+        StateHasChanged();
+    });
 
     public void Dispose() => Registry.ConnectionsChanged -= OnChanged;
 }

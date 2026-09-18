@@ -1,0 +1,104 @@
+@page "/login"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AuthLayout
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@inject AccountService Accounts
+@inject NavigationManager Nav
+
+@* Static SSR, and it has to stay that way. Signing in means writing a cookie, which is
+   a response header, and an interactive circuit has no response left to write to — the
+   page it lives on was sent long ago. [ExcludeFromInteractiveRouting] is what keeps this
+   page out of the interactive router App.razor otherwise puts every page in. *@
+
+<PageTitle>Sign in</PageTitle>
+
+<MudPaper Class="pa-6" Outlined="true">
+    <MudText Typo="Typo.h6" GutterBottom="true">Sign in</MudText>
+    <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+        Your devices belong to your account. Signing in is what lets you approve them and
+        see your own clipboard.
+    </MudText>
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-4">@_error</MudAlert>
+    }
+
+    <EditForm Model="Input" FormName="login" OnValidSubmit="SignInAsync">
+        <label class="klippy-field">
+            <span>Username</span>
+            <InputText @bind-Value="Input!.Username" autocomplete="username" autofocus />
+        </label>
+
+        <label class="klippy-field">
+            <span>Password</span>
+            <InputText @bind-Value="Input!.Password" type="password" autocomplete="current-password" />
+        </label>
+
+        <button type="submit" class="klippy-submit">Sign in</button>
+    </EditForm>
+</MudPaper>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    @* Left null and filled in OnInitializedAsync rather than by an initializer: a post
+       binds straight onto this property, and an initializer on it can be overwritten
+       with null (BL0008). *@
+    [SupplyParameterFromForm]
+    private LoginInput? Input { get; set; }
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+
+        // Nothing to sign in to yet. A fresh server sends you to make the first account
+        // instead of showing a form that cannot succeed.
+        if (!await Accounts.AnyAsync(HttpContext.RequestAborted))
+        {
+            Nav.NavigateTo("/setup");
+        }
+    }
+
+    private async Task SignInAsync()
+    {
+        var account = await Accounts.VerifyAsync(Input!.Username, Input.Password, HttpContext.RequestAborted);
+
+        if (account is null)
+        {
+            // One message for both halves: saying which was wrong tells an unwanted
+            // caller which usernames exist.
+            _error = "That username and password do not match an account.";
+            return;
+        }
+
+        await HttpContext.SignInAsync(AccountPrincipal.Scheme, AccountPrincipal.CreateFor(account));
+        Nav.NavigateTo(SafeReturnUrl(), forceLoad: true);
+    }
+
+    /// <summary>
+    /// Only ever a path on this server. A returnUrl is attacker-supplied by nature, and
+    /// an absolute one would make this form a redirect to anywhere.
+    /// </summary>
+    private string SafeReturnUrl() =>
+        !string.IsNullOrWhiteSpace(ReturnUrl)
+        && ReturnUrl.StartsWith('/')
+        && !ReturnUrl.StartsWith("//")
+            ? ReturnUrl
+            : "/";
+
+    private sealed class LoginInput
+    {
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+}

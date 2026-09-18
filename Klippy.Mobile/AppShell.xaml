@@ -4,11 +4,19 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pet="clr-namespace:Klippy.Mobile.Features.Pet"
+    xmlns:clipboard="clr-namespace:Klippy.Mobile.Features.Clipboard"
     Title="Klippy">
 
-    <ShellContent
-        Title="Klippy"
-        ContentTemplate="{DataTemplate pet:PetPage}"
-        Route="Pet" />
+    <TabBar>
+        <ShellContent
+            Title="Klippy"
+            ContentTemplate="{DataTemplate pet:PetPage}"
+            Route="Pet" />
+
+        <ShellContent
+            Title="Clipboard"
+            ContentTemplate="{DataTemplate clipboard:ClipboardPage}"
+            Route="Clipboard" />
+    </TabBar>
 
 </Shell>

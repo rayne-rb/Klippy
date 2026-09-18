@@ -101,6 +101,30 @@ public sealed class PairingRepository(IDbConnectionFactory connections)
         return rows.ToList();
     }
 
+    /// <summary>
+    /// Active devices with their owning account's name, newest first. A null
+    /// <paramref name="ownerUserId"/> means every device, which is the admin view; any
+    /// other value narrows it to that one account's group.
+    /// </summary>
+    public async Task<IReadOnlyList<PairedDeviceView>> GetActiveDeviceViewsAsync(
+        Guid? ownerUserId, CancellationToken ct)
+    {
+        await using var connection = await connections.OpenAsync(ct);
+        var rows = await connection.ExecuteQueryAsync<PairedDeviceView>(
+            """
+            select d.device_id, d.device_kind, d.device_name, d.platform,
+                   d.paired_at, d.last_seen_at, d.owner_user_id, u.username as owner_username
+            from devices d
+            left join users u on u.user_id = d.owner_user_id
+            where d.revoked_at is null
+              and (@ownerUserId::uuid is null or d.owner_user_id = @ownerUserId)
+            order by d.paired_at desc
+            """,
+            new { ownerUserId },
+            cancellationToken: ct);
+        return rows.ToList();
+    }
+
     public async Task TouchLastSeenAsync(Guid deviceId, CancellationToken ct)
     {
         await using var connection = await connections.OpenAsync(ct);

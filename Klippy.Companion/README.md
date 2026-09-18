@@ -41,6 +41,7 @@ of which folder they sit in.
 | `pairing` | The pairing handshake and the Connection window |
 | `link` | The WebSocket to the server — registered as the `KlippyLink` autoload |
 | `remote` | Turns link events into things the pet does, and vice versa |
+| `clipboard` | Watches this PC's clipboard while the skill is on, and the board of what has been copied |
 
 `shared/` holds only what has no single owner, and `assets/` the art.
 

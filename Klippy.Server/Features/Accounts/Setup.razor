@@ -1,0 +1,117 @@
+@page "/setup"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AuthLayout
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@inject AccountService Accounts
+@inject NavigationManager Nav
+
+@* First run only. Static SSR for the same reason as Login.razor: it signs the new
+   account in, and that is a cookie. *@
+
+<PageTitle>Set up Klippy</PageTitle>
+
+<MudPaper Class="pa-6" Outlined="true">
+    <MudText Typo="Typo.h6" GutterBottom="true">Make the first account</MudText>
+    <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+        This one is an admin: it can add other accounts and see every device on this
+        server. Everyone else gets their own account, and sees only their own things.
+    </MudText>
+
+    @if (_deviceCount > 0)
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Class="mb-4">
+            @_deviceCount device(s) already paired with this server will be handed to this
+            account, so they keep working.
+        </MudAlert>
+    }
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-4">@_error</MudAlert>
+    }
+
+    <EditForm Model="Input" FormName="setup" OnValidSubmit="CreateAsync">
+        <label class="klippy-field">
+            <span>Username</span>
+            <InputText @bind-Value="Input!.Username" autocomplete="username" autofocus />
+        </label>
+
+        <label class="klippy-field">
+            <span>Password</span>
+            <InputText @bind-Value="Input!.Password" type="password" autocomplete="new-password" />
+        </label>
+
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            At least @AccountService.MinimumPasswordLength characters.
+        </MudText>
+
+        <button type="submit" class="klippy-submit">Create account</button>
+    </EditForm>
+</MudPaper>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    @* Left null and filled in OnInitializedAsync rather than by an initializer: a post
+       binds straight onto this property, and an initializer on it can be overwritten
+       with null (BL0008). *@
+    [SupplyParameterFromForm]
+    private SetupInput? Input { get; set; }
+
+    private string? _error;
+    private int _deviceCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+
+        // The whole point of this page is that it is reachable by nobody in particular,
+        // so it has to close the moment there is an account to sign in as. Without this
+        // check anyone on the network could mint themselves an admin at any time.
+        if (await Accounts.AnyAsync(HttpContext.RequestAborted))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        _deviceCount = await Accounts.CountUnownedDevicesAsync(HttpContext.RequestAborted);
+    }
+
+    private async Task CreateAsync()
+    {
+        // Re-checked on submit, not just on render: the two are separate requests, and
+        // the first could have been served before anyone had signed up.
+        if (await Accounts.AnyAsync(HttpContext.RequestAborted))
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        var (account, error) = await Accounts.CreateAsync(
+            Input!.Username, Input.Password, isAdmin: true, HttpContext.RequestAborted);
+
+        if (account is null)
+        {
+            _error = error;
+            return;
+        }
+
+        var claimed = await Accounts.ClaimUnownedDevicesAsync(account.UserId, HttpContext.RequestAborted);
+
+        await HttpContext.SignInAsync(AccountPrincipal.Scheme, AccountPrincipal.CreateFor(account));
+
+        // Straight to the devices page when this account inherited something, so the
+        // first thing seen is what it now owns.
+        Nav.NavigateTo(claimed > 0 ? "/devices" : "/", forceLoad: true);
+    }
+
+    private sealed class SetupInput
+    {
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+}

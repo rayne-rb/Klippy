@@ -11,18 +11,31 @@
     <link rel="stylesheet" href="@Assets["Klippy.Server.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <HeadOutlet @rendermode="PageRenderMode" />
 </head>
 
 <body>
     @* Interactivity is set once here rather than per page: MudBlazor's theme, popover,
        dialog and snackbar providers live in the layout, and a layout is rendered by the
        router's tree rather than the page's, so per-page render modes would leave them
-       stranded in static SSR. *@
-    <Routes @rendermode="InteractiveServer" />
+       stranded in static SSR.
+
+       The one exception is a page marked [ExcludeFromInteractiveRouting] — the sign-in,
+       sign-out and first-run pages. Those write an auth cookie, which is a response
+       header, and a circuit has no response left to write to. AcceptsInteractiveRouting
+       is false for exactly those requests, and they render statically instead. *@
+    <Routes @rendermode="PageRenderMode" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
 </body>
 
 </html>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private IComponentRenderMode? PageRenderMode =>
+        HttpContext.AcceptsInteractiveRouting() ? InteractiveServer : null;
+}

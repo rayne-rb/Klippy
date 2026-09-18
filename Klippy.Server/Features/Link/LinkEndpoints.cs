@@ -1,6 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using Klippy.Server.Common;
+using Klippy.Server.Features.Accounts;
 using Klippy.Server.Features.Pairing;
 using Klippy.Shared.Link;
 using Klippy.Shared.Link.Payloads;
@@ -35,6 +36,7 @@ public static class LinkEndpoints
                     serverName = identity.Name,
                     deviceId = device.DeviceId,
                     deviceName = device.DeviceName,
+                    isClaimed = device.OwnerUserId is not null,
                 });
         });
 
@@ -44,6 +46,7 @@ public static class LinkEndpoints
     private static async Task HandleSocketAsync(
         HttpContext context,
         PairingService pairing,
+        AccountService accounts,
         LinkRegistry registry,
         EventDispatcher dispatcher,
         ServerIdentity identity,
@@ -67,8 +70,14 @@ public static class LinkEndpoints
         var logger = loggerFactory.CreateLogger($"Klippy.Link.{device.DeviceName}");
         using var socket = await context.WebSockets.AcceptWebSocketAsync();
 
+        // Whose device this is, settled once here. Everything the socket goes on to send
+        // or receive is routed by it.
+        var owner = device.OwnerUserId is { } ownerId
+            ? await accounts.FindAsync(ownerId, context.RequestAborted)
+            : null;
+
         var connection = new LinkConnection(
-            device.DeviceId, device.DeviceKind, device.DeviceName, socket, logger);
+            device.DeviceId, device.DeviceKind, device.DeviceName, owner?.UserId, socket, logger);
 
         await registry.AddAsync(connection);
 
@@ -87,13 +96,15 @@ public static class LinkEndpoints
                 DeviceId = device.DeviceId.ToString(),
                 ServerId = identity.ServerId,
                 ServerName = identity.Name,
+                OwnerName = owner?.Username,
                 Peers = registry.PeersOf(device.DeviceId),
             }));
 
             // Sourced to the arriving device so the broadcast skips it: it already knows
             // it connected, and its welcome message listed everyone else.
-            await dispatcher.DispatchAsync(
+            await dispatcher.DispatchFromDeviceAsync(
                 LinkEnvelope.Create(KlippyEvents.DeviceConnected, presence, source: device.DeviceId.ToString()),
+                connection.OwnerUserId,
                 context.RequestAborted);
 
             var sending = connection.RunSendLoopAsync(context.RequestAborted);
@@ -108,8 +119,11 @@ public static class LinkEndpoints
             await connection.DisposeAsync();
 
             // Best effort: the request is already aborting, so this gets its own token.
-            await dispatcher.DispatchAsync(
+            // The owner comes off the connection rather than the registry, which has
+            // already forgotten this device by now.
+            await dispatcher.DispatchFromDeviceAsync(
                 LinkEnvelope.Create(KlippyEvents.DeviceDisconnected, presence, source: device.DeviceId.ToString()),
+                connection.OwnerUserId,
                 CancellationToken.None);
         }
     }
@@ -181,9 +195,10 @@ public static class LinkEndpoints
                 continue;
             }
 
-            // The sender is whoever the token says it is, not whoever the message claims.
-            await dispatcher.DispatchAsync(
-                envelope with { Source = connection.DeviceId.ToString() }, ct);
+            // The sender is whoever the token says it is, not whoever the message claims —
+            // and likewise the group it reaches is the one its token put it in.
+            await dispatcher.DispatchFromDeviceAsync(
+                envelope with { Source = connection.DeviceId.ToString() }, connection.OwnerUserId, ct);
         }
     }
 

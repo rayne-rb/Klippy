@@ -1,3 +1,4 @@
+using Klippy.Server.Features.Accounts;
 using Klippy.Shared.Pairing;
 
 namespace Klippy.Server.Features.Pairing;
@@ -56,11 +57,22 @@ public static class PairingEndpoints
                 expiresAt = r.ExpiresAt,
             })));
 
+        // Approving from a terminal has no signed-in account behind it, so the device
+        // goes to the first admin — the closest thing to "whoever runs this server".
+        // Without one it is approved unowned, and stays a group of one until an admin
+        // claims it on the Devices page.
         admin.MapPost("/requests/{requestId:guid}/approve", async (
-                Guid requestId, PairingService pairing, CancellationToken ct) =>
-            await pairing.ApproveAsync(requestId, ct)
-                ? Results.Ok(new { approved = true })
-                : Results.BadRequest(new { error = "No pending request with that id." }));
+            Guid requestId,
+            PairingService pairing,
+            AccountService accounts,
+            CancellationToken ct) =>
+        {
+            var owner = await accounts.FindFirstAdminAsync(ct);
+
+            return await pairing.ApproveAsync(requestId, owner?.UserId, ct)
+                ? Results.Ok(new { approved = true, owner = owner?.Username })
+                : Results.BadRequest(new { error = "No pending request with that id." });
+        });
 
         admin.MapPost("/requests/{requestId:guid}/deny", async (
             Guid requestId, PairingService pairing, CancellationToken ct) =>
@@ -81,6 +93,7 @@ public static class PairingEndpoints
                 platform = d.Platform,
                 pairedAt = d.PairedAt,
                 lastSeenAt = d.LastSeenAt,
+                ownerUserId = d.OwnerUserId,
                 isConnected = registry.IsConnected(d.DeviceId),
             })));
 

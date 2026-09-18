@@ -12,10 +12,13 @@ namespace Klippy.Server.Features.AudioCast;
 /// every one of those is announced without each mutation site having to remember to.
 ///
 /// Unlike the offer, this carries no key, so it is published normally — persisted and
-/// fanned out to every device like any other state event.
+/// fanned out like any other state event. Not to everyone, though: which of your phones
+/// is playing your PC's audio is your business, so it goes out once per account, each
+/// one seeing only its own listeners.
 /// </summary>
 public sealed class AudioCastStateBroadcaster(
     AudioCastSessions sessions,
+    LinkRegistry registry,
     IEventPublisher publisher,
     ILogger<AudioCastStateBroadcaster> logger) : IHostedService
 {
@@ -42,8 +45,13 @@ public sealed class AudioCastStateBroadcaster(
     {
         try
         {
-            await publisher.PublishAsync(
-                LinkEnvelope.Create(KlippyEvents.AudioCastState, sessions.Snapshot()));
+            foreach (var owner in registry.ConnectedGroups())
+            {
+                var snapshot = sessions.Snapshot(registry.DeviceIdsInGroup(owner));
+
+                await publisher.PublishToGroupAsync(
+                    owner, LinkEnvelope.Create(KlippyEvents.AudioCastState, snapshot));
+            }
         }
         catch (Exception ex)
         {

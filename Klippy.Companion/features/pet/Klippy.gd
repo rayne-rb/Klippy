@@ -22,6 +22,7 @@ const MARKET_ID := 15
 const SELL_PORTAL_ID := 16
 const QUARRY_ID := 17
 const FUN_ID := 18
+const CLIPBOARD_ID := 19
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -145,6 +146,15 @@ var _portal_chain_cooldown := 0.0
 var market_client: MarketClient
 var market_mailbox: MarketMailbox
 var market_dialog: MarketDialog
+
+## The clipboard skill. The watcher and the receiver live here rather than in the Skills
+## window because they have to keep working while it is shut - that is what makes it a
+## skill rather than a screen.
+var clipboard_settings: ClipboardSettings
+var clipboard_client: ClipboardClient
+var clipboard_watcher: ClipboardWatcher
+var clipboard_receiver: ClipboardReceiver
+var clipboard_board: ClipboardBoardDialog
 var sell_price_dialog: MarketSellDialog
 var sell_portal: SellPortal
 ## Which consumable window is currently frozen in the sell portal awaiting a
@@ -241,6 +251,23 @@ func _ready() -> void:
 	add_child(market_mailbox)
 	market_mailbox.setup(klippy_points, market_data.get("applied_payouts", []), _save_state)
 
+	clipboard_settings = ClipboardSettings.load_settings()
+
+	clipboard_client = ClipboardClient.new()
+	add_child(clipboard_client)
+
+	clipboard_watcher = ClipboardWatcher.new()
+	clipboard_watcher.setup(clipboard_client, clipboard_settings)
+	add_child(clipboard_watcher)
+
+	clipboard_receiver = ClipboardReceiver.new()
+	clipboard_receiver.setup(clipboard_client)
+	# Whatever the receiver puts on the clipboard, the watcher is told about, or the next
+	# poll would read it back and send it up again as if it were freshly copied.
+	clipboard_receiver.applied.connect(func(digest: String, _kind: String) -> void:
+		clipboard_watcher.note_written(digest))
+	add_child(clipboard_receiver)
+
 	consumable_spawner = ConsumableSpawner.new()
 	add_child(consumable_spawner)
 	consumable_spawner.setup(stats, self)
@@ -285,6 +312,7 @@ func _ready() -> void:
 	context_menu.add_child(quarry_menu)
 	context_menu.add_submenu_node_item("Quarry", quarry_menu, QUARRY_ID)
 	context_menu.add_item("Skills", SKILLS_ID)
+	context_menu.add_item("Clipboard", CLIPBOARD_ID)
 	context_menu.add_item("Reminders", REMINDERS_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close Klippy", CLOSE_ID)
@@ -449,7 +477,9 @@ func _on_status_closed() -> void:
 func _open_skills() -> void:
 	if skills_dialog == null:
 		skills_dialog = SkillsDialog.new()
+		skills_dialog.setup(clipboard_settings, clipboard_watcher)
 		add_child(skills_dialog)
+		skills_dialog.clipboard_board_requested.connect(_open_clipboard_board)
 		skills_dialog.close_requested.connect(_on_skills_closed)
 	skills_dialog.popup_centered()
 
@@ -815,6 +845,8 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_banish_portals()
 		MARKET_ID:
 			_open_market()
+		CLIPBOARD_ID:
+			_open_clipboard_board()
 		SELL_PORTAL_ID:
 			_toggle_sell_portal()
 		CONNECTION_ID:
@@ -979,6 +1011,24 @@ func _open_market() -> void:
 		market_dialog.close_requested.connect(_on_market_closed)
 	market_dialog.popup_centered()
 	market_dialog.refresh()
+
+
+## The clipboard board. Kept here rather than inside the Skills window so that closing
+## that does not take the board with it.
+func _open_clipboard_board() -> void:
+	if clipboard_board == null:
+		clipboard_board = ClipboardBoardDialog.new()
+		clipboard_board.setup(clipboard_client)
+		add_child(clipboard_board)
+		clipboard_board.applied_locally.connect(clipboard_watcher.note_written)
+		clipboard_board.close_requested.connect(_on_clipboard_board_closed)
+	clipboard_board.popup_centered()
+	clipboard_board.refresh()
+
+
+func _on_clipboard_board_closed() -> void:
+	clipboard_board.queue_free()
+	clipboard_board = null
 
 
 func _on_market_closed() -> void:

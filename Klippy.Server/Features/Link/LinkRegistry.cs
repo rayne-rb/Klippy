@@ -63,7 +63,11 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
         ConnectionsChanged?.Invoke();
     }
 
-    /// <summary>Delivers to one device. Returns false when it is not connected.</summary>
+    /// <summary>
+    /// Delivers to one device, with no regard for who owns it. Only for envelopes the
+    /// server itself produced: a device's own targeted envelope goes through
+    /// <see cref="TrySendWithinGroup"/>, which will not cross an account boundary.
+    /// </summary>
     public bool SendTo(Guid deviceId, LinkEnvelope envelope)
     {
         if (!_connections.TryGetValue(deviceId, out var connection))
@@ -75,7 +79,37 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
         return true;
     }
 
-    /// <summary>Delivers to everyone except the device that produced it.</summary>
+    /// <summary>
+    /// Delivers one device's envelope to another, but only inside the sender's own
+    /// account. Returns false when the target is not connected or is not theirs to
+    /// address — the caller cannot tell those apart, and should not be able to: a device
+    /// that could probe for the existence of another account's devices has already been
+    /// told more than it should know.
+    ///
+    /// A sender with no owner (<paramref name="senderOwner"/> null) can reach nobody. An
+    /// unclaimed device is a group of one, so there is no one else in it.
+    /// </summary>
+    public bool TrySendWithinGroup(Guid deviceId, Guid? senderOwner, LinkEnvelope envelope)
+    {
+        if (senderOwner is not { } owner)
+        {
+            return false;
+        }
+
+        if (!_connections.TryGetValue(deviceId, out var connection) || connection.OwnerUserId != owner)
+        {
+            return false;
+        }
+
+        connection.Enqueue(envelope);
+        return true;
+    }
+
+    /// <summary>
+    /// Delivers to every connected device, whoever owns them. Reserved for the few
+    /// things that really are server-wide; anything carrying one account's business
+    /// wants <see cref="BroadcastToGroup"/>.
+    /// </summary>
     public int Broadcast(LinkEnvelope envelope, Guid? exceptDeviceId = null)
     {
         var delivered = 0;
@@ -94,9 +128,65 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
         return delivered;
     }
 
-    public IReadOnlyList<DevicePresencePayload> PeersOf(Guid deviceId) =>
+    /// <summary>Delivers to one account's devices, optionally skipping the one that caused it.</summary>
+    public int BroadcastToGroup(Guid ownerUserId, LinkEnvelope envelope, Guid? exceptDeviceId = null)
+    {
+        var delivered = 0;
+
+        foreach (var connection in _connections.Values)
+        {
+            if (connection.OwnerUserId != ownerUserId)
+            {
+                continue;
+            }
+
+            if (exceptDeviceId is { } skip && connection.DeviceId == skip)
+            {
+                continue;
+            }
+
+            connection.Enqueue(envelope);
+            delivered++;
+        }
+
+        return delivered;
+    }
+
+    /// <summary>The account a connected device belongs to, or null if it is unowned or gone.</summary>
+    public Guid? OwnerOf(Guid deviceId) =>
+        _connections.TryGetValue(deviceId, out var connection) ? connection.OwnerUserId : null;
+
+    /// <summary>
+    /// The accounts with at least one device connected. Lets something that has to
+    /// announce per group — the audio cast's state, say — know which groups there are.
+    /// </summary>
+    public IReadOnlyList<Guid> ConnectedGroups() =>
         _connections.Values
-            .Where(c => c.DeviceId != deviceId)
+            .Select(c => c.OwnerUserId)
+            .OfType<Guid>()
+            .Distinct()
+            .ToList();
+
+    /// <summary>The connected devices belonging to one account.</summary>
+    public IReadOnlySet<Guid> DeviceIdsInGroup(Guid ownerUserId) =>
+        _connections.Values
+            .Where(c => c.OwnerUserId == ownerUserId)
+            .Select(c => c.DeviceId)
+            .ToHashSet();
+
+    /// <summary>
+    /// The other devices a device may know about: the rest of its own account, and
+    /// nobody else. An unowned device has no peers.
+    /// </summary>
+    public IReadOnlyList<DevicePresencePayload> PeersOf(Guid deviceId)
+    {
+        if (!_connections.TryGetValue(deviceId, out var self) || self.OwnerUserId is not { } owner)
+        {
+            return [];
+        }
+
+        return _connections.Values
+            .Where(c => c.DeviceId != deviceId && c.OwnerUserId == owner)
             .Select(c => new DevicePresencePayload
             {
                 DeviceId = c.DeviceId.ToString(),
@@ -104,4 +194,5 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
                 DeviceName = c.DeviceName,
             })
             .ToList();
+    }
 }
