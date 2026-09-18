@@ -12,6 +12,10 @@ bin/
 obj/
 *.user
 
+# Rider IDE local state (per-machine, churns constantly)
+.idea/workspace.xml
+.idea/libraries/GdSdk.xml
+
 # Claude Code: personal overrides and its scratch worktrees under .claude/worktrees.
 # Deliberately the whole directory. If a shared settings.json or skills are ever worth
 # committing, un-ignore just those: !.claude/settings.json
