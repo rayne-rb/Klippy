@@ -22,6 +22,8 @@ const MARKET_ID := 15
 const SELL_PORTAL_ID := 16
 const QUARRY_ID := 17
 const FUN_ID := 18
+const SUMMON_FRIEND_PORTAL_ID := 19
+const BANISH_FRIEND_PORTAL_ID := 20
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -137,6 +139,13 @@ var wardrobe_dialog: WardrobeDialog
 var remote_control: RemoteControl
 var reminder_scheduler: ReminderScheduler
 
+## The friend portal's two ends: sending him out through one (the session, which
+## owns the green portal on this desktop) and hosting somebody else's pet when it
+## comes out of theirs.
+var visit_session: VisitSession
+var visit_host: VisitHost
+var visit_dialog: VisitDialog
+
 var blue_portal: TravelPortal
 var red_portal: TravelPortal
 var travel_portals: Array[TravelPortal] = []
@@ -250,7 +259,19 @@ func _ready() -> void:
 	# handed over explicitly here, so the pet keeps working with the link absent.
 	remote_control = RemoteControl.new()
 	add_child(remote_control)
-	remote_control.setup(stats, consumable_spawner, _say, _set_dvd_mode)
+	remote_control.setup(stats, consumable_spawner, say, _set_dvd_mode)
+
+	# Visits: the green friend portal he can be thrown through onto another
+	# user's monitor, and the doormat for other people's pets arriving here.
+	# Both react to the link rather than owning it, like RemoteControl.
+	visit_host = VisitHost.new()
+	add_child(visit_host)
+	visit_host.setup(self)
+
+	visit_session = VisitSession.new()
+	add_child(visit_session)
+	visit_session.setup(self)
+	visit_session.portal_changed.connect(_update_friend_menu_items)
 
 	show_food_value = settings_data.get("show_food_value", false)
 	show_mood_value = settings_data.get("show_mood_value", false)
@@ -271,6 +292,7 @@ func _ready() -> void:
 	fun_menu = PopupMenu.new()
 	fun_menu.add_item("Wardrobe", WARDROBE_ID)
 	fun_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
+	fun_menu.add_item("Summon Friend Portal", SUMMON_FRIEND_PORTAL_ID)
 	fun_menu.add_item("DVD", DVD_ID)
 	fun_menu.id_pressed.connect(_on_context_menu_id_pressed)
 	RockyTheme.style_popup(fun_menu)
@@ -620,7 +642,7 @@ func _raise_contained_consumables() -> void:
 
 ## Says something out loud. Handed to RemoteControl so the phone can put words in
 ## Klippy's mouth without reaching into the speech bubble itself.
-func _say(text: String) -> void:
+func say(text: String) -> void:
 	if stats.is_dead:
 		return
 	_get_speech_bubble().say(text, get_window())
@@ -656,10 +678,14 @@ func _on_reminders_closed() -> void:
 
 ## Hands the due reminder to the speech bubble, which keeps it up and nagging
 ## until clicked. Reminders speak even when Klippy is dead — the user asked
-## for them, after all.
+## for them, after all. While he is away on a visit the bubble is over on the
+## friend's monitor, so the line travels instead.
 func _on_reminder_due(reminder: Dictionary) -> void:
 	var message := str(reminder.get("message", "")).strip_edges()
 	if message.is_empty():
+		return
+	if visit_session != null and visit_session.is_visiting():
+		visit_session.speak(message)
 		return
 	_get_speech_bubble().announce_reminder(message, get_window())
 
@@ -812,7 +838,11 @@ func _on_context_menu_id_pressed(id: int) -> void:
 		SUMMON_PORTALS_ID:
 			_summon_portals()
 		BANISH_PORTALS_ID:
-			_banish_portals()
+			banish_travel_portals()
+		SUMMON_FRIEND_PORTAL_ID:
+			_summon_friend_portal()
+		BANISH_FRIEND_PORTAL_ID:
+			_banish_friend_portal()
 		MARKET_ID:
 			_open_market()
 		SELL_PORTAL_ID:
@@ -845,7 +875,7 @@ func _toggle_sleep() -> void:
 ## speaks for a real transition, not just loading a save that was left asleep.
 func _on_sleep_changed(sleeping: bool) -> void:
 	_update_sleep_menu_item(sleeping)
-	_say("Zzz..." if sleeping else Dialogue.random_wake_up())
+	say("Zzz..." if sleeping else Dialogue.random_wake_up())
 
 
 func _update_sleep_menu_item(sleeping: bool) -> void:
@@ -931,7 +961,7 @@ func _summon_portals() -> void:
 	_update_portal_menu_items()
 
 
-func _banish_portals() -> void:
+func banish_travel_portals() -> void:
 	for portal in travel_portals:
 		if is_instance_valid(portal):
 			portal.queue_free()
@@ -941,10 +971,50 @@ func _banish_portals() -> void:
 	_update_portal_menu_items()
 
 
+## The session owns the green portal's whole life; this is just the menu deciding
+## between "open the door" and "walk the user through meeting a friend first".
+func _summon_friend_portal() -> void:
+	if visit_session.has_pairing():
+		visit_session.summon_portal()
+	else:
+		_open_visit_dialog()
+
+
+func _banish_friend_portal() -> void:
+	visit_session.forget_portal()
+
+
+func _open_visit_dialog() -> void:
+	if visit_dialog == null:
+		visit_dialog = VisitDialog.new()
+		add_child(visit_dialog)
+		visit_dialog.setup(visit_session)
+		visit_dialog.visit_ready.connect(visit_session.summon_portal)
+		visit_dialog.close_requested.connect(_on_visit_dialog_closed)
+	visit_dialog.popup_centered()
+
+
+func _on_visit_dialog_closed() -> void:
+	visit_dialog.queue_free()
+	visit_dialog = null
+	visit_session.cancel_pairing()
+
+
+func _update_friend_menu_items() -> void:
+	var have_portal := visit_session != null and visit_session.has_portal()
+	fun_menu.set_item_disabled(fun_menu.get_item_index(SUMMON_FRIEND_PORTAL_ID), have_portal)
+	var banish_index := fun_menu.get_item_index(BANISH_FRIEND_PORTAL_ID)
+	if have_portal:
+		if banish_index == -1:
+			fun_menu.add_item("Banish Friend Portal", BANISH_FRIEND_PORTAL_ID)
+	elif banish_index != -1:
+		fun_menu.remove_item(banish_index)
+
+
 func _spawn_portal(kind: String, screen: int, x_fraction: float, y_fraction := 0.45) -> void:
 	var portal := TravelPortal.new(kind)
 	portal.current_screen = screen
-	portal.probe = _pet_probe
+	portal.probe = pet_probe
 	portal.entered.connect(_on_portal_entered.bind(portal))
 	add_child(portal)
 	var bounds := DisplayServer.screen_get_usable_rect(screen)
@@ -1113,7 +1183,7 @@ func _on_sell_cancelled() -> void:
 
 ## What the travel portals need to know about the pet each frame, in their
 ## own words — the pet stays in charge of how it moves.
-func _pet_probe() -> Dictionary:
+func pet_probe() -> Dictionary:
 	var window := get_window()
 	return {
 		"thrown": state == State.THROWN,
@@ -1150,6 +1220,30 @@ func _on_portal_entered(entry_velocity: Vector2, rising: bool, entered_portal: T
 			- Vector2i(window.size) / 2
 	velocity = exit_velocity
 	_portal_chain_cooldown = now + PORTAL_CHAIN_COOLDOWN
+
+
+## The visit session has taken over this trip: the green portal is not part of
+## the local chain, so entering it hands him to [method VisitSession], which
+## hides him here and stands him up on the friend's monitor.
+func visit_absorb() -> void:
+	dvd_mode = false
+	velocity = Vector2.ZERO
+	angular_velocity = 0.0
+	play_tracking_active = false
+	_set_state(State.IDLE)
+	get_window().hide()
+
+
+## The other half of the handoff: back out of the green portal on whatever
+## screen it currently sits on (he may have been away while it was dragged to
+## another monitor), with a burst so the exit reads as a door and not a pop.
+func visit_emerge(center: Vector2, screen: int, exit_velocity: Vector2) -> void:
+	var window := get_window()
+	window.current_screen = screen
+	window.position = Vector2i(center) - Vector2i(window.size) / 2
+	window.show()
+	velocity = exit_velocity
+	_set_state(State.THROWN)
 
 
 ## What the portal drops: almost always an apple, but a rare jelly once

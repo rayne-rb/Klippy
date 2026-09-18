@@ -37,7 +37,18 @@ const AUDIO_CAST_STATE := "audio.cast.state"
 const MARKET_PAYOUT := "market.payout"
 const MARKET_PAYOUT_ACK := "market.payout.ack"
 
+# Visits. Spoken on the *guest* link — the second socket a companion opens to
+# another user's server after pairing with it as a "visitor" device — and always
+# targeted at the companion hosting the visit. The server only routes these; both
+# ends are companions. See the visit slice.
+const VISIT_ARRIVE := "visit.arrive"
+const VISIT_ARRIVED := "visit.arrived"
+const VISIT_RECALL := "visit.recall"
+const VISIT_DEPARTED := "visit.departed"
+const VISIT_SPEAK := "visit.speak"
+
 # Device kinds, mirroring DeviceKind.cs in Klippy.Shared. Kept here with the event
 # names for the same reason: it is a wire constant the server decides, not ours.
 const KIND_COMPANION := "companion"
 const KIND_MOBILE := "mobile"
+const KIND_VISITOR := "visitor"

@@ -19,11 +19,150 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "Klippy.Companion\
 	ProjectSection(SolutionItems) = preProject
 		Klippy.Companion\assets\Klippy.png = Klippy.Companion\assets\Klippy.png
 		Klippy.Companion\assets\Klippy.png.import = Klippy.Companion\assets\Klippy.png.import
+		Klippy.Companion\assets\KlippyFoodBag.png = Klippy.Companion\assets\KlippyFoodBag.png
+		Klippy.Companion\assets\KlippyFoodBag.png.import = Klippy.Companion\assets\KlippyFoodBag.png.import
+		Klippy.Companion\assets\KlippyFoodBagBack.png = Klippy.Companion\assets\KlippyFoodBagBack.png
+		Klippy.Companion\assets\KlippyFoodBagBack.png.import = Klippy.Companion\assets\KlippyFoodBagBack.png.import
+		Klippy.Companion\assets\KlippyWardrobe.png = Klippy.Companion\assets\KlippyWardrobe.png
+		Klippy.Companion\assets\KlippyWardrobe.png.import = Klippy.Companion\assets\KlippyWardrobe.png.import
 		Klippy.Companion\assets\icon.svg = Klippy.Companion\assets\icon.svg
 		Klippy.Companion\assets\icon.svg.import = Klippy.Companion\assets\icon.svg.import
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumables", "Klippy.Companion\assets\Consumables", "{0F1DBEF6-0693-4CA5-8FB4-576B41653390}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\Consumables\KlippyAppleFood.png = Klippy.Companion\assets\Consumables\KlippyAppleFood.png
+		Klippy.Companion\assets\Consumables\KlippyAppleFood.png.import = Klippy.Companion\assets\Consumables\KlippyAppleFood.png.import
+		Klippy.Companion\assets\Consumables\KlippyCoin.png = Klippy.Companion\assets\Consumables\KlippyCoin.png
+		Klippy.Companion\assets\Consumables\KlippyCoin.png.import = Klippy.Companion\assets\Consumables\KlippyCoin.png.import
+		Klippy.Companion\assets\Consumables\KlippyJellyFood.png = Klippy.Companion\assets\Consumables\KlippyJellyFood.png
+		Klippy.Companion\assets\Consumables\KlippyJellyFood.png.import = Klippy.Companion\assets\Consumables\KlippyJellyFood.png.import
+		Klippy.Companion\assets\Consumables\KlippyXpGem.png = Klippy.Companion\assets\Consumables\KlippyXpGem.png
+		Klippy.Companion\assets\Consumables\KlippyXpGem.png.import = Klippy.Companion\assets\Consumables\KlippyXpGem.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KlippyCosmetics", "Klippy.Companion\assets\KlippyCosmetics", "{FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bodies", "Klippy.Companion\assets\KlippyCosmetics\Bodies", "{F32846DE-1149-49E3-8927-7A01B11DC0B1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CleanMarble", "Klippy.Companion\assets\KlippyCosmetics\Bodies\CleanMarble", "{59CACB1F-04D7-49A6-A9A8-CCBBB8A2B5C0}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\CleanMarble\KlippyBody.png = Klippy.Companion\assets\KlippyCosmetics\Bodies\CleanMarble\KlippyBody.png
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\CleanMarble\KlippyBody.png.import = Klippy.Companion\assets\KlippyCosmetics\Bodies\CleanMarble\KlippyBody.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Default", "Klippy.Companion\assets\KlippyCosmetics\Bodies\Default", "{56B7D369-FFF7-4ED0-98C6-388CDFE64924}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\Default\KlippyBody.png = Klippy.Companion\assets\KlippyCosmetics\Bodies\Default\KlippyBody.png
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\Default\KlippyBody.png.import = Klippy.Companion\assets\KlippyCosmetics\Bodies\Default\KlippyBody.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Obsidian", "Klippy.Companion\assets\KlippyCosmetics\Bodies\Obsidian", "{C1265CB6-AC24-4F55-8AEB-E7293CFAB902}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\Obsidian\KlippyBody.png = Klippy.Companion\assets\KlippyCosmetics\Bodies\Obsidian\KlippyBody.png
+		Klippy.Companion\assets\KlippyCosmetics\Bodies\Obsidian\KlippyBody.png.import = Klippy.Companion\assets\KlippyCosmetics\Bodies\Obsidian\KlippyBody.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Expressions", "Klippy.Companion\assets\KlippyCosmetics\Expressions", "{FCEAA646-AB7E-47FF-AD6A-14061B27A95F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CleanMarble", "Klippy.Companion\assets\KlippyCosmetics\Expressions\CleanMarble", "{D6DC9C1B-C5DA-405A-B339-88193364F339}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\CleanMarble\KlippyIconicSmile.png = Klippy.Companion\assets\KlippyCosmetics\Expressions\CleanMarble\KlippyIconicSmile.png
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\CleanMarble\KlippyIconicSmile.png.import = Klippy.Companion\assets\KlippyCosmetics\Expressions\CleanMarble\KlippyIconicSmile.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Default", "Klippy.Companion\assets\KlippyCosmetics\Expressions\Default", "{70636612-7C61-45BE-ACD5-BD4662B78816}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\Default\KlippyIconicSmile.png = Klippy.Companion\assets\KlippyCosmetics\Expressions\Default\KlippyIconicSmile.png
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\Default\KlippyIconicSmile.png.import = Klippy.Companion\assets\KlippyCosmetics\Expressions\Default\KlippyIconicSmile.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Obsidian", "Klippy.Companion\assets\KlippyCosmetics\Expressions\Obsidian", "{3AFADF67-38CE-41A0-9F99-00285DCE3CCF}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\Obsidian\KlippyExpression.png = Klippy.Companion\assets\KlippyCosmetics\Expressions\Obsidian\KlippyExpression.png
+		Klippy.Companion\assets\KlippyCosmetics\Expressions\Obsidian\KlippyExpression.png.import = Klippy.Companion\assets\KlippyCosmetics\Expressions\Obsidian\KlippyExpression.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eyes", "Klippy.Companion\assets\KlippyCosmetics\Eyes", "{835A8043-4568-4661-B7E4-8772E1CF9AAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Default", "Klippy.Companion\assets\KlippyCosmetics\Eyes\Default", "{7638E046-CF92-48BB-A412-0829A753F2C9}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyLeftEye.png = Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyLeftEye.png
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyLeftEye.png.import = Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyLeftEye.png.import
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyRightEye.png = Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyRightEye.png
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyRightEye.png.import = Klippy.Companion\assets\KlippyCosmetics\Eyes\Default\KlippyRightEye.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Obsidian", "Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian", "{FFF37DC2-DA2F-42B0-8981-2F207926A6BD}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyLeftEye.png = Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyLeftEye.png
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyLeftEye.png.import = Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyLeftEye.png.import
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyRightEye.png = Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyRightEye.png
+		Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyRightEye.png.import = Klippy.Companion\assets\KlippyCosmetics\Eyes\Obsidian\KlippyRightEye.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hats", "Klippy.Companion\assets\KlippyCosmetics\Hats", "{A3251A5C-7E46-4B20-A881-865A9E54A4B1}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Hats\KlippyCrown.png = Klippy.Companion\assets\KlippyCosmetics\Hats\KlippyCrown.png
+		Klippy.Companion\assets\KlippyCosmetics\Hats\KlippyCrown.png.import = Klippy.Companion\assets\KlippyCosmetics\Hats\KlippyCrown.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pupils", "Klippy.Companion\assets\KlippyCosmetics\Pupils", "{56B66B72-5237-4F44-BBDF-365DE463C87F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CleanMarble", "Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble", "{C3B0612F-F4AB-4FBA-A67A-EF321E3F81C6}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyLeftPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyLeftPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyLeftPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyLeftPupil.png.import
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyRightPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyRightPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyRightPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\CleanMarble\KlippyRightPupil.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Default", "Klippy.Companion\assets\KlippyCosmetics\Pupils\Default", "{362697C4-0E13-4ED5-9623-DEE4B1DA5138}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyLeftPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyLeftPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyLeftPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyLeftPupil.png.import
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyRightPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyRightPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyRightPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\Default\KlippyRightPupil.png.import
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Obsidian", "Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian", "{8E805A3F-FAD0-4EB9-BFE2-485C62EB59A2}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyLeftPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyLeftPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyLeftPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyLeftPupil.png.import
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyRightPupil.png = Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyRightPupil.png
+		Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyRightPupil.png.import = Klippy.Companion\assets\KlippyCosmetics\Pupils\Obsidian\KlippyRightPupil.png.import
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "features", "Klippy.Companion\features", "{76D0D1E2-AD1B-4831-BCA8-08A19555FF15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "Klippy.Companion\features\app", "{62DF552A-005A-4AB7-A15D-A68DFB0FD56A}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\app\App.gd = Klippy.Companion\features\app\App.gd
+		Klippy.Companion\features\app\App.tscn = Klippy.Companion\features\app\App.tscn
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "consumables", "Klippy.Companion\features\consumables", "{565E6779-0191-4D45-AB1F-FD36932F7CF6}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\consumables\ConsumableBagBody.gd = Klippy.Companion\features\consumables\ConsumableBagBody.gd
+		Klippy.Companion\features\consumables\ConsumableBody.gd = Klippy.Companion\features\consumables\ConsumableBody.gd
+		Klippy.Companion\features\consumables\ConsumableCatalog.gd = Klippy.Companion\features\consumables\ConsumableCatalog.gd
+		Klippy.Companion\features\consumables\ConsumableDef.gd = Klippy.Companion\features\consumables\ConsumableDef.gd
+		Klippy.Companion\features\consumables\ConsumablePortal.gd = Klippy.Companion\features\consumables\ConsumablePortal.gd
+		Klippy.Companion\features\consumables\ConsumableSpawner.gd = Klippy.Companion\features\consumables\ConsumableSpawner.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cosmetics", "Klippy.Companion\features\cosmetics", "{5E01FD78-CFA4-4A69-8ACF-DE1FBFFD99E2}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\cosmetics\BodyCatalog.gd = Klippy.Companion\features\cosmetics\BodyCatalog.gd
+		Klippy.Companion\features\cosmetics\CosmeticPartDef.gd = Klippy.Companion\features\cosmetics\CosmeticPartDef.gd
+		Klippy.Companion\features\cosmetics\CosmeticPickerDialog.gd = Klippy.Companion\features\cosmetics\CosmeticPickerDialog.gd
+		Klippy.Companion\features\cosmetics\ExpressionCatalog.gd = Klippy.Companion\features\cosmetics\ExpressionCatalog.gd
+		Klippy.Companion\features\cosmetics\EyesCatalog.gd = Klippy.Companion\features\cosmetics\EyesCatalog.gd
+		Klippy.Companion\features\cosmetics\HatsCatalog.gd = Klippy.Companion\features\cosmetics\HatsCatalog.gd
+		Klippy.Companion\features\cosmetics\PupilsCatalog.gd = Klippy.Companion\features\cosmetics\PupilsCatalog.gd
+		Klippy.Companion\features\cosmetics\WardrobeBody.gd = Klippy.Companion\features\cosmetics\WardrobeBody.gd
+		Klippy.Companion\features\cosmetics\WardrobeDialog.gd = Klippy.Companion\features\cosmetics\WardrobeDialog.gd
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "devtools", "Klippy.Companion\features\devtools", "{B7496E33-34B9-45C4-B24E-64D5BAFAD5F0}"
 	ProjectSection(SolutionItems) = preProject
@@ -41,10 +180,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "discovery", "Klippy.Compani
 		Klippy.Companion\features\discovery\ServerDiscovery.gd = Klippy.Companion\features\discovery\ServerDiscovery.gd
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "food", "Klippy.Companion\features\food", "{275CB29F-2B7E-4370-A45B-B06367076F0C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "leveling", "Klippy.Companion\features\leveling", "{99B859F1-26EE-4890-B73F-4FA73F2EBF05}"
 	ProjectSection(SolutionItems) = preProject
-		Klippy.Companion\features\food\FoodBody.gd = Klippy.Companion\features\food\FoodBody.gd
-		Klippy.Companion\features\food\FoodSpawner.gd = Klippy.Companion\features\food\FoodSpawner.gd
+		Klippy.Companion\features\leveling\LevelUnlocks.gd = Klippy.Companion\features\leveling\LevelUnlocks.gd
+		Klippy.Companion\features\leveling\PetLevel.gd = Klippy.Companion\features\leveling\PetLevel.gd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "link", "Klippy.Companion\features\link", "{B0D5A9BD-D8C1-4706-98BB-62A0889BFAAF}"
@@ -52,6 +191,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "link", "Klippy.Companion\fe
 		Klippy.Companion\features\link\KlippyLink.gd = Klippy.Companion\features\link\KlippyLink.gd
 		Klippy.Companion\features\link\LinkEvents.gd = Klippy.Companion\features\link\LinkEvents.gd
 		Klippy.Companion\features\link\LinkSettings.gd = Klippy.Companion\features\link\LinkSettings.gd
+		Klippy.Companion\features\link\LinkStatusChip.gd = Klippy.Companion\features\link\LinkStatusChip.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "market", "Klippy.Companion\features\market", "{31F5CBBA-536A-4FEE-B52C-F72A0D415A20}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\market\MarketClient.gd = Klippy.Companion\features\market\MarketClient.gd
+		Klippy.Companion\features\market\MarketDialog.gd = Klippy.Companion\features\market\MarketDialog.gd
+		Klippy.Companion\features\market\MarketMailbox.gd = Klippy.Companion\features\market\MarketMailbox.gd
+		Klippy.Companion\features\market\MarketSellDialog.gd = Klippy.Companion\features\market\MarketSellDialog.gd
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pairing", "Klippy.Companion\features\pairing", "{44E8F356-C5FE-4029-BCB6-7A7AE5064C7D}"
@@ -67,6 +215,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pet", "Klippy.Companion\fea
 		Klippy.Companion\features\pet\PetBody.gd = Klippy.Companion\features\pet\PetBody.gd
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "portals", "Klippy.Companion\features\portals", "{6147A65F-685C-45D6-B25A-F52A9A1C38FB}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\portals\SellPortal.gd = Klippy.Companion\features\portals\SellPortal.gd
+		Klippy.Companion\features\portals\TravelPortal.gd = Klippy.Companion\features\portals\TravelPortal.gd
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reminders", "Klippy.Companion\features\reminders", "{4B58220E-2D74-4A05-AA5D-1F9181BE130F}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\reminders\ReminderDialog.gd = Klippy.Companion\features\reminders\ReminderDialog.gd
+		Klippy.Companion\features\reminders\ReminderScheduler.gd = Klippy.Companion\features\reminders\ReminderScheduler.gd
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "remote", "Klippy.Companion\features\remote", "{AC6DC107-CB27-4E40-9DA7-69C1CF876918}"
 	ProjectSection(SolutionItems) = preProject
 		Klippy.Companion\features\remote\RemoteControl.gd = Klippy.Companion\features\remote\RemoteControl.gd
@@ -77,14 +237,33 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "settings", "Klippy.Companio
 		Klippy.Companion\features\settings\SettingsPanel.gd = Klippy.Companion\features\settings\SettingsPanel.gd
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "skills", "Klippy.Companion\features\skills", "{ABAEAAD3-7310-42EE-8F6D-7CD71DA5C910}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\skills\AudioRelaySkill.gd = Klippy.Companion\features\skills\AudioRelaySkill.gd
+		Klippy.Companion\features\skills\SkillCard.gd = Klippy.Companion\features\skills\SkillCard.gd
+		Klippy.Companion\features\skills\SkillsDialog.gd = Klippy.Companion\features\skills\SkillsDialog.gd
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stats", "Klippy.Companion\features\stats", "{831769FD-3F18-45E1-A856-53A306A507E6}"
 	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\stats\KlippyPoints.gd = Klippy.Companion\features\stats\KlippyPoints.gd
 		Klippy.Companion\features\stats\Stats.gd = Klippy.Companion\features\stats\Stats.gd
 		Klippy.Companion\features\stats\StatusDialog.gd = Klippy.Companion\features\stats\StatusDialog.gd
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "visit", "Klippy.Companion\features\visit", "{392DA87C-F6F8-4EB2-B7BF-579CECBB8689}"
+	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\features\visit\GuestLink.gd = Klippy.Companion\features\visit\GuestLink.gd
+		Klippy.Companion\features\visit\VisitDialog.gd = Klippy.Companion\features\visit\VisitDialog.gd
+		Klippy.Companion\features\visit\VisitHost.gd = Klippy.Companion\features\visit\VisitHost.gd
+		Klippy.Companion\features\visit\VisitSession.gd = Klippy.Companion\features\visit\VisitSession.gd
+		Klippy.Companion\features\visit\VisitSettings.gd = Klippy.Companion\features\visit\VisitSettings.gd
+		Klippy.Companion\features\visit\VisitingKlippy.gd = Klippy.Companion\features\visit\VisitingKlippy.gd
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shared", "Klippy.Companion\shared", "{649B1A7B-8D95-46C5-BDB9-F0362BF9A914}"
 	ProjectSection(SolutionItems) = preProject
+		Klippy.Companion\shared\RockyTheme.gd = Klippy.Companion\shared\RockyTheme.gd
 		Klippy.Companion\shared\SaveData.gd = Klippy.Companion\shared\SaveData.gd
 	EndProjectSection
 EndProject
@@ -130,17 +309,43 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1966912C-227D-4B72-A709-132BA58CF927} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+		{0F1DBEF6-0693-4CA5-8FB4-576B41653390} = {1966912C-227D-4B72-A709-132BA58CF927}
+		{FDDD4FFF-E7A6-4C0E-8958-4041409F26F0} = {1966912C-227D-4B72-A709-132BA58CF927}
+		{F32846DE-1149-49E3-8927-7A01B11DC0B1} = {FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}
+		{59CACB1F-04D7-49A6-A9A8-CCBBB8A2B5C0} = {F32846DE-1149-49E3-8927-7A01B11DC0B1}
+		{56B7D369-FFF7-4ED0-98C6-388CDFE64924} = {F32846DE-1149-49E3-8927-7A01B11DC0B1}
+		{C1265CB6-AC24-4F55-8AEB-E7293CFAB902} = {F32846DE-1149-49E3-8927-7A01B11DC0B1}
+		{FCEAA646-AB7E-47FF-AD6A-14061B27A95F} = {FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}
+		{D6DC9C1B-C5DA-405A-B339-88193364F339} = {FCEAA646-AB7E-47FF-AD6A-14061B27A95F}
+		{70636612-7C61-45BE-ACD5-BD4662B78816} = {FCEAA646-AB7E-47FF-AD6A-14061B27A95F}
+		{3AFADF67-38CE-41A0-9F99-00285DCE3CCF} = {FCEAA646-AB7E-47FF-AD6A-14061B27A95F}
+		{835A8043-4568-4661-B7E4-8772E1CF9AAB} = {FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}
+		{7638E046-CF92-48BB-A412-0829A753F2C9} = {835A8043-4568-4661-B7E4-8772E1CF9AAB}
+		{FFF37DC2-DA2F-42B0-8981-2F207926A6BD} = {835A8043-4568-4661-B7E4-8772E1CF9AAB}
+		{A3251A5C-7E46-4B20-A881-865A9E54A4B1} = {FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}
+		{56B66B72-5237-4F44-BBDF-365DE463C87F} = {FDDD4FFF-E7A6-4C0E-8958-4041409F26F0}
+		{C3B0612F-F4AB-4FBA-A67A-EF321E3F81C6} = {56B66B72-5237-4F44-BBDF-365DE463C87F}
+		{362697C4-0E13-4ED5-9623-DEE4B1DA5138} = {56B66B72-5237-4F44-BBDF-365DE463C87F}
+		{8E805A3F-FAD0-4EB9-BFE2-485C62EB59A2} = {56B66B72-5237-4F44-BBDF-365DE463C87F}
 		{76D0D1E2-AD1B-4831-BCA8-08A19555FF15} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
+		{62DF552A-005A-4AB7-A15D-A68DFB0FD56A} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{565E6779-0191-4D45-AB1F-FD36932F7CF6} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{5E01FD78-CFA4-4A69-8ACF-DE1FBFFD99E2} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{B7496E33-34B9-45C4-B24E-64D5BAFAD5F0} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{AB6B5681-43A5-4171-84DC-1372302DC6F0} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{193B533A-686B-4877-B7EB-809692DB8AF3} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
-		{275CB29F-2B7E-4370-A45B-B06367076F0C} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{99B859F1-26EE-4890-B73F-4FA73F2EBF05} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{B0D5A9BD-D8C1-4706-98BB-62A0889BFAAF} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{31F5CBBA-536A-4FEE-B52C-F72A0D415A20} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{44E8F356-C5FE-4029-BCB6-7A7AE5064C7D} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{569EE766-4C48-4663-A5DC-EA4DEF018EE1} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{6147A65F-685C-45D6-B25A-F52A9A1C38FB} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{4B58220E-2D74-4A05-AA5D-1F9181BE130F} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{AC6DC107-CB27-4E40-9DA7-69C1CF876918} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{C10FFF09-6167-4D2C-8A4B-805B7F1C5D9F} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{ABAEAAD3-7310-42EE-8F6D-7CD71DA5C910} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{831769FD-3F18-45E1-A856-53A306A507E6} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
+		{392DA87C-F6F8-4EB2-B7BF-579CECBB8689} = {76D0D1E2-AD1B-4831-BCA8-08A19555FF15}
 		{649B1A7B-8D95-46C5-BDB9-F0362BF9A914} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
 		{50F72840-8ADF-4951-B593-33DF30284D7B} = {A00FE578-4C1E-42ED-8EF1-FCC2BF257129}
 	EndGlobalSection

@@ -1,0 +1,275 @@
+class_name VisitHost
+extends Node
+
+## The receiving end of a visit: turns a friend portal arrival on the link into a
+## pet standing on this machine's desktop.
+##
+## Everything here listens on [KlippyLink] — the visitor's companion pairs with
+## *our* server as a "visitor" device, so from this machine's point of view a
+## visit is just two devices talking through the server we already run. The host
+## work is local: build the guest a window, dress him from the arrival payload,
+## drop him next to our own pet, and answer the door events (arrived, departed).
+##
+## Reminders the *host* user sets through the visiting pet live here too, in their
+## own scheduler. They are a favor to the guest's stay — announced by the visitor
+## on this monitor, dropped when the visit ends — and never touch the host pet's
+## own reminders.
+
+const ARRIVE_BURST_DELAY := 0.6
+const ARRIVE_BURST_SPEED := 260.0
+const SUCK_IN_DURATION := 0.5
+
+var _klippy: Klippy
+var _visitor: VisitingKlippy
+var _visitor_window: Window
+## The visitor's device id on this server — how events aimed back at the owner
+## are addressed, and how a device.disconnected is recognised as the visitor's.
+var _visitor_id := ""
+var _portal: TravelPortal
+var _guest_reminders: ReminderScheduler
+var _guest_reminder_dialog: ReminderDialog
+var _suck_in_tween: Tween
+
+
+func setup(klippy: Klippy) -> void:
+	_klippy = klippy
+
+	_guest_reminders = ReminderScheduler.new()
+	add_child(_guest_reminders)
+	_guest_reminders.reminder_due.connect(_on_guest_reminder_due)
+
+	KlippyLink.event_received.connect(_on_event_received)
+	KlippyLink.state_changed.connect(_on_link_state_changed)
+
+
+func is_hosting() -> bool:
+	return _visitor != null and is_instance_valid(_visitor)
+
+
+# --- Inbound ------------------------------------------------------------------
+
+func _on_event_received(type: String, payload: Dictionary, source: String) -> void:
+	match type:
+		LinkEvents.VISIT_ARRIVE:
+			_on_arrive(payload, source)
+
+		LinkEvents.VISIT_RECALL:
+			if source == _visitor_id and is_hosting():
+				_depart_visitor()
+
+		LinkEvents.VISIT_SPEAK:
+			if source == _visitor_id and is_hosting():
+				var text := str(payload.get("text", "")).strip_edges()
+				if text != "":
+					_visitor.say(text)
+
+		LinkEvents.DEVICE_DISCONNECTED:
+			# The visitor's connection is his lifeline: if his device went away,
+			# whatever he is doing here is over.
+			if str(payload.get("deviceId", "")) == _visitor_id and is_hosting():
+				_end_visit()
+
+		_:
+			pass
+
+
+func _on_link_state_changed(state: KlippyLink.State) -> void:
+	# Without the link there is no way to know anything about the visitor — not
+	# even that he is still wanted — so the visit ends rather than linger.
+	if state != KlippyLink.State.CONNECTED and is_hosting():
+		_end_visit()
+
+
+func _on_arrive(payload: Dictionary, source: String) -> void:
+	# One guest at a time: a second arrival replaces the first.
+	if is_hosting():
+		_end_visit()
+
+	_visitor_id = source
+	_spawn_arrival_portal()
+	_build_visitor(payload)
+
+	# The door is answered the moment the guest is built, not when he finishes
+	# bursting out of it — the owner's side should stop holding its breath while
+	# the animation is still playing.
+	KlippyLink.publish(LinkEvents.VISIT_ARRIVED, null, _visitor_id)
+
+	_burst_out_visitor()
+
+
+# --- Visitor lifecycle ----------------------------------------------------------
+
+func _spawn_arrival_portal() -> void:
+	_close_portal()
+
+	_portal = TravelPortal.new("green")
+	_portal.current_screen = _klippy.get_window().current_screen
+	add_child(_portal)
+	_portal.place(Vector2i(_arrival_spot()))
+
+
+## Next to our own pet, on his screen, shoved far enough over that the burst-out
+## does not land the guest inside him.
+func _arrival_spot() -> Vector2:
+	var window := _klippy.get_window()
+	var center := Vector2(window.position) + Vector2(window.size) / 2.0
+	var offset := Vector2(window.size.x / 2.0 + TravelPortal.SIZE / 2.0 + 60.0, -20.0)
+
+	var bounds := DisplayServer.screen_get_usable_rect(window.current_screen)
+	var lo := Vector2(bounds.position) + Vector2(TravelPortal.SIZE, TravelPortal.SIZE) / 2.0
+	var hi := Vector2(bounds.end) - Vector2(TravelPortal.SIZE, TravelPortal.SIZE) / 2.0
+	return (center + offset).clamp(lo, hi)
+
+
+func _build_visitor(payload: Dictionary) -> void:
+	# A nonsense size from a misbehaving visitor must not build a 0-pixel window.
+	var pet_size := clampi(int(payload.get("size", 200)), 50, 1000)
+	var window_size := VisitingKlippy.window_size_for(pet_size)
+
+	_visitor_window = Window.new()
+	_visitor_window.borderless = true
+	_visitor_window.transparent = true
+	_visitor_window.always_on_top = true
+	_visitor_window.unfocusable = true
+	_visitor_window.size = window_size
+	_visitor_window.content_scale_size = window_size
+
+	_visitor = VisitingKlippy.new()
+	_visitor.apply_appearance(payload)
+	_visitor.host_pet = _klippy
+	_visitor.menu_id_pressed.connect(_on_visitor_menu_id_pressed)
+	_visitor_window.add_child(_visitor)
+	add_child(_visitor_window)
+
+	_visitor.scale_to_size(pet_size)
+
+	var portal_center := _portal.center()
+	_visitor_window.position = Vector2i(portal_center - Vector2(window_size) / 2.0)
+	_visitor_window.hide()
+
+
+func _burst_out_visitor() -> void:
+	await get_tree().create_timer(ARRIVE_BURST_DELAY).timeout
+
+	if not is_hosting():
+		return
+
+	# Out of the portal and away from the host pet, so the arrival does not land
+	# the guest on top of him.
+	var host_center := Vector2(_klippy.get_window().position) \
+			+ Vector2(_klippy.get_window().size) / 2.0
+	var away_from_host := (_portal.center() - host_center).normalized()
+	if away_from_host == Vector2.ZERO:
+		away_from_host = Vector2.RIGHT
+	_visitor.velocity = away_from_host.rotated(randf_range(-0.4, 0.4)) * ARRIVE_BURST_SPEED
+	_visitor.state = PetBody.State.THROWN
+	_visitor_window.show()
+
+	_visitor.say(Dialogue.random_greeting())
+
+	# The door did its one job; the guest walks around on his own from here.
+	_close_portal()
+
+
+## Called from the visitor's own menu: he leaves under his own steam, so the
+## owner only learns he is on the way.
+func _on_visitor_menu_id_pressed(id: int) -> void:
+	match id:
+		VisitingKlippy.MENU_REMINDERS_ID:
+			_open_guest_reminders()
+		VisitingKlippy.MENU_SEND_HOME_ID:
+			_depart_visitor()
+
+
+## The exit, from either side: a portal opens right on top of the guest ("call him
+## back" from the owner, or "send home" from the visitor's own menu), he is pulled
+## into it, and only then is the owner told he is gone — the message and the pet
+## travel together.
+func _depart_visitor() -> void:
+	if not is_hosting() or _suck_in_tween != null:
+		return
+
+	# The visitor may have been dragged anywhere; the door opens where he stands.
+	var exit_portal := TravelPortal.new("green")
+	exit_portal.current_screen = _visitor_window.current_screen
+	add_child(exit_portal)
+	exit_portal.place(Vector2i(_visitor_center()))
+	_portal = exit_portal
+
+	# The tween owns his motion for the next half second; physics must not fight
+	# it for the window's position (the same freeze the sell portal uses while an
+	# item waits on a price).
+	_visitor.velocity = Vector2.ZERO
+	_visitor.angular_velocity = 0.0
+	_visitor.set_physics_process(false)
+
+	_suck_in_tween = create_tween()
+	_suck_in_tween.set_parallel(true)
+	_suck_in_tween.tween_property(_visitor, "sprite:scale",
+			_visitor.sprite.scale * 0.05, SUCK_IN_DURATION).set_trans(Tween.TRANS_BACK) \
+			.set_ease(Tween.EASE_IN)
+	_suck_in_tween.tween_property(_visitor_window, "position",
+			Vector2i(exit_portal.center() - Vector2(_visitor_window.size) / 2.0),
+			SUCK_IN_DURATION).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_suck_in_tween.chain().tween_callback(_end_visit)
+
+
+## Tears the visit down without ceremony: the pet vanished unannounced (owner's
+## app closed, link dropped) rather than being sent home, so nothing is said back.
+func _end_visit() -> void:
+	if _suck_in_tween != null:
+		_suck_in_tween.kill()
+		_suck_in_tween = null
+
+	_visitor_id = ""
+
+	if _visitor != null and is_instance_valid(_visitor):
+		_visitor.queue_free()
+	_visitor = null
+
+	if _visitor_window != null and is_instance_valid(_visitor_window):
+		_visitor_window.queue_free()
+	_visitor_window = null
+
+	_close_portal()
+
+	_close_guest_reminders()
+	if _guest_reminders != null:
+		_guest_reminders.reminders.clear()
+
+
+func _close_portal() -> void:
+	if _portal != null and is_instance_valid(_portal):
+		_portal.queue_free()
+	_portal = null
+
+
+func _visitor_center() -> Vector2:
+	return Vector2(_visitor_window.position) + Vector2(_visitor_window.size) / 2.0
+
+
+# --- The guest's reminders ------------------------------------------------------
+
+func _open_guest_reminders() -> void:
+	if _guest_reminder_dialog == null:
+		_guest_reminder_dialog = ReminderDialog.new()
+		add_child(_guest_reminder_dialog)
+		_guest_reminder_dialog.setup(_guest_reminders)
+	_guest_reminder_dialog.popup_centered()
+
+
+func _close_guest_reminders() -> void:
+	if _guest_reminder_dialog != null and is_instance_valid(_guest_reminder_dialog):
+		_guest_reminder_dialog.queue_free()
+	_guest_reminder_dialog = null
+
+
+## Reminders set through the visiting pet are announced by the visiting pet, on
+## this monitor — the whole point of setting one through him.
+func _on_guest_reminder_due(reminder: Dictionary) -> void:
+	var message := str(reminder.get("message", "")).strip_edges()
+	if message.is_empty():
+		return
+	if not is_hosting():
+		return
+	_visitor.announce_reminder(message)

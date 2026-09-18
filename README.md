@@ -97,6 +97,29 @@ dashboard are verified by measurement on this machine; the jitter buffer is veri
 simulation. Windows capture and Android playback are compile-verified only — there is no
 Windows box and no phone attached here. Treat those two ends with suspicion.
 
+## Visits
+
+A Klippy can pay a friend's monitor a visit. The Friend Portal (right-click → Fun →
+**Summon Friend Portal**) opens a green vortex on the desktop; throw the pet in and he
+disappears here and — through the other user's server — stands up over there, next to
+their own Klippy, wearing whatever cosmetics he left in.
+
+Under the hood a visit is the link's hub model used twice. The visitor's companion
+pairs with the *friend's* server once, as a `visitor` device (a code to approve on
+their Devices page, remembered afterwards), and holds a second WebSocket there while a
+visit is afoot. On that server the two companions are just devices, so `visit.*`
+events routed between them are all the feature needs — the server gained no visit
+code at all. Nothing is queued or replayed: an arrival the host never confirms, or a
+socket that drops mid-visit, ends with the pet popping back out of the green portal.
+
+While he is away the friend can right-click him: set **Reminders** (announced by the
+visiting pet on that monitor, nagging until clicked) or **Send home**. The owner can
+also **Call him back** from the green portal's own right-click menu — a portal opens
+right on top of the visiting pet over there, he is pulled through, and he bursts back
+out at home with every portal closing behind him. Reminders set at home still fire
+while he is away; they are simply spoken over the visit link so they surface where he
+is standing.
+
 ## Architecture
 
 Feature-slice, in all three apps. A slice owns everything it needs — its data access, its
@@ -110,6 +133,7 @@ in the Godot project.
 | Pairing | ✓ | ✓ | ✓ |
 | Link | ✓ | ✓ | ✓ |
 | Pet | ✓ `PetState` | ✓ `pet` `food` `stats` `dialogue` `remote` | ✓ `Pet` |
+| Visits | — | ✓ `visit` | — |
 | AudioCast | ✓ | — | ✓ (Android) |
 
 `Klippy.Shared` is reserved for what actually crosses the wire: the envelope and event

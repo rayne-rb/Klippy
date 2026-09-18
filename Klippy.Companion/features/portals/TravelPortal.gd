@@ -9,6 +9,11 @@ extends Window
 
 signal entered(entry_velocity: Vector2, rising: bool)
 
+## Right mouse button went down on this portal. The travel pair ignores it; the
+## friend portal uses it for its own little menu (call back, close), since the
+## pet's context menu is unreachable while he is away through this portal.
+signal right_clicked
+
 const SIZE := 160
 const SPIN_SPEED := 1.6
 const PULSE_SPEED := 3.0
@@ -18,10 +23,12 @@ const PULSE_SPEED := 3.0
 ## or the dropper loop drops out of the bottom.
 const LINGER_REFIRE := 0.1
 
-## Swirl colours per portal kind: kind -> [core, rim].
+## Swirl colours per portal kind: kind -> [core, rim]. Green is the friend
+## portal — the one that opens onto another user's monitor (see the visit slice).
 const PALETTE := {
 	"blue": [Color("1c46c9"), Color("55c8ff")],
 	"red": [Color("b3122f"), Color("ff8a55")],
+	"green": [Color("0b6e3f"), Color("7dffb0")],
 }
 
 static var _textures := {}
@@ -69,6 +76,8 @@ func _input(event: InputEvent) -> void:
 			_drag_offset = Vector2(DisplayServer.mouse_get_position()) - Vector2(position)
 		elif not event.pressed:
 			_dragging = false
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		right_clicked.emit()
 
 
 func _process(delta: float) -> void:

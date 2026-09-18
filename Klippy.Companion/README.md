@@ -13,6 +13,7 @@ Klippy is a Clippy-inspired desktop pet — a small rock that lives on your desk
 - Food, mood, and health stats: feeding, passive healing, starvation, death, and revival
 - Right-click menu: Feed, Summon Food, Summon Portals, Status, Skills, Reminders, DVD mode, Connection, Settings, Close (plus Revive / Dev Tools when relevant)
 - Travel portals: place as many as you like and drag them anywhere (any monitor) — the first summon makes a blue/red pair across monitors; throw Klippy into one and he flies out of the next portal in the chain
+- Friend portal: a green portal onto another user's monitor — pair once with their server, throw Klippy in and he lives on their desktop until called back; the friend can set reminders through him while he visits
 - Reminders: set a message and a minutes-from-now and Klippy announces it in his speech bubble when it comes due — the bubble repeats until clicked, and reminders persist across launches
 - State persists across launches, including offline progress while closed
 - Pairs with Klippy.Server so the pet can be seen and poked from a phone
@@ -41,6 +42,7 @@ of which folder they sit in.
 | `pairing` | The pairing handshake and the Connection window |
 | `link` | The WebSocket to the server — registered as the `KlippyLink` autoload |
 | `remote` | Turns link events into things the pet does, and vice versa |
+| `visit` | The green friend portal: trips to another user's monitor, hosting visitors, guest reminders |
 
 `shared/` holds only what has no single owner, and `assets/` the art.
 

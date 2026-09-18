@@ -64,3 +64,24 @@ public sealed record MarketPayoutAckPayload
 {
     public required string PayoutId { get; init; }
 }
+
+/// <summary>
+/// How a visiting pet should look on the host's monitor. Cosmetic ids are catalog
+/// ids the host resolves against its own copies of the same catalogs, falling back
+/// to the defaults for anything it does not recognise (an older host meeting a
+/// newer visitor, say).
+/// </summary>
+public sealed record VisitArrivePayload
+{
+    /// <summary>The visitor device's own name, e.g. "Klippy on Alice" — for log lines and host UI.</summary>
+    public required string VisitorName { get; init; }
+
+    public required string BodyId { get; init; }
+    public required string ExpressionId { get; init; }
+    public required string EyesId { get; init; }
+    public required string PupilsId { get; init; }
+    public required string HatId { get; init; }
+
+    /// <summary>The pet's window size in pixels; the host mirrors it so he lands the size he left.</summary>
+    public required int Size { get; init; }
+}

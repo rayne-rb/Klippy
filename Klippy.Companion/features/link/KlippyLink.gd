@@ -193,7 +193,7 @@ func _on_server_found(beacon: Dictionary) -> void:
 	_settings.ws_url = beacon.get("wsUrl", "")
 
 	_set_state(State.PAIRING)
-	_pairing.begin(_settings.base_url, _device_name(), _platform())
+	_pairing.begin(_settings.base_url, device_name(), platform_name())
 
 
 func _on_paired(device_id: String, token: String) -> void:
@@ -400,7 +400,9 @@ func _schedule_reconnect() -> void:
 
 # --- Identity ----------------------------------------------------------------
 
-func _device_name() -> String:
+## This device's human-readable name, e.g. "Klippy on declan-box". Shared with the
+## visit slice, which pairs with *other* users' servers and needs the same naming.
+func device_name() -> String:
 	# HOSTNAME is a shell variable and is usually not exported to a windowed app, so
 	# fall back through the ones that are before giving up on naming the machine.
 	for variable in ["HOSTNAME", "COMPUTERNAME", "HOST", "USER", "USERNAME"]:
@@ -410,5 +412,5 @@ func _device_name() -> String:
 	return "Klippy on this PC"
 
 
-func _platform() -> String:
+func platform_name() -> String:
 	return "%s / Godot %s" % [OS.get_name(), Engine.get_version_info().get("string", "4")]
