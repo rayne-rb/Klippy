@@ -10,10 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" beforeDir="false" afterPath="$PROJECT_DIR$/Klippy.Companion/features/pet/Klippy.gd" afterDir="false" />
-    </list>
+    <list default="true" id="86aa5fda-e60d-44c9-9b5c-573d5536c112" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -228,14 +225,6 @@
       <option name="presentableId" value="Default" />
       <updated>1788947220777</updated>
       <workItem from="1788947224616" duration="34877000" />
-    </task>
-    <task id="LOCAL-00035" summary="Refine hungry bounce logic with envelope scaling&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for">
-      <option name="closed" value="true" />
-      <created>1789026625090</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1789026625090</updated>
     </task>
     <task id="LOCAL-00036" summary="Improved bouncing&#10;&#10;- Added `_bounce_envelope` function to scale bounce amplitude dynamically across cycles.&#10;- Introduced `HUNGRY_BOUNCE_ENVELOPE_MIN_SCALE` constant for">
       <option name="closed" value="true" />
@@ -621,7 +610,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789709362192</updated>
     </task>
-    <option name="localTasksCounter" value="84" />
+    <task id="LOCAL-00084" summary="Refactor Klippy context menu to introduce &quot;Fun&quot; and &quot;Quarry&quot; submenus&#10;&#10;- Added `fun_menu` and `quarry_menu` for better organization of context menu items.&#10;- Moved relevant items from the main context menu to the new submenus.&#10;- Updated menu state logic to handle submenu-specific item actions consistently.&#10;- Applied `RockyTheme` styling to both submenus for UI consistency.">
+      <option name="closed" value="true" />
+      <created>1789710643272</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1789710643273</updated>
+    </task>
+    <option name="localTasksCounter" value="85" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -642,7 +639,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="Split `CosmeticCatalog` into isolated part catalogs for better modularity  &#10;&#10;- Replaced `CosmeticCatalog` and `CosmeticSetDef` with separate catalogs for body, expressions, eyes, and pupils.  &#10;- Updated `Klippy.gd` to apply individual cosmetic parts instead of presets.  &#10;- Introduced `WardrobeDialog` and `CosmeticPickerDialog` for granular cosmetic selection via dedicated UI.  &#10;- Simplified asset management and enabled scalable addition of new cosmetic options.  &#10;- Removed obsolete `CosmeticCatalog` structure and associated files." />
     <MESSAGE value="Add `close_all` method to handle closing related windows in `WardrobeDialog`&#10;&#10;- Implemented `close_all` in `WardrobeDialog` to hide both the main window and the picker grid.&#10;- Updated `Klippy.gd` to invoke `close_all` when toggling the wardrobe window visibility.&#10;- Corrected `close_requested` signal connection to use `close_all` for consistent behavior." />
     <MESSAGE value="Refactor UI setup for `WardrobeDialog` and `CosmeticPickerDialog` using `RockyTheme.setup_window` &#10;&#10;- Simplified window initialization with `RockyTheme.setup_window` for consistent theming and layout.&#10;- Updated `WardrobeDialog` to disconnect `hide` and use `close_all` for proper sub-window handling.&#10;- Replaced custom title handling in `CosmeticPickerDialog` with `_category_label` for dynamic updates." />
     <MESSAGE value="Add leveling system and level-based cosmetic unlocks for Klippy&#10;&#10;- Introduced `PetLevel` class to track XP and determine Klippy's level.&#10;- Added `LevelUnlocks` as a central reference for level-based feature gating.&#10;- Updated cosmetics to include `required_level` property for unlockable items.&#10;- Integrated leveling mechanics into interactions, play rewards, and save/load functionality.&#10;- Enhanced `WardrobeDialog` and other UI components to filter cosmetics based on Klippy's current level." />
@@ -667,7 +663,8 @@
     <MESSAGE value="Add Coin consumable with Klippy Point rewards and spawning logic&#10;&#10;- Introduced &quot;Coin&quot; consumable to `ConsumableCatalog` with unique properties: no hunger benefit and instant Klippy Point rewards.&#10;- Added rare Coin spawn logic to `_roll_summon_consumable_type` in `Klippy.gd`.&#10;- Updated consumable consumption logic to grant Klippy Points upon use." />
     <MESSAGE value="Add BSD 3-Clause License" />
     <MESSAGE value="Introduce marketplace mechanics for Klippy ecosystem&#10;&#10;- Added server-side market functionality for managing listings and payouts, including related database schema, API endpoints, and event handlers.&#10;- Built UI components for market browsing, selling, and buying on both server (`Market.razor`) and companion client (`MarketDialog.gd`).&#10;- Enabled real-time updates with `MarketNotifier`.&#10;- Integrated marketplace with Klippy Points as the currency for transactions.&#10;- Ensured robust handling of edge cases like double-selling and offline payouts through server-side checks" />
-    <option name="LAST_COMMIT_MESSAGE" value="Introduce marketplace mechanics for Klippy ecosystem&#10;&#10;- Added server-side market functionality for managing listings and payouts, including related database schema, API endpoints, and event handlers.&#10;- Built UI components for market browsing, selling, and buying on both server (`Market.razor`) and companion client (`MarketDialog.gd`).&#10;- Enabled real-time updates with `MarketNotifier`.&#10;- Integrated marketplace with Klippy Points as the currency for transactions.&#10;- Ensured robust handling of edge cases like double-selling and offline payouts through server-side checks" />
+    <MESSAGE value="Refactor Klippy context menu to introduce &quot;Fun&quot; and &quot;Quarry&quot; submenus&#10;&#10;- Added `fun_menu` and `quarry_menu` for better organization of context menu items.&#10;- Moved relevant items from the main context menu to the new submenus.&#10;- Updated menu state logic to handle submenu-specific item actions consistently.&#10;- Applied `RockyTheme` styling to both submenus for UI consistency." />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor Klippy context menu to introduce &quot;Fun&quot; and &quot;Quarry&quot; submenus&#10;&#10;- Added `fun_menu` and `quarry_menu` for better organization of context menu items.&#10;- Moved relevant items from the main context menu to the new submenus.&#10;- Updated menu state logic to handle submenu-specific item actions consistently.&#10;- Applied `RockyTheme` styling to both submenus for UI consistency." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
