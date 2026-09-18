@@ -23,6 +23,12 @@ var sell_portal: SellPortal
 ## doesn't fire it over and over.
 var pending_sale := false
 
+## Below this speed a bagged-and-settled item counts as stopped for [method
+## _check_bag]'s sleep check — [constant PetBody.REST_SPEED] is how hard a
+## bounce has to be cancelled rather than reflected, too high a bar for "has
+## this actually stopped moving".
+const SLEEP_SPEED := 1.0
+
 ## Every consumable item currently in the tree (bag-contained, loose on the
 ## desktop, or pooled-and-hidden alike), so any one of them can find the rest
 ## to collide with. Nothing here is a manager pass; each item just looks up
@@ -142,6 +148,16 @@ func _check_bag(delta: float, pre_move_position: Vector2i) -> void:
 
 	if bag.contains_point(local_center):
 		contained_in = bag
+
+	# Once the bag is closed and this item has actually come to rest against
+	# its wall (not just mid-settle), nothing left in [method _check_bag] or
+	# [method _resolve_consumable_collisions] can ever move it again until the
+	# bag reopens — so stop paying for wall/collision resolution every tick
+	# and let [method Klippy._raise_contained_consumables] wake it back up
+	# when that happens.
+	if not bag_window.visible and over_bag and velocity.length() < SLEEP_SPEED \
+			and bag.movement_delta_this_tick() == Vector2i.ZERO:
+		set_physics_process(false)
 
 
 func _check_feeding() -> void:

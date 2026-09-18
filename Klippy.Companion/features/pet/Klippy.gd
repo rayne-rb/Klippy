@@ -326,6 +326,7 @@ func _ready() -> void:
 	_update_market_menu_state()
 
 	_create_consumable_bag()
+	_prewarm_consumable_window_pool()
 	_create_wardrobe()
 	# The bag's art isn't a simple rectangle, so anywhere clever picked ahead
 	# of time risks landing just outside it — dead center is the one point
@@ -634,11 +635,15 @@ func _reposition_wardrobe_dialog() -> void:
 	)
 
 
+## Also wakes any item [method ConsumableBody._check_bag] put to sleep while
+## the bag was closed and settled — see that method — since a sleeping item
+## stops running the physics that would otherwise pick this up on its own.
 func _raise_contained_consumables() -> void:
 	for window in active_consumable_items:
 		var body := window.get_child(0) as ConsumableBody
 		if body.contained_in == consumable_bag:
 			window.move_to_foreground()
+			body.set_physics_process(true)
 
 
 ## Says something out loud. Handed to RemoteControl so the phone can put words in
@@ -1282,6 +1287,51 @@ func _roll_summon_consumable_type() -> String:
 	return ConsumableCatalog.APPLE
 
 
+## Building a native OS window is the expensive part of spawning a consumable
+## (see [member consumable_window_pool]), so this is also called up front to
+## pre-warm the pool at startup rather than only lazily the first time
+## [method _spawn_consumable_body] finds it empty — otherwise that cost lands
+## on the moment the player actually summons something.
+func _build_consumable_window() -> Window:
+	var window := Window.new()
+	window.borderless = true
+	window.transparent = true
+	window.always_on_top = true
+	window.unfocusable = true
+	window.visible = false
+	var window_size := Vector2i(CONSUMABLE_WINDOW_SIZE, CONSUMABLE_WINDOW_SIZE)
+	window.size = window_size
+	window.content_scale_size = window_size
+
+	var body := ConsumableBody.new()
+	body.position = Vector2(window_size) / 2.0
+	body.roll_radius = CONSUMABLE_WINDOW_SIZE * 0.45
+
+	var sprite2d := Sprite2D.new()
+	body.add_child(sprite2d)
+	window.add_child(body)
+
+	add_child(window)
+	body.consumed.connect(_on_consumable_item_consumed.bind(window))
+	body.sell_requested.connect(_on_consumable_sell_requested.bind(window))
+	# Otherwise this idle-in-the-pool body runs full gravity/collision physics
+	# against nothing every tick until [method _spawn_consumable_body] claims
+	# it — the same state [method _retire_consumable_window] leaves a
+	# returned-to-pool window in.
+	body.set_physics_process(false)
+	return window
+
+
+## Fills [member consumable_window_pool] up to [constant MAX_CONSUMABLE_ITEMS]
+## at startup so the first several summons of a session reuse an
+## already-built window instead of paying to construct one — a native OS
+## window, the expensive part — right at the moment the player clicks Summon
+## Consumable.
+func _prewarm_consumable_window_pool() -> void:
+	while consumable_window_pool.size() < MAX_CONSUMABLE_ITEMS:
+		consumable_window_pool.append(_build_consumable_window())
+
+
 func _spawn_consumable_body(consumable_type: String, force := false) -> void:
 	if not force and active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
@@ -1293,26 +1343,8 @@ func _spawn_consumable_body(consumable_type: String, force := false) -> void:
 		window = consumable_window_pool.pop_back()
 		body = window.get_child(0) as ConsumableBody
 	else:
-		window = Window.new()
-		window.borderless = true
-		window.transparent = true
-		window.always_on_top = true
-		window.unfocusable = true
-		var window_size := Vector2i(CONSUMABLE_WINDOW_SIZE, CONSUMABLE_WINDOW_SIZE)
-		window.size = window_size
-		window.content_scale_size = window_size
-
-		body = ConsumableBody.new()
-		body.position = Vector2(window_size) / 2.0
-		body.roll_radius = CONSUMABLE_WINDOW_SIZE * 0.45
-
-		var sprite2d := Sprite2D.new()
-		body.add_child(sprite2d)
-		window.add_child(body)
-
-		add_child(window)
-		body.consumed.connect(_on_consumable_item_consumed.bind(window))
-		body.sell_requested.connect(_on_consumable_sell_requested.bind(window))
+		window = _build_consumable_window()
+		body = window.get_child(0) as ConsumableBody
 
 	body.mass = CONSUMABLE_MASS
 	body.stats = stats

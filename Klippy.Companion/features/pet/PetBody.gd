@@ -311,6 +311,11 @@ func _process_dragging(delta: float, window: Window) -> void:
 	# the actual button state directly is routing-independent, so it can't
 	# be missed the same way.
 	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		# A drag only ever moves `position` — unlike _wrap_to_neighbor_screen,
+		# nothing else keeps current_screen in step with it, so dropping this
+		# body on another monitor would otherwise leave current_screen
+		# pointing at wherever it was before the drag started.
+		window.current_screen = screen_at(Vector2(window.position) + Vector2(window.size) / 2.0)
 		_set_state(State.THROWN)
 		_on_drag_ended()
 		return
@@ -459,6 +464,16 @@ func _wrap_to_neighbor_screen(dir: int, window: Window) -> bool:
 	window.position = Vector2i(Vector2(new_x, new_y))
 	window.current_screen = neighbor
 	return true
+
+
+## The screen whose usable rect contains [param point] — falls back to the
+## primary screen if [param point] lands in none (e.g. a gap between
+## mismatched monitor rects).
+static func screen_at(point: Vector2) -> int:
+	for i in DisplayServer.get_screen_count():
+		if DisplayServer.screen_get_usable_rect(i).has_point(point):
+			return i
+	return DisplayServer.get_primary_screen()
 
 
 ## The screen whose edge physically faces [param screen]'s `side` border
