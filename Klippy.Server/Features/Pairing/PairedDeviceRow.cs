@@ -30,4 +30,13 @@ public sealed class PairedDeviceRow
 
     [Map("revoked_at")]
     public DateTimeOffset? RevokedAt { get; set; }
+
+    /// <summary>
+    /// The account this device belongs to, which is what makes it a peer of that
+    /// account's other devices and nobody else's. Null until someone approves it into
+    /// an account; a null owner is a group of one, never a group of everyone. Written by
+    /// the accounts slice - see <c>AccountRepository.AssignDeviceAsync</c>.
+    /// </summary>
+    [Map("owner_user_id")]
+    public Guid? OwnerUserId { get; set; }
 }

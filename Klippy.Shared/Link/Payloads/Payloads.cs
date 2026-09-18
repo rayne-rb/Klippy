@@ -48,6 +48,14 @@ public sealed record WelcomePayload
     public required string DeviceId { get; init; }
     public required string ServerId { get; init; }
     public required string ServerName { get; init; }
+
+    /// <summary>
+    /// The account this device belongs to, or null when no one has claimed it yet. A
+    /// device with no account is a group of one: its peer list is empty and its events
+    /// reach nobody, so the apps use this to say why rather than look broken.
+    /// </summary>
+    public string? OwnerName { get; init; }
+
     public required IReadOnlyList<DevicePresencePayload> Peers { get; init; }
 }
 

@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading.Channels;
 using Klippy.Shared.Discovery;
 using Klippy.Shared.Link;
+using Klippy.Shared.Link.Payloads;
 using Klippy.Mobile.Features.Discovery;
 using Klippy.Mobile.Features.Pairing;
 
@@ -55,6 +56,25 @@ public sealed class KlippyLinkClient(
 
     public string? ServerName { get; private set; }
 
+    /// <summary>
+    /// The account this phone belongs to, from the welcome message, or null when no one
+    /// has approved it into one yet. A phone with no account is a group of one: it has no
+    /// peers and its events reach nobody, so a screen can say why rather than look broken.
+    /// </summary>
+    public string? OwnerName { get; private set; }
+
+    /// <summary>
+    /// The other devices on this server that this phone can see, which the server has
+    /// already narrowed to its own account. Kept here rather than in each page that wants
+    /// it, so they do not each keep their own copy of the same bookkeeping.
+    /// </summary>
+    public IReadOnlyList<DevicePresencePayload> Peers => _peers.ToList();
+
+    /// <summary>The peer list changed.</summary>
+    public event Action? PeersChanged;
+
+    private readonly List<DevicePresencePayload> _peers = [];
+
     public void Start()
     {
         if (_runner is not null)
@@ -106,6 +126,17 @@ public sealed class KlippyLinkClient(
         }
 
         State = state;
+
+        // Everything known about the other devices was learned through the socket that
+        // just went away, so none of it survives the socket closing. An old peer list is
+        // worse than no peer list.
+        if (state != LinkState.Connected && _peers.Count > 0)
+        {
+            _peers.Clear();
+            OwnerName = null;
+            PeersChanged?.Invoke();
+        }
+
         StateChanged?.Invoke(state);
     }
 
@@ -364,6 +395,11 @@ public sealed class KlippyLinkClient(
                     continue;
                 }
 
+                // Presence is read here rather than in each page, the same way the
+                // Companion's link node does it. The event still goes out afterwards, so
+                // nothing is swallowed.
+                TrackPresence(envelope);
+
                 EventReceived?.Invoke(envelope);
             }
         }
@@ -371,6 +407,49 @@ public sealed class KlippyLinkClient(
         {
             // Connection ending.
         }
+    }
+
+    private void TrackPresence(LinkEnvelope envelope)
+    {
+        switch (envelope.Type)
+        {
+            case KlippyEvents.LinkWelcome:
+                if (envelope.PayloadAs<WelcomePayload>() is not { } welcome)
+                {
+                    return;
+                }
+
+                OwnerName = welcome.OwnerName;
+                _peers.Clear();
+                _peers.AddRange(welcome.Peers);
+                break;
+
+            case KlippyEvents.DeviceConnected:
+                if (envelope.PayloadAs<DevicePresencePayload>() is not { } arrival)
+                {
+                    return;
+                }
+
+                // A device whose socket died without a close frame is announced again
+                // with no disconnect in between, so replace rather than append.
+                _peers.RemoveAll(p => p.DeviceId == arrival.DeviceId);
+                _peers.Add(arrival);
+                break;
+
+            case KlippyEvents.DeviceDisconnected:
+                if (envelope.PayloadAs<DevicePresencePayload>() is not { } departure)
+                {
+                    return;
+                }
+
+                _peers.RemoveAll(p => p.DeviceId == departure.DeviceId);
+                break;
+
+            default:
+                return;
+        }
+
+        PeersChanged?.Invoke();
     }
 
     private async Task StopAsync()

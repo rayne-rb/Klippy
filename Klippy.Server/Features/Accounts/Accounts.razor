@@ -1,0 +1,139 @@
+@page "/accounts"
+@attribute [Authorize(Roles = AccountPrincipal.AdminRole)]
+@using Microsoft.AspNetCore.Authorization
+@inject AccountService Users
+
+<PageTitle>Accounts</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Accounts</MudText>
+
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+    An account is a group of devices. Its owner approves their pairing, sees their
+    clipboard and reaches them over the link; nobody else does. An admin sees all of it.
+</MudText>
+
+<MudText Typo="Typo.h6">Add an account</MudText>
+
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mt-2">@_error</MudAlert>
+}
+
+@if (_note is not null)
+{
+    <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Class="mt-2">@_note</MudAlert>
+}
+
+<MudPaper Class="pa-4 mt-2" Outlined="true">
+    <MudGrid Spacing="2" Class="align-center">
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="_newUsername" Label="Username" Variant="Variant.Outlined"
+                          Margin="Margin.Dense" Immediate="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="_newPassword" Label="Password" Variant="Variant.Outlined"
+                          Margin="Margin.Dense" InputType="InputType.Password"
+                          HelperText="@($"At least {AccountService.MinimumPasswordLength} characters")" />
+        </MudItem>
+        <MudItem xs="6" sm="2">
+            <MudCheckBox @bind-Value="_newIsAdmin" Label="Admin" Dense="true" />
+        </MudItem>
+        <MudItem xs="6" sm="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                       OnClick="CreateAsync">
+                Add
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<MudText Typo="Typo.h6" Class="mt-8">Existing</MudText>
+
+<MudTable Items="_accounts" Dense="true" Hover="true" Elevation="0" Outlined="true"
+          Breakpoint="Breakpoint.Sm" Class="mt-2" T="AccountSummary">
+    <HeaderContent>
+        <MudTh>Account</MudTh>
+        <MudTh>Devices</MudTh>
+        <MudTh>Created</MudTh>
+        <MudTh Style="text-align: right"></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Account">
+            <strong>@context.Username</strong>
+            @if (context.IsAdmin)
+            {
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">admin</MudChip>
+            }
+        </MudTd>
+        <MudTd DataLabel="Devices" Class="mud-text-secondary">@context.DeviceCount</MudTd>
+        <MudTd DataLabel="Created" Class="mud-text-secondary">
+            @context.CreatedAt.LocalDateTime.ToString("g")
+        </MudTd>
+        <MudTd DataLabel="" Style="text-align: right">
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Outlined"
+                       Color="Color.Error"
+                       StartIcon="@Icons.Material.Filled.PersonRemove"
+                       OnClick="() => RemoveAsync(context)">
+                Remove
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudText Typo="Typo.caption" Class="mud-text-secondary mt-2">
+    Removing an account leaves its devices paired but unowned: each becomes a group of
+    one until an admin approves it into an account again.
+</MudText>
+
+@code {
+    private IReadOnlyList<AccountSummary> _accounts = [];
+
+    private string? _newUsername;
+    private string? _newPassword;
+    private bool _newIsAdmin;
+
+    private string? _error;
+    private string? _note;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+    private async Task ReloadAsync() =>
+        _accounts = await Users.GetSummariesAsync(CancellationToken.None);
+
+    private async Task CreateAsync()
+    {
+        _error = null;
+        _note = null;
+
+        var (account, error) = await Users.CreateAsync(
+            _newUsername, _newPassword, _newIsAdmin, CancellationToken.None);
+
+        if (account is null)
+        {
+            _error = error;
+            return;
+        }
+
+        _note = $"Added '{account.Username}'. Their devices pair the usual way — they sign in here and approve their own.";
+        _newUsername = null;
+        _newPassword = null;
+        _newIsAdmin = false;
+
+        await ReloadAsync();
+    }
+
+    private async Task RemoveAsync(AccountSummary account)
+    {
+        _error = null;
+        _note = null;
+
+        _error = await Users.DeleteAsync(account.UserId, CancellationToken.None);
+        if (_error is null)
+        {
+            _note = $"Removed '{account.Username}'.";
+        }
+
+        await ReloadAsync();
+    }
+}

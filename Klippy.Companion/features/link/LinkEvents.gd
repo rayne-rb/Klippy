@@ -47,6 +47,15 @@ const VISIT_RECALL := "visit.recall"
 const VISIT_DEPARTED := "visit.departed"
 const VISIT_SPEAK := "visit.speak"
 
+# Clipboard. None of these carry what was copied: reading and writing entries is plain
+# HTTP (see ClipboardClient), both because those want a real answer and because the server
+# archives every payload that crosses this socket — a clipboard kept there forever would be
+# every password its owner ever copied. What travels here is that something changed.
+const CLIPBOARD_ENTRY := "clipboard.entry"
+const CLIPBOARD_REMOVED := "clipboard.removed"
+const CLIPBOARD_APPLY := "clipboard.apply"
+const CLIPBOARD_SHARING := "clipboard.sharing"
+
 # Device kinds, mirroring DeviceKind.cs in Klippy.Shared. Kept here with the event
 # names for the same reason: it is a wire constant the server decides, not ours.
 const KIND_COMPANION := "companion"

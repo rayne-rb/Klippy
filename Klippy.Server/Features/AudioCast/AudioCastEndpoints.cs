@@ -1,5 +1,7 @@
 using System.Net.WebSockets;
 using System.Text;
+using Klippy.Server.Common;
+using Klippy.Server.Features.Link;
 using Klippy.Server.Features.Pairing;
 using Klippy.Shared;
 using Klippy.Shared.Audio;
@@ -17,8 +19,29 @@ public static class AudioCastEndpoints
             Results.Ok(await catalog.ListAsync(ct)));
 
         // Who is casting, without needing to be on the Link to have heard the last
-        // audio.cast.state.
-        group.MapGet("/state", (AudioCastSessions sessions) => Results.Ok(sessions.Snapshot()));
+        // audio.cast.state. Authenticated, unlike the two reads either side of it: this
+        // one names devices, and a caller only gets to see the ones in its own account.
+        group.MapGet("/state", async (
+            HttpContext context,
+            PairingService pairing,
+            AudioCastSessions sessions,
+            LinkRegistry registry,
+            CancellationToken ct) =>
+        {
+            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
+            if (device is null)
+            {
+                return Results.Unauthorized();
+            }
+
+            // No account means a group of one, so the only cast it can be told about is
+            // its own.
+            var visible = device.OwnerUserId is { } owner
+                ? registry.DeviceIdsInGroup(owner)
+                : new HashSet<Guid> { device.DeviceId };
+
+            return Results.Ok(sessions.Snapshot(visible));
+        });
 
         group.MapGet("/codec", (OpusEncoderPool encoders) => Results.Ok(encoders.Diagnostics));
 

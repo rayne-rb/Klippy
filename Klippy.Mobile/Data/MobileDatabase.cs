@@ -14,7 +14,7 @@ namespace Klippy.Mobile.Data;
 /// </summary>
 public sealed class MobileDatabase
 {
-    private const int SchemaVersion = 2;
+    private const int SchemaVersion = 3;
 
     private readonly string _connectionString;
     private bool _ready;
@@ -93,6 +93,30 @@ public sealed class MobileDatabase
                 create table if not exists app_settings (
                     key   text primary key,
                     value text not null
+                );
+                """,
+                cancellationToken: ct);
+        }
+
+        if (current < 3)
+        {
+            // The clipboard board as it was last fetched, so the tab has something to
+            // show before the socket is up - the same reason last_pet_stats exists.
+            // Content is deliberately not cached: it is fetched when actually wanted, so
+            // the phone is not carrying around a copy of everything anyone has copied.
+            await connection.ExecuteNonQueryAsync(
+                """
+                create table if not exists clipboard_entries (
+                    entry_id           text primary key,
+                    source_device_id   text not null,
+                    source_device_name text not null,
+                    owner_name         text,
+                    content_type       text not null,
+                    byte_size          integer not null,
+                    visibility         text not null,
+                    is_mine            integer not null,
+                    preview            text,
+                    copied_at          text not null
                 );
                 """,
                 cancellationToken: ct);

@@ -103,7 +103,10 @@ func _on_event_received(type: String, payload: Dictionary, _source: String) -> v
 func _fetch_state() -> void:
 	var base_url := KlippyLink.server_url()
 	if base_url != "":
-		_state_fetch.request(base_url + "/api/audio/state")
+		# Authenticated: the answer names devices, and the server only tells a caller
+		# about the ones in its own account.
+		var headers := PackedStringArray(["Authorization: Bearer " + KlippyLink.auth_token()])
+		_state_fetch.request(base_url + "/api/audio/state", headers)
 
 
 func _on_state_fetched(

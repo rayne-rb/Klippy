@@ -1,0 +1,16 @@
+@inherits LayoutComponentBase
+
+@* The sign-in pages render as static SSR (see Login.razor for why), so this layout
+   deliberately leaves out MainLayout's popover, dialog and snackbar providers — they
+   exist to serve interactive components, and there are none here. The theme provider
+   stays: it is what emits the CSS variables the rest of the styling is written against. *@
+<MudThemeProvider Theme="KlippyTheme.Value" />
+
+<MudLayout>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-16">
+            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Klippy</MudText>
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>

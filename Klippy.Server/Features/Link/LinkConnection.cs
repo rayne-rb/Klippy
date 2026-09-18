@@ -28,12 +28,14 @@ public sealed class LinkConnection : IAsyncDisposable
         Guid deviceId,
         string deviceKind,
         string deviceName,
+        Guid? ownerUserId,
         WebSocket socket,
         ILogger logger)
     {
         DeviceId = deviceId;
         DeviceKind = deviceKind;
         DeviceName = deviceName;
+        OwnerUserId = ownerUserId;
         _socket = socket;
         _logger = logger;
         _outbound = Channel.CreateBounded<string>(new BoundedChannelOptions(OutboundCapacity)
@@ -48,6 +50,20 @@ public sealed class LinkConnection : IAsyncDisposable
     public string DeviceKind { get; }
 
     public string DeviceName { get; }
+
+    /// <summary>
+    /// The account this device belonged to when the socket opened, which is what decides
+    /// who its events reach. Read once here rather than per message: routing every
+    /// envelope would otherwise be a database round trip.
+    ///
+    /// The cost of holding it is that a device changing hands keeps its old group until
+    /// it reconnects, so whatever moves it is expected to drop the socket — see
+    /// Devices.razor and <see cref="RevokedDeviceDisconnector"/>.
+    ///
+    /// Null means no account has claimed this device. That is a group of one, never a
+    /// group of everyone.
+    /// </summary>
+    public Guid? OwnerUserId { get; }
 
     public DateTimeOffset ConnectedAt { get; } = DateTimeOffset.UtcNow;
 

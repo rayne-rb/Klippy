@@ -17,11 +17,40 @@ public sealed class EventDispatcher(
     public Task PublishAsync(LinkEnvelope envelope, CancellationToken cancellationToken = default) =>
         DispatchAsync(envelope, cancellationToken);
 
+    public async Task PublishToGroupAsync(
+        Guid ownerUserId, LinkEnvelope envelope, CancellationToken cancellationToken = default)
+    {
+        await PersistAsync(envelope, cancellationToken);
+        await RunHandlersAsync(envelope, cancellationToken);
+        registry.BroadcastToGroup(ownerUserId, envelope);
+    }
+
+    /// <summary>
+    /// An envelope the server itself produced. It is trusted: a target is delivered to
+    /// whoever it names, and an untargeted one reaches every connected device.
+    /// </summary>
     public async Task DispatchAsync(LinkEnvelope envelope, CancellationToken ct)
     {
         await PersistAsync(envelope, ct);
         await RunHandlersAsync(envelope, ct);
         Route(envelope);
+    }
+
+    /// <summary>
+    /// An envelope a device sent us, routed inside that device's own account and no
+    /// further.
+    ///
+    /// <paramref name="senderOwner"/> comes from the authenticated connection, never from
+    /// the envelope: a device saying which group it is in is a device choosing its own
+    /// audience. Passed in rather than looked up because the presence events are
+    /// dispatched either side of the connection being in the registry at all.
+    /// </summary>
+    public async Task DispatchFromDeviceAsync(
+        LinkEnvelope envelope, Guid? senderOwner, CancellationToken ct)
+    {
+        await PersistAsync(envelope, ct);
+        await RunHandlersAsync(envelope, ct);
+        RouteFromDevice(envelope, senderOwner);
     }
 
     private async Task PersistAsync(LinkEnvelope envelope, CancellationToken ct)
@@ -87,5 +116,35 @@ public sealed class EventDispatcher(
         // No target means everyone but the sender: a device does not need its own
         // event handed back to it.
         registry.Broadcast(envelope, source);
+    }
+
+    private void RouteFromDevice(LinkEnvelope envelope, Guid? senderOwner)
+    {
+        var source = Guid.TryParse(envelope.Source, out var parsedSource) ? parsedSource : (Guid?)null;
+
+        if (Guid.TryParse(envelope.Target, out var target))
+        {
+            if (!registry.TrySendWithinGroup(target, senderOwner, envelope))
+            {
+                // Deliberately one message for both "offline" and "not yours to address".
+                // Telling them apart would let a device map out the rest of the server.
+                logger.LogDebug(
+                    "{Type} addressed to {Target}, which is not reachable from this account",
+                    envelope.Type, target);
+            }
+
+            return;
+        }
+
+        if (senderOwner is not { } owner)
+        {
+            // An unclaimed device is a group of one, so an untargeted event from it has
+            // nowhere to go. It is still persisted and still ran through the handlers
+            // above, which is what makes a device usable before anyone approves it.
+            logger.LogDebug("{Type} from an unowned device reaches nobody", envelope.Type);
+            return;
+        }
+
+        registry.BroadcastToGroup(owner, envelope, source);
     }
 }

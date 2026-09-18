@@ -1,4 +1,5 @@
 @page "/audio"
+@attribute [Authorize]
 @using Klippy.Shared.Audio
 @implements IDisposable
 @inject IAudioSourceCatalog Catalog
@@ -7,6 +8,7 @@
 @inject AudioBroadcaster Broadcaster
 @inject OpusEncoderPool Encoders
 @inject AudioCastUdpServer Udp
+@inject Klippy.Server.Features.Link.LinkRegistry Registry
 
 <PageTitle>Audio</PageTitle>
 
@@ -210,8 +212,14 @@ else
 </MudText>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
     private IReadOnlyList<AudioOutputDevice>? _devices;
     private AudioCastStatePayload _state = Empty;
+
+    private Guid? _accountId;
+    private bool _isAdmin;
 
     private static readonly AudioCastStatePayload Empty = new()
     {
@@ -221,12 +229,28 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var user = (await AuthState).User;
+        _accountId = user.AccountId();
+        _isAdmin = user.IsAdmin();
+
         Sessions.Changed += OnChanged;
         Preferences.Changed += OnChanged;
 
-        _state = Sessions.Snapshot();
+        _state = Visible();
         _devices = await Catalog.ListAsync(CancellationToken.None);
     }
+
+    /// <summary>
+    /// The cast as this account is allowed to see it. An admin sees every listener on the
+    /// server; anyone else sees their own devices, the same set the phones and Companions
+    /// in their group are told about.
+    /// </summary>
+    private AudioCastStatePayload Visible() =>
+        _isAdmin
+            ? Sessions.Snapshot()
+            : Sessions.Snapshot(_accountId is { } owner
+                ? Registry.DeviceIdsInGroup(owner)
+                : new HashSet<Guid>());
 
     /// <summary>
     /// Raised from a UDP receive loop or a sweep timer, so it has to hop back onto the
@@ -234,7 +258,7 @@ else
     /// </summary>
     private void OnChanged() => _ = InvokeAsync(() =>
     {
-        _state = Sessions.Snapshot();
+        _state = Visible();
         StateHasChanged();
     });
 

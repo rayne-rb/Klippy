@@ -1,0 +1,195 @@
+@page "/clipboard"
+@attribute [Authorize]
+@using Klippy.Shared.Clipboard
+@implements IDisposable
+@inject ClipboardService Board
+@inject ClipboardSessions Sessions
+@inject ClipboardNotifier Notifier
+
+<PageTitle>Clipboard</PageTitle>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Clipboard</MudText>
+
+<MudText Typo="Typo.body1" Class="mud-text-secondary mb-6">
+    @if (_isAdmin)
+    {
+        <text>
+            Every copy on this server, whoever made it. Entries marked <em>group</em> are
+            private to their account and are shown here because this is the server.
+        </text>
+    }
+    else
+    {
+        <text>
+            What your devices have copied, plus anything anyone has chosen to share with
+            the whole server. Each device decides which of those two it copies into.
+        </text>
+    }
+</MudText>
+
+<MudText Typo="Typo.h6">Sharing right now</MudText>
+
+@if (_sharers.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        No device has the clipboard skill switched on. Turn it on from Skills on the
+        Companion, or the Clipboard tab on the phone.
+    </MudAlert>
+}
+else
+{
+    <div class="mt-2">
+        @foreach (var sharer in _sharers)
+        {
+            <MudChip T="string"
+                     Size="Size.Small"
+                     Variant="Variant.Outlined"
+                     Icon="@Icons.Material.Filled.ContentPaste"
+                     Color="@(sharer.Visibility == ClipboardVisibility.Server ? Color.Warning : Color.Default)">
+                @sharer.DeviceName · @Describe(sharer.Visibility)
+            </MudChip>
+        }
+    </div>
+}
+
+<MudText Typo="Typo.h6" Class="mt-8">History</MudText>
+
+@if (_entries.Count == 0)
+{
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" NoIcon="true" Class="mt-2">
+        Nothing copied yet.
+    </MudAlert>
+}
+else
+{
+    <MudTable Items="_entries" Dense="true" Hover="true" Elevation="0" Outlined="true"
+              Breakpoint="Breakpoint.Sm" Class="mt-2" T="ClipboardListRow">
+        <HeaderContent>
+            <MudTh>What</MudTh>
+            <MudTh>From</MudTh>
+            @if (_isAdmin)
+            {
+                <MudTh>Account</MudTh>
+            }
+            <MudTh>Seen</MudTh>
+            <MudTh>Copied</MudTh>
+            <MudTh Style="text-align: right"></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="What">
+                @if (context.ContentType == ClipboardContentTypes.Text)
+                {
+                    <span style="word-break: break-word">@context.Preview</span>
+                }
+                else
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Text"
+                             Icon="@Icons.Material.Filled.Image">
+                        image · @Bytes(context.ByteSize)
+                    </MudChip>
+                }
+            </MudTd>
+            <MudTd DataLabel="From" Class="mud-text-secondary">@context.SourceDeviceName</MudTd>
+            @if (_isAdmin)
+            {
+                <MudTd DataLabel="Account" Class="mud-text-secondary">@context.OwnerUsername</MudTd>
+            }
+            <MudTd DataLabel="Seen">
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text"
+                         Color="@(context.Visibility == ClipboardVisibility.Server ? Color.Warning : Color.Default)">
+                    @Describe(context.Visibility)
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Copied" Class="mud-text-secondary">
+                @context.CopiedAt.LocalDateTime.ToString("g")
+            </MudTd>
+            <MudTd DataLabel="" Style="text-align: right">
+                <MudButton Size="Size.Small"
+                           Variant="Variant.Outlined"
+                           Color="Color.Error"
+                           StartIcon="@Icons.Material.Filled.Delete"
+                           OnClick="() => DeleteAsync(context)">
+                    Delete
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+    <MudText Typo="Typo.caption" Class="mud-text-secondary mt-2">
+        An account keeps its newest @ClipboardLimits.HistoryPerAccount entries; older ones
+        drop off as new ones arrive. Content is never carried over the Link, so none of it
+        is in the event history.
+    </MudText>
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    private IReadOnlyList<ClipboardListRow> _entries = [];
+    private IReadOnlyList<ClipboardSharer> _sharers = [];
+
+    private Guid? _accountId;
+    private bool _isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        _accountId = user.AccountId();
+        _isAdmin = user.IsAdmin();
+
+        Sessions.Changed += OnChanged;
+        Notifier.Changed += OnChanged;
+
+        await ReloadAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        _entries = _isAdmin
+            ? await Board.ListAllAsync(CancellationToken.None)
+            : _accountId is { } owner
+                ? await Board.ListForAccountAsync(owner, CancellationToken.None)
+                : [];
+
+        _sharers = _isAdmin
+            ? Sessions.All.ToList()
+            : Sessions.All.Where(s => s.OwnerUserId == _accountId).ToList();
+    }
+
+    // Raised from an HTTP request scope or a socket thread, so hop back onto the circuit
+    // before touching component state.
+    private void OnChanged() => _ = InvokeAsync(async () =>
+    {
+        await ReloadAsync();
+        StateHasChanged();
+    });
+
+    private async Task DeleteAsync(ClipboardListRow entry)
+    {
+        if (_isAdmin)
+        {
+            await Board.DeleteAnyAsync(entry.EntryId, CancellationToken.None);
+        }
+        else if (_accountId is { } owner)
+        {
+            await Board.DeleteAsync(entry.EntryId, owner, CancellationToken.None);
+        }
+
+        await ReloadAsync();
+    }
+
+    private static string Describe(string visibility) =>
+        visibility == ClipboardVisibility.Server ? "everyone" : "my devices";
+
+    private static string Bytes(int bytes) =>
+        bytes >= 1024 * 1024 ? $"{bytes / 1024.0 / 1024.0:0.#} MB"
+        : bytes >= 1024 ? $"{bytes / 1024.0:0.#} KB"
+        : $"{bytes} B";
+
+    public void Dispose()
+    {
+        Sessions.Changed -= OnChanged;
+        Notifier.Changed -= OnChanged;
+    }
+}

@@ -43,6 +43,7 @@ of which folder they sit in.
 | `link` | The WebSocket to the server — registered as the `KlippyLink` autoload |
 | `remote` | Turns link events into things the pet does, and vice versa |
 | `visit` | The green friend portal: trips to another user's monitor, hosting visitors, guest reminders |
+| `clipboard` | Watches this PC's clipboard while the skill is on, and the board of what has been copied |
 
 `shared/` holds only what has no single owner, and `assets/` the art.
 

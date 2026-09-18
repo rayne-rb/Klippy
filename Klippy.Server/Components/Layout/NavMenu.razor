@@ -4,4 +4,8 @@
     <MudNavLink Href="pet" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Pets">Pet</MudNavLink>
     <MudNavLink Href="audio" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.VolumeUp">Audio</MudNavLink>
     <MudNavLink Href="market" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Storefront">Market</MudNavLink>
+    <MudNavLink Href="clipboard" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ContentPaste">Clipboard</MudNavLink>
+    <AuthorizeView Roles="@AccountPrincipal.AdminRole">
+        <MudNavLink Href="accounts" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ManageAccounts">Accounts</MudNavLink>
+    </AuthorizeView>
 </MudNavMenu>

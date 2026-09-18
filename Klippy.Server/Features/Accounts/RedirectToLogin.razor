@@ -1,0 +1,16 @@
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Nav
+
+@* What AuthorizeRouteView shows for a page the caller may not see. Nothing is rendered:
+   it exists to turn "not allowed" into a trip to the sign-in form, carrying where the
+   caller was trying to get to so they land there afterwards. *@
+
+@code {
+    protected override void OnInitialized()
+    {
+        var target = Uri.EscapeDataString(
+            Nav.ToBaseRelativePath(Nav.Uri) is var relative && relative.Length > 0 ? "/" + relative : "/");
+
+        Nav.NavigateTo($"/login?returnUrl={target}", forceLoad: true);
+    }
+}

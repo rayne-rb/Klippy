@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:clipboard="clr-namespace:Klippy.Mobile.Features.Clipboard"
+             x:Class="Klippy.Mobile.Features.Clipboard.ClipboardPage"
+             Title="Clipboard">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="18">
+
+            <!-- The switch, and what it means -->
+            <Border Padding="16" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Shared clipboard" FontSize="18" FontAttributes="Bold" />
+                    <Label x:Name="StateLabel" FontSize="13" Opacity="0.7"
+                           Text="Copy on your PC, paste here. And the other way round." />
+
+                    <HorizontalStackLayout Spacing="10">
+                        <Switch x:Name="EnabledSwitch" Toggled="OnEnabledToggled" />
+                        <Label Text="Share this phone's clipboard" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Picker x:Name="VisibilityPicker" Title="Who sees what I copy"
+                            SelectedIndexChanged="OnVisibilityChanged">
+                        <Picker.Items>
+                            <x:String>Only my devices</x:String>
+                            <x:String>Everyone on this server</x:String>
+                        </Picker.Items>
+                    </Picker>
+
+                    <!-- Android will not let an app read the clipboard unless it is the
+                         one on screen, so this cannot watch in the background and does
+                         not pretend to. The button is the honest version of watching. -->
+                    <Button x:Name="ShareButton" Text="Share what I copied" Clicked="OnShareClicked" />
+                    <Label x:Name="ShareHintLabel" FontSize="11" Opacity="0.6"
+                           Text="Android only lets Klippy read the clipboard while it is open, so copies made elsewhere are shared when you come back here." />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- The board -->
+            <VerticalStackLayout Spacing="10">
+                <HorizontalStackLayout Spacing="10">
+                    <Label Text="Recently copied" FontSize="16" FontAttributes="Bold"
+                           VerticalOptions="Center" />
+                    <Button Text="Refresh" Clicked="OnRefreshClicked" Padding="10,2" FontSize="12" />
+                </HorizontalStackLayout>
+
+                <Label x:Name="BoardStatusLabel" FontSize="12" Opacity="0.7" Text="Nothing yet." />
+
+                <CollectionView x:Name="BoardView" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="clipboard:ClipboardRow">
+                            <Border Padding="12" Margin="0,0,0,8" StrokeShape="RoundRectangle 10">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding Preview}" FontSize="14" LineBreakMode="TailTruncation"
+                                           MaxLines="3"
+                                           IsVisible="{Binding IsText}" />
+                                    <Label Text="{Binding ImageLabel}" FontSize="14" FontAttributes="Italic"
+                                           IsVisible="{Binding IsImage}" />
+                                    <Label Text="{Binding Origin}" FontSize="11" Opacity="0.6" />
+
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Button Text="Copy" FontSize="12" Padding="10,2"
+                                                Clicked="OnCopyClicked" />
+                                        <Button Text="Send to" FontSize="12" Padding="10,2"
+                                                Clicked="OnSendClicked" />
+                                        <Button Text="Delete" FontSize="12" Padding="10,2"
+                                                IsVisible="{Binding IsMine}"
+                                                Clicked="OnDeleteClicked" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

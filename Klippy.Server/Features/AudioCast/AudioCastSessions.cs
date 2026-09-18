@@ -251,10 +251,18 @@ public sealed class AudioCastSessions(ILogger<AudioCastSessions> logger)
         }
     }
 
-    /// <summary>The public view: who is listening, with no keys in it.</summary>
-    public AudioCastStatePayload Snapshot()
+    /// <summary>
+    /// The public view: who is listening, with no keys in it.
+    ///
+    /// <paramref name="onlyDevices"/> narrows it to one account's devices. Who is
+    /// listening to this PC is that account's business, so every path that hands the
+    /// state to a device passes it; null is the server's own admin view.
+    /// </summary>
+    public AudioCastStatePayload Snapshot(IReadOnlySet<Guid>? onlyDevices = null)
     {
-        var sessions = All;
+        var sessions = onlyDevices is null
+            ? All
+            : All.Where(s => onlyDevices.Contains(s.DeviceId)).ToList();
         var first = sessions.FirstOrDefault();
 
         return new AudioCastStatePayload
