@@ -20,6 +20,8 @@ const SLEEP_ID := 13
 const SKILLS_ID := 14
 const MARKET_ID := 15
 const SELL_PORTAL_ID := 16
+const QUARRY_ID := 17
+const FUN_ID := 18
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -119,6 +121,8 @@ var _shake_reversal_count := 0
 var _shake_window_timer := 0.0
 
 var context_menu: PopupMenu
+var quarry_menu: PopupMenu
+var fun_menu: PopupMenu
 var settings_window: SettingsPanel
 var status_dialog: StatusDialog
 var skills_dialog: SkillsDialog
@@ -257,19 +261,31 @@ func _ready() -> void:
 	target_fps = settings_data.get("target_fps", 30)
 	_apply_display_settings()
 
+	quarry_menu = PopupMenu.new()
+	quarry_menu.add_item("Connection", CONNECTION_ID)
+	quarry_menu.add_item("Market", MARKET_ID)
+	quarry_menu.add_check_item("Sell Portal", SELL_PORTAL_ID)
+	quarry_menu.id_pressed.connect(_on_context_menu_id_pressed)
+	RockyTheme.style_popup(quarry_menu)
+
+	fun_menu = PopupMenu.new()
+	fun_menu.add_item("Wardrobe", WARDROBE_ID)
+	fun_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
+	fun_menu.add_item("DVD", DVD_ID)
+	fun_menu.id_pressed.connect(_on_context_menu_id_pressed)
+	RockyTheme.style_popup(fun_menu)
+
 	context_menu = PopupMenu.new()
-	context_menu.add_item("Feed", FEED_ID)
-	context_menu.add_item("Summon Consumable", SUMMON_CONSUMABLE_ID)
-	context_menu.add_item("Wardrobe", WARDROBE_ID)
-	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
-	context_menu.add_item("Market", MARKET_ID)
-	context_menu.add_check_item("Sell Portal", SELL_PORTAL_ID)
 	context_menu.add_item("Status", STATUS_ID)
+	context_menu.add_item("Summon Bag", FEED_ID)
+	context_menu.add_item("Summon Consumable", SUMMON_CONSUMABLE_ID)
+	context_menu.add_child(fun_menu)
+	context_menu.add_submenu_node_item("Fun", fun_menu, FUN_ID)
+	context_menu.add_child(quarry_menu)
+	context_menu.add_submenu_node_item("Quarry", quarry_menu, QUARRY_ID)
 	context_menu.add_check_item("Sleep", SLEEP_ID)
 	context_menu.add_item("Skills", SKILLS_ID)
 	context_menu.add_item("Reminders", REMINDERS_ID)
-	context_menu.add_item("DVD", DVD_ID)
-	context_menu.add_item("Connection", CONNECTION_ID)
 	context_menu.add_item("Settings", SETTINGS_ID)
 	context_menu.add_item("Close Klippy", CLOSE_ID)
 	context_menu.id_pressed.connect(_on_context_menu_id_pressed)
@@ -943,13 +959,13 @@ func _spawn_portal(kind: String, screen: int, x_fraction: float, y_fraction := 0
 
 func _update_portal_menu_items() -> void:
 	var have_portals := not travel_portals.is_empty()
-	context_menu.set_item_disabled(context_menu.get_item_index(SUMMON_PORTALS_ID), have_portals)
-	var banish_index := context_menu.get_item_index(BANISH_PORTALS_ID)
+	fun_menu.set_item_disabled(fun_menu.get_item_index(SUMMON_PORTALS_ID), have_portals)
+	var banish_index := fun_menu.get_item_index(BANISH_PORTALS_ID)
 	if have_portals:
 		if banish_index == -1:
-			context_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
+			fun_menu.add_item("Banish Portals", BANISH_PORTALS_ID)
 	elif banish_index != -1:
-		context_menu.remove_item(banish_index)
+		fun_menu.remove_item(banish_index)
 
 
 # --- Market --------------------------------------------------------------------
@@ -987,7 +1003,7 @@ func _open_sell_portal() -> void:
 	sell_portal.place(Vector2i(spot))
 
 	_apply_sell_portal_to_active_items()
-	context_menu.set_item_checked(context_menu.get_item_index(SELL_PORTAL_ID), true)
+	quarry_menu.set_item_checked(quarry_menu.get_item_index(SELL_PORTAL_ID), true)
 
 
 func _banish_sell_portal() -> void:
@@ -999,7 +1015,7 @@ func _banish_sell_portal() -> void:
 	sell_portal = null
 
 	_apply_sell_portal_to_active_items()
-	context_menu.set_item_checked(context_menu.get_item_index(SELL_PORTAL_ID), false)
+	quarry_menu.set_item_checked(quarry_menu.get_item_index(SELL_PORTAL_ID), false)
 
 
 ## Keeps every already-spawned item in step with whichever sell portal is
@@ -1022,8 +1038,8 @@ func _on_klippy_link_state_changed_for_market(state: KlippyLink.State) -> void:
 
 func _update_market_menu_state() -> void:
 	var connected := KlippyLink.is_connected_to_server()
-	context_menu.set_item_disabled(context_menu.get_item_index(MARKET_ID), not connected)
-	context_menu.set_item_disabled(context_menu.get_item_index(SELL_PORTAL_ID), not connected)
+	quarry_menu.set_item_disabled(quarry_menu.get_item_index(MARKET_ID), not connected)
+	quarry_menu.set_item_disabled(quarry_menu.get_item_index(SELL_PORTAL_ID), not connected)
 
 
 ## Fired by the item itself once it has drifted into the sell portal (see
