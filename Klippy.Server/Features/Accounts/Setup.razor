@@ -92,7 +92,7 @@
         }
 
         var (account, error) = await Accounts.CreateAsync(
-            Input!.Username, Input.Password, isAdmin: true, HttpContext.RequestAborted);
+            Input!.Username, Input.Password, KlippyRoles.Admin, HttpContext.RequestAborted);
 
         if (account is null)
         {

@@ -42,7 +42,8 @@ public sealed class AccountRepository(IDbConnectionFactory connections)
     {
         await using var connection = await connections.OpenAsync(ct);
         var rows = await connection.ExecuteQueryAsync<AccountRow>(
-            "select * from users where is_admin order by created_at asc limit 1",
+            "select * from users where role = @Admin order by created_at asc limit 1",
+            new { Admin = KlippyRoles.Admin },
             cancellationToken: ct);
         return rows.FirstOrDefault();
     }
@@ -61,11 +62,11 @@ public sealed class AccountRepository(IDbConnectionFactory connections)
         await using var connection = await connections.OpenAsync(ct);
         var rows = await connection.ExecuteQueryAsync<AccountSummary>(
             """
-            select u.user_id, u.username, u.is_admin, u.created_at,
+            select u.user_id, u.username, u.role, u.created_at,
                    count(d.device_id) filter (where d.revoked_at is null) as device_count
             from users u
             left join devices d on d.owner_user_id = u.user_id
-            group by u.user_id, u.username, u.is_admin, u.created_at
+            group by u.user_id, u.username, u.role, u.created_at
             order by u.created_at asc
             """,
             cancellationToken: ct);
@@ -85,6 +86,15 @@ public sealed class AccountRepository(IDbConnectionFactory connections)
         // devices stay paired and fall back to being a group of one each.
         await connection.ExecuteNonQueryAsync(
             "delete from users where user_id = @userId", new { userId }, cancellationToken: ct);
+    }
+
+    public async Task SetRoleAsync(Guid userId, string role, CancellationToken ct)
+    {
+        await using var connection = await connections.OpenAsync(ct);
+        await connection.ExecuteNonQueryAsync(
+            "update users set role = @role where user_id = @userId",
+            new { userId, role },
+            cancellationToken: ct);
     }
 
     public async Task SetPasswordAsync(Guid userId, string passwordHash, CancellationToken ct)

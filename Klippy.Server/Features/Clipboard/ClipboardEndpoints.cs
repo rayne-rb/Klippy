@@ -26,13 +26,13 @@ public static class ClipboardEndpoints
             ClipboardService clipboard,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
-            if (device.OwnerUserId is not { } owner)
+            if (device!.OwnerUserId is not { } owner)
             {
                 // Unclaimed: a group of one with nothing in it. An empty board rather
                 // than an error, so a device that has just paired shows something sane
@@ -51,13 +51,13 @@ public static class ClipboardEndpoints
             ClipboardService clipboard,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
-            var result = await clipboard.AddTextAsync(device, input.Text, input.Visibility, ct);
+            var result = await clipboard.AddTextAsync(device!, input.Text, input.Visibility, ct);
             return Answer(result);
         });
 
@@ -69,10 +69,10 @@ public static class ClipboardEndpoints
             ClipboardService clipboard,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
             // Refuse on the declared length before reading a byte of it.
@@ -85,7 +85,7 @@ public static class ClipboardEndpoints
             await context.Request.Body.CopyToAsync(buffer, ct);
 
             var visibility = context.Request.Query["visibility"].FirstOrDefault();
-            var result = await clipboard.AddImageAsync(device, buffer.ToArray(), visibility, ct);
+            var result = await clipboard.AddImageAsync(device!, buffer.ToArray(), visibility, ct);
             return Answer(result);
         });
 
@@ -97,17 +97,17 @@ public static class ClipboardEndpoints
             ClipboardService clipboard,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
             var entry = await clipboard.FindAsync(entryId, ct);
 
             // One answer for "no such entry" and "not yours": telling them apart would
             // let anyone confirm what other accounts have copied by guessing ids.
-            if (entry is null || !ClipboardService.CanRead(entry, device.OwnerUserId))
+            if (entry is null || !ClipboardService.CanRead(entry, device!.OwnerUserId))
             {
                 return Results.NotFound();
             }
@@ -124,15 +124,15 @@ public static class ClipboardEndpoints
             ClipboardService clipboard,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
             // Only out of your own account: a server-wide entry stays readable to you,
             // but it is still the copier's to withdraw.
-            return device.OwnerUserId is { } owner && await clipboard.DeleteAsync(entryId, owner, ct)
+            return device!.OwnerUserId is { } owner && await clipboard.DeleteAsync(entryId, owner, ct)
                 ? Results.Ok(new { deleted = true })
                 : Results.NotFound();
         });
@@ -149,10 +149,10 @@ public static class ClipboardEndpoints
             LinkRegistry registry,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
-            if (device is null)
+            var (device, refusal) = await ResolveAsync(context, pairing, ct);
+            if (refusal is not null)
             {
-                return Results.Unauthorized();
+                return refusal;
             }
 
             if (!Guid.TryParse(input.TargetDeviceId, out var target))
@@ -161,7 +161,7 @@ public static class ClipboardEndpoints
             }
 
             var entry = await clipboard.FindAsync(entryId, ct);
-            if (entry is null || !ClipboardService.CanRead(entry, device.OwnerUserId))
+            if (entry is null || !ClipboardService.CanRead(entry, device!.OwnerUserId))
             {
                 return Results.NotFound();
             }
@@ -169,18 +169,41 @@ public static class ClipboardEndpoints
             var envelope = LinkEnvelope.Create(
                 KlippyEvents.ClipboardApply,
                 new ClipboardApplyPayload { EntryId = entryId.ToString() },
-                source: device.DeviceId.ToString(),
+                source: device!.DeviceId.ToString(),
                 target: target.ToString());
 
             // Straight to the device rather than published: this needs none of what the
             // dispatcher adds, and TrySendWithinGroup is what keeps it from reaching a
             // device in somebody else's account.
-            return registry.TrySendWithinGroup(target, device.OwnerUserId, envelope)
+            return registry.TrySendWithinGroup(target, device!.OwnerUserId, envelope)
                 ? Results.Ok(new { sent = true })
                 : Results.Conflict(new { error = "That device is not connected." });
         });
 
         return routes;
+    }
+
+    /// <summary>
+    /// The caller, or the answer to give them instead.
+    ///
+    /// Two refusals, not one: an unknown token is not signed in, and a visiting device is
+    /// signed in but has no business here — it is another person's machine, paired only
+    /// so their pet can stand on this monitor. See <see cref="VisitorPolicy"/>.
+    /// </summary>
+    private static async Task<(PairedDeviceRow? Device, IResult? Refusal)> ResolveAsync(
+        HttpContext context, PairingService pairing, CancellationToken ct)
+    {
+        var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
+
+        if (device is null)
+        {
+            return (null, Results.Unauthorized());
+        }
+
+        return VisitorPolicy.MayUseAccountFeatures(device.DeviceKind)
+            ? (device, null)
+            : (null, Results.Json(
+                new { error = VisitorPolicy.Refusal }, statusCode: StatusCodes.Status403Forbidden));
     }
 
     private static IResult Answer(ClipboardService.AddResult result) =>

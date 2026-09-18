@@ -36,7 +36,13 @@
                           HelperText="@($"At least {AccountService.MinimumPasswordLength} characters")" />
         </MudItem>
         <MudItem xs="6" sm="2">
-            <MudCheckBox @bind-Value="_newIsAdmin" Label="Admin" Dense="true" />
+            <MudSelect T="string" @bind-Value="_newRole" Label="Role" Dense="true"
+                       Margin="Margin.Dense" Variant="Variant.Outlined">
+                @foreach (var role in KlippyRoles.All)
+                {
+                    <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
+                }
+            </MudSelect>
         </MudItem>
         <MudItem xs="6" sm="2">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
@@ -44,15 +50,52 @@
                 Add
             </MudButton>
         </MudItem>
+        <MudItem xs="12">
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                @KlippyRoles.Describe(_newRole)
+            </MudText>
+        </MudItem>
     </MudGrid>
 </MudPaper>
 
 <MudText Typo="Typo.h6" Class="mt-8">Existing</MudText>
 
+@if (_resetting is not null)
+{
+    <MudPaper Class="pa-4 mt-2" Outlined="true">
+        <MudText Typo="Typo.subtitle2" GutterBottom="true">
+            New password for <strong>@_resetting.Username</strong>
+        </MudText>
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            They are not asked for their old one, and nothing tells them it changed — say so
+            yourself.
+        </MudText>
+        <MudGrid Spacing="2" Class="align-center mt-1">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_resetPassword" Label="New password"
+                              Variant="Variant.Outlined" Margin="Margin.Dense"
+                              InputType="InputType.Password" />
+            </MudItem>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                           OnClick="ConfirmResetAsync">
+                    Set it
+                </MudButton>
+            </MudItem>
+            <MudItem xs="6" sm="3">
+                <MudButton Variant="Variant.Outlined" FullWidth="true" OnClick="CancelReset">
+                    Cancel
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+
 <MudTable Items="_accounts" Dense="true" Hover="true" Elevation="0" Outlined="true"
           Breakpoint="Breakpoint.Sm" Class="mt-2" T="AccountSummary">
     <HeaderContent>
         <MudTh>Account</MudTh>
+        <MudTh>Role</MudTh>
         <MudTh>Devices</MudTh>
         <MudTh>Created</MudTh>
         <MudTh Style="text-align: right"></MudTh>
@@ -60,10 +103,24 @@
     <RowTemplate>
         <MudTd DataLabel="Account">
             <strong>@context.Username</strong>
-            @if (context.IsAdmin)
+            @if (context.UserId == _myAccountId)
             {
-                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">admin</MudChip>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Text" Class="ml-1">you</MudChip>
             }
+        </MudTd>
+        <MudTd DataLabel="Role">
+            <MudSelect T="string"
+                       Value="context.Role"
+                       ValueChanged="role => SetRoleAsync(context, role)"
+                       Dense="true"
+                       Margin="Margin.Dense"
+                       Variant="Variant.Text"
+                       Style="min-width: 6rem">
+                @foreach (var role in KlippyRoles.All)
+                {
+                    <MudSelectItem T="string" Value="@role">@role</MudSelectItem>
+                }
+            </MudSelect>
         </MudTd>
         <MudTd DataLabel="Devices" Class="mud-text-secondary">@context.DeviceCount</MudTd>
         <MudTd DataLabel="Created" Class="mud-text-secondary">
@@ -72,7 +129,14 @@
         <MudTd DataLabel="" Style="text-align: right">
             <MudButton Size="Size.Small"
                        Variant="Variant.Outlined"
+                       StartIcon="@Icons.Material.Filled.Password"
+                       OnClick="() => BeginReset(context)">
+                Set password
+            </MudButton>
+            <MudButton Size="Size.Small"
+                       Variant="Variant.Outlined"
                        Color="Color.Error"
+                       Class="ml-1"
                        StartIcon="@Icons.Material.Filled.PersonRemove"
                        OnClick="() => RemoveAsync(context)">
                 Remove
@@ -87,16 +151,30 @@
 </MudText>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
     private IReadOnlyList<AccountSummary> _accounts = [];
 
     private string? _newUsername;
     private string? _newPassword;
-    private bool _newIsAdmin;
+    private string _newRole = KlippyRoles.User;
+
+    /// <summary>The account whose password is being set, and what to set it to.</summary>
+    private AccountSummary? _resetting;
+    private string? _resetPassword;
+
+    /// <summary>So the table can mark which row is you, since demoting yourself is allowed.</summary>
+    private Guid? _myAccountId;
 
     private string? _error;
     private string? _note;
 
-    protected override async Task OnInitializedAsync() => await ReloadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        _myAccountId = (await AuthState).User.AccountId();
+        await ReloadAsync();
+    }
 
     private async Task ReloadAsync() =>
         _accounts = await Users.GetSummariesAsync(CancellationToken.None);
@@ -107,7 +185,7 @@
         _note = null;
 
         var (account, error) = await Users.CreateAsync(
-            _newUsername, _newPassword, _newIsAdmin, CancellationToken.None);
+            _newUsername, _newPassword, _newRole, CancellationToken.None);
 
         if (account is null)
         {
@@ -115,10 +193,60 @@
             return;
         }
 
-        _note = $"Added '{account.Username}'. Their devices pair the usual way — they sign in here and approve their own.";
+        _note = $"Added '{account.Username}' as {account.Role}. Give them the password; their "
+                + "devices pair the usual way, and they approve their own once signed in.";
         _newUsername = null;
         _newPassword = null;
-        _newIsAdmin = false;
+        _newRole = KlippyRoles.User;
+
+        await ReloadAsync();
+    }
+
+    private async Task SetRoleAsync(AccountSummary account, string role)
+    {
+        _error = null;
+        _note = null;
+
+        _error = await Users.SetRoleAsync(account.UserId, role, CancellationToken.None);
+
+        if (_error is null)
+        {
+            _note = account.UserId == _myAccountId && role != KlippyRoles.Admin
+                ? "You are no longer an admin. This page will be closed to you on the next click."
+                : $"'{account.Username}' is now {role}.";
+        }
+
+        await ReloadAsync();
+    }
+
+    private void BeginReset(AccountSummary account)
+    {
+        _resetting = account;
+        _resetPassword = null;
+        _error = null;
+        _note = null;
+    }
+
+    private void CancelReset()
+    {
+        _resetting = null;
+        _resetPassword = null;
+    }
+
+    private async Task ConfirmResetAsync()
+    {
+        if (_resetting is null)
+        {
+            return;
+        }
+
+        _error = await Users.SetPasswordAsync(_resetting.UserId, _resetPassword, CancellationToken.None);
+
+        if (_error is null)
+        {
+            _note = $"Set a new password for '{_resetting.Username}'.";
+            CancelReset();
+        }
 
         await ReloadAsync();
     }

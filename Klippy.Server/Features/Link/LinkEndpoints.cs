@@ -195,6 +195,18 @@ public static class LinkEndpoints
                 continue;
             }
 
+            // A visiting device is another person's machine, here only so their pet can
+            // stand on this monitor. Approving one puts it in an account, and an account
+            // is what routing trusts, so the one thing standing between a guest and the
+            // household's events is this.
+            if (!VisitorPolicy.MaySend(connection.DeviceKind, envelope.Type))
+            {
+                logger.LogWarning(
+                    "Refused {Type} from '{DeviceName}', which is paired as a visitor",
+                    envelope.Type, connection.DeviceName);
+                continue;
+            }
+
             // The sender is whoever the token says it is, not whoever the message claims —
             // and likewise the group it reaches is the one its token put it in.
             await dispatcher.DispatchFromDeviceAsync(

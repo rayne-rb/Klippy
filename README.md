@@ -167,9 +167,47 @@ it: you sign in to the server, and **approving a device is what puts it in your 
 The first run asks for an admin account and hands it every device already paired, so an
 existing install carries on working.
 
+### Roles
+
+| Role | Can |
+| --- | --- |
+| `user` | See their own devices and their own clipboard. The default for a new account |
+| `admin` | All of that, plus every account's devices and clipboard, and handing out accounts and roles |
+
 An admin sees every account's devices and clipboard on the server's own pages. That is
 deliberate — it is the server — and it is worth knowing before putting anything private
 through a server somebody else runs.
+
+The last admin cannot be demoted or removed: a server with no admin has no way to make
+another short of editing the database. A role change lands within a minute without anyone
+signing out, because the sign-in cookie carries the role and is re-checked against the
+database on that interval; an interactive page reads its claims when it opens, so it takes
+effect there on the next full page load.
+
+### The flows
+
+| Where | What |
+| --- | --- |
+| `/setup` | First run only, and only while there are no accounts: make the first admin, which inherits every device already paired |
+| `/login` | Sign in. One message for a wrong name and a wrong password alike |
+| `/account` | Your own: what you are, and changing your password — which asks for the current one, because a cookie left open on a shared machine should not be enough to lock its owner out |
+| `/accounts` | Admins only: add an account, set its role, set a password for it, remove it |
+| `/logout` | Sign out of this browser. Devices stay paired |
+| `/denied` | Where being refused lands, rather than back at a sign-in form you are already past |
+
+There is no email anywhere in this, and so no verification and no password reset by mail.
+An admin sets a new password and tells the person; that is the whole recovery story, which
+suits a server that lives on a shelf in the same room.
+
+### Visiting devices
+
+A friend's Companion pairs here as a `visitor` so their pet can stand on this monitor, and
+approving one puts it in an account like any other device. It is held to the visit and
+nothing else: it may send only `visit.arrive`, `visit.recall` and `visit.speak`, hears only
+the host's half of the visit and who is connected, and is refused the clipboard and the
+audio cast outright. Without that a guest's machine could read the household's clipboard
+and ask the server to cast this PC's audio to it — both of which it could, before
+`VisitorPolicy` existed.
 
 ## Architecture
 

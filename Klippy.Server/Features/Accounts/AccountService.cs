@@ -49,7 +49,7 @@ public sealed partial class AccountService(
     /// rather than throwing: every caller is a form that has to put it on the screen.
     /// </summary>
     public async Task<(AccountRow? Account, string? Error)> CreateAsync(
-        string? username, string? password, bool isAdmin, CancellationToken ct)
+        string? username, string? password, string role, CancellationToken ct)
     {
         var name = (username ?? string.Empty).Trim().ToLowerInvariant();
 
@@ -72,7 +72,7 @@ public sealed partial class AccountService(
         {
             UserId = Guid.NewGuid(),
             Username = name,
-            IsAdmin = isAdmin,
+            Role = KlippyRoles.IsKnown(role) ? role : KlippyRoles.User,
             CreatedAt = DateTimeOffset.UtcNow,
         };
         row.PasswordHash = Hasher.HashPassword(row, password!);
@@ -88,7 +88,7 @@ public sealed partial class AccountService(
             return (null, $"There is already an account called '{name}'.");
         }
 
-        logger.LogInformation("Created account '{Username}'{Admin}", name, isAdmin ? " (admin)" : string.Empty);
+        logger.LogInformation("Created account '{Username}' as {Role}", name, row.Role);
         return (row, null);
     }
 
@@ -123,6 +123,26 @@ public sealed partial class AccountService(
         return result == PasswordVerificationResult.Success ? account : null;
     }
 
+    /// <summary>
+    /// What is wrong with a password someone is changing to, or null when nothing is.
+    /// Separate from the changing so the rules can be checked without a database.
+    /// </summary>
+    public static string? DescribeNewPasswordProblem(
+        string? currentPassword, string? newPassword, string? confirmPassword)
+    {
+        if (newPassword != confirmPassword)
+        {
+            return "The two new passwords are not the same.";
+        }
+
+        if ((newPassword ?? string.Empty).Length < MinimumPasswordLength)
+        {
+            return $"A password needs at least {MinimumPasswordLength} characters.";
+        }
+
+        return newPassword == currentPassword ? "That is already your password." : null;
+    }
+
     public async Task<string?> SetPasswordAsync(Guid userId, string? password, CancellationToken ct)
     {
         if ((password ?? string.Empty).Length < MinimumPasswordLength)
@@ -141,6 +161,78 @@ public sealed partial class AccountService(
     }
 
     /// <summary>
+    /// Changes an account's role. Returns null on success, or a sentence saying why not.
+    ///
+    /// Refuses to demote the last admin for the same reason it refuses to remove one: a
+    /// server with no admin has no way to make another, short of editing the database.
+    /// </summary>
+    public async Task<string?> SetRoleAsync(Guid userId, string role, CancellationToken ct)
+    {
+        if (!KlippyRoles.IsKnown(role))
+        {
+            return $"'{role}' is not a role.";
+        }
+
+        var accounts = await repository.GetAllAsync(ct);
+        var target = accounts.FirstOrDefault(a => a.UserId == userId);
+
+        if (target is null)
+        {
+            return "That account is gone.";
+        }
+
+        if (target.Role == role)
+        {
+            return null;
+        }
+
+        if (target.Role == KlippyRoles.Admin
+            && role != KlippyRoles.Admin
+            && accounts.Count(a => a.Role == KlippyRoles.Admin) == 1)
+        {
+            return "That is the only admin account, so it cannot be demoted.";
+        }
+
+        await repository.SetRoleAsync(userId, role, ct);
+        logger.LogInformation("Account '{Username}' is now {Role}", target.Username, role);
+        return null;
+    }
+
+    /// <summary>
+    /// Changes your own password, having proved you know the current one.
+    ///
+    /// The current password is asked for even though you are already signed in: a cookie
+    /// left open on a shared machine should not be enough to lock its owner out of their
+    /// own account.
+    /// </summary>
+    public async Task<string?> ChangeOwnPasswordAsync(
+        Guid userId, string? currentPassword, string? newPassword, string? confirmPassword,
+        CancellationToken ct)
+    {
+        var account = await repository.FindAsync(userId, ct);
+        if (account is null)
+        {
+            return "That account is gone.";
+        }
+
+        if (string.IsNullOrEmpty(currentPassword)
+            || Hasher.VerifyHashedPassword(account, account.PasswordHash, currentPassword)
+                == PasswordVerificationResult.Failed)
+        {
+            return "That is not your current password.";
+        }
+
+        if (DescribeNewPasswordProblem(currentPassword, newPassword, confirmPassword) is { } problem)
+        {
+            return problem;
+        }
+
+        await repository.SetPasswordAsync(userId, Hasher.HashPassword(account, newPassword!), ct);
+        logger.LogInformation("Account '{Username}' changed its password", account.Username);
+        return null;
+    }
+
+    /// <summary>
     /// Removes an account. Refuses to remove the last admin: an installation with no
     /// admin has no way to make one, short of editing the database by hand.
     /// </summary>
@@ -154,7 +246,7 @@ public sealed partial class AccountService(
             return null;
         }
 
-        if (target.IsAdmin && accounts.Count(a => a.IsAdmin) == 1)
+        if (target.Role == KlippyRoles.Admin && accounts.Count(a => a.Role == KlippyRoles.Admin) == 1)
         {
             return "That is the only admin account, so it cannot be removed.";
         }

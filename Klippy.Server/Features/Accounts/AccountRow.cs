@@ -17,8 +17,9 @@ public sealed class AccountRow
     [Map("password_hash")]
     public string PasswordHash { get; set; } = string.Empty;
 
-    [Map("is_admin")]
-    public bool IsAdmin { get; set; }
+    /// <summary>See <see cref="KlippyRoles"/>. Never left empty; the column has a default.</summary>
+    [Map("role")]
+    public string Role { get; set; } = KlippyRoles.User;
 
     [Map("created_at")]
     public DateTimeOffset CreatedAt { get; set; }

@@ -1,0 +1,127 @@
+@page "/account"
+@attribute [Authorize]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AuthLayout
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@inject AccountService Users
+
+@* Static SSR, like the sign-in pages. A form post is what carries a password, and this
+   page has no other reason to hold a circuit open. *@
+
+<PageTitle>Your account</PageTitle>
+
+<MudPaper Class="pa-6" Outlined="true">
+    <MudText Typo="Typo.h6" GutterBottom="true">@_username</MudText>
+    <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+        @_role · @KlippyRoles.Describe(_role)
+    </MudText>
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-4">@_error</MudAlert>
+    }
+
+    @if (_done)
+    {
+        <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Class="mb-4">
+            Your password has been changed. It is the same on every device you sign in from;
+            the devices you have paired are unaffected and stay paired.
+        </MudAlert>
+    }
+
+    <MudText Typo="Typo.subtitle2" GutterBottom="true">Change your password</MudText>
+
+    <EditForm Model="Input" FormName="change-password" OnValidSubmit="ChangeAsync">
+        <label class="klippy-field">
+            <span>Current password</span>
+            <InputText @bind-Value="Input!.CurrentPassword" type="password"
+                       autocomplete="current-password" />
+        </label>
+
+        <label class="klippy-field">
+            <span>New password</span>
+            <InputText @bind-Value="Input!.NewPassword" type="password" autocomplete="new-password" />
+        </label>
+
+        <label class="klippy-field">
+            <span>New password again</span>
+            <InputText @bind-Value="Input!.ConfirmPassword" type="password" autocomplete="new-password" />
+        </label>
+
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+            At least @AccountService.MinimumPasswordLength characters.
+        </MudText>
+
+        <button type="submit" class="klippy-submit">Change it</button>
+    </EditForm>
+
+    <MudText Typo="Typo.body2" Class="mt-4">
+        <MudLink Href="/">Back to Klippy</MudLink>
+    </MudText>
+</MudPaper>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    @* Filled in OnInitializedAsync rather than by an initializer: a post binds straight
+       onto this property and an initializer on it can be overwritten with null (BL0008). *@
+    [SupplyParameterFromForm]
+    private PasswordChange? Input { get; set; }
+
+    private string _username = string.Empty;
+    private string _role = KlippyRoles.User;
+    private Guid? _accountId;
+
+    private string? _error;
+    private bool _done;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+
+        var user = (await AuthState).User;
+        _accountId = user.AccountId();
+        _username = user.AccountName() ?? "you";
+        _role = user.Role() ?? KlippyRoles.User;
+    }
+
+    private async Task ChangeAsync()
+    {
+        if (_accountId is not { } accountId)
+        {
+            _error = "You are not signed in.";
+            return;
+        }
+
+        _error = await Users.ChangeOwnPasswordAsync(
+            accountId,
+            Input!.CurrentPassword,
+            Input.NewPassword,
+            Input.ConfirmPassword,
+            HttpContext.RequestAborted);
+
+        if (_error is not null)
+        {
+            return;
+        }
+
+        _done = true;
+
+        // Nothing on the cookie derives from the password, so the session stays valid and
+        // there is no reason to make them sign in again. The fields are cleared so a
+        // refresh does not re-post what was just used.
+        Input = new PasswordChange();
+    }
+
+    private sealed class PasswordChange
+    {
+        public string? CurrentPassword { get; set; }
+        public string? NewPassword { get; set; }
+        public string? ConfirmPassword { get; set; }
+    }
+}

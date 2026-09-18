@@ -21,7 +21,15 @@
         <MudSpacer />
         <AuthorizeView>
             <Authorized>
-                <MudText Typo="Typo.body2" Class="mr-2 d-none d-sm-flex">@context.User.AccountName()</MudText>
+                <MudTooltip Text="Your account">
+                    <MudButton Href="/account"
+                               Color="Color.Inherit"
+                               Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.AccountCircle"
+                               Class="mr-1 d-none d-sm-flex">
+                        @context.User.AccountName()
+                    </MudButton>
+                </MudTooltip>
                 <MudTooltip Text="Sign out">
                     <MudIconButton Icon="@Icons.Material.Filled.Logout"
                                    Color="Color.Inherit"

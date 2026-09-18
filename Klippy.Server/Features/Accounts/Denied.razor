@@ -1,0 +1,42 @@
+@page "/denied"
+@attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
+@layout AuthLayout
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+
+@* Where the cookie middleware sends someone who is signed in but not allowed.
+   
+   It used to send them to the sign-in form, which is nonsense: they would sign in as the
+   same person and be refused again. The in-circuit version of this same refusal is
+   RedirectToLogin, which AuthorizeRouteView renders when the navigation never touches the
+   server. *@
+
+<PageTitle>Not allowed</PageTitle>
+
+<MudPaper Class="pa-6" Outlined="true">
+    <MudText Typo="Typo.h6" GutterBottom="true">That page is for admins</MudText>
+
+    <AuthorizeView>
+        <Authorized>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+                You are signed in as <strong>@context.User.AccountName()</strong>, which is a
+                @(context.User.Role() ?? "regular") account. An admin can change that from the
+                Accounts page.
+            </MudText>
+            <MudText Typo="Typo.body2">
+                <MudLink Href="/">Back to Klippy</MudLink>
+                ·
+                <MudLink Href="/logout">Sign in as someone else</MudLink>
+            </MudText>
+        </Authorized>
+        <NotAuthorized>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+                You are not signed in.
+            </MudText>
+            <MudText Typo="Typo.body2">
+                <MudLink Href="/login">Sign in</MudLink>
+            </MudText>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudPaper>

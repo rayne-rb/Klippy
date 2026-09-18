@@ -1,15 +1,49 @@
 @using Microsoft.AspNetCore.Components
 @inject NavigationManager Nav
 
-@* What AuthorizeRouteView shows for a page the caller may not see. Nothing is rendered:
-   it exists to turn "not allowed" into a trip to the sign-in form, carrying where the
-   caller was trying to get to so they land there afterwards. *@
+@* What AuthorizeRouteView shows for a page the caller may not see.
+   
+   Two quite different situations arrive here. Nobody is signed in, in which case the
+   sign-in form is exactly what is wanted and where they were headed is worth carrying.
+   Or somebody is signed in and simply is not allowed, and sending them to a sign-in form
+   is nonsense — they would sign in as the same person and be refused again. *@
+
+<AuthorizeView>
+    <Authorized>
+        <MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">
+                <MudText Typo="Typo.subtitle2">This page is for admins</MudText>
+                <MudText Typo="Typo.body2" Class="mt-1">
+                    You are signed in as <strong>@context.User.AccountName()</strong>, which is
+                    a @(context.User.Role() ?? "regular") account. An admin can change that on
+                    the Accounts page.
+                </MudText>
+            </MudAlert>
+            <MudText Typo="Typo.body2" Class="mt-4">
+                <MudLink Href="/">Back to Klippy</MudLink>
+                ·
+                <MudLink Href="/logout">Sign in as someone else</MudLink>
+            </MudText>
+        </MudContainer>
+    </Authorized>
+    <NotAuthorized>
+        @* Rendered as nothing: the redirect below is the whole of it. *@
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    protected override void OnInitialized()
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
     {
-        var target = Uri.EscapeDataString(
-            Nav.ToBaseRelativePath(Nav.Uri) is var relative && relative.Length > 0 ? "/" + relative : "/");
+        if ((await AuthState).User.Identity?.IsAuthenticated == true)
+        {
+            return;
+        }
+
+        var relative = Nav.ToBaseRelativePath(Nav.Uri);
+        var target = Uri.EscapeDataString(relative.Length > 0 ? "/" + relative : "/");
 
         Nav.NavigateTo($"/login?returnUrl={target}", forceLoad: true);
     }
