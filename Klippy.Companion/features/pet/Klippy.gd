@@ -1025,11 +1025,13 @@ func banish_travel_portals() -> void:
 	_update_portal_menu_items()
 
 
-## The session owns the green portal's whole life; this is just the menu deciding
-## between "open the door" and "walk the user through meeting a friend first".
+## The session owns the green portal's whole life. With exactly one other Klippy
+## on the server there is nothing to choose, so the doorway opens on the spot;
+## with several, the dialog asks whose monitor.
 func _summon_friend_portal() -> void:
-	if visit_session.has_pairing():
-		visit_session.summon_portal()
+	var peers := visit_session.companion_peers()
+	if peers.size() == 1:
+		visit_session.summon_portal(peers[0])
 	else:
 		_open_visit_dialog()
 
@@ -1043,7 +1045,6 @@ func _open_visit_dialog() -> void:
 		visit_dialog = VisitDialog.new()
 		add_child(visit_dialog)
 		visit_dialog.setup(visit_session)
-		visit_dialog.visit_ready.connect(visit_session.summon_portal)
 		visit_dialog.close_requested.connect(_on_visit_dialog_closed)
 	visit_dialog.popup_centered()
 
@@ -1051,7 +1052,6 @@ func _open_visit_dialog() -> void:
 func _on_visit_dialog_closed() -> void:
 	visit_dialog.queue_free()
 	visit_dialog = null
-	visit_session.cancel_pairing()
 
 
 func _update_friend_menu_items() -> void:

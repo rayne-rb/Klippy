@@ -37,10 +37,12 @@ const AUDIO_CAST_STATE := "audio.cast.state"
 const MARKET_PAYOUT := "market.payout"
 const MARKET_PAYOUT_ACK := "market.payout.ack"
 
-# Visits. Spoken on the *guest* link — the second socket a companion opens to
-# another user's server after pairing with it as a "visitor" device — and always
-# targeted at the companion hosting the visit. The server only routes these; both
-# ends are companions. See the visit slice.
+# Visits. A visit connects two Klippy companions paired to the same server — the
+# klippy network is the server's device list — so these ride the ordinary link,
+# always targeted at the companion on the other end. The server only routes
+# them; both ends are companions. See the visit slice.
+const VISIT_OPEN := "visit.open"
+const VISIT_CLOSE := "visit.close"
 const VISIT_ARRIVE := "visit.arrive"
 const VISIT_ARRIVED := "visit.arrived"
 const VISIT_RECALL := "visit.recall"
@@ -60,4 +62,3 @@ const CLIPBOARD_SHARING := "clipboard.sharing"
 # names for the same reason: it is a wire constant the server decides, not ours.
 const KIND_COMPANION := "companion"
 const KIND_MOBILE := "mobile"
-const KIND_VISITOR := "visitor"

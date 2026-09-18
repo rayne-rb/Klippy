@@ -99,32 +99,32 @@ Windows box and no phone attached here. Treat those two ends with suspicion.
 
 ## Visits
 
-A Klippy can pay a friend's monitor a visit. The Friend Portal (right-click → Fun →
-**Summon Friend Portal**) opens a green vortex on the desktop; throw the pet in and he
-disappears here and — through the other user's server — stands up over there, next to
-their own Klippy, wearing whatever cosmetics he left in.
+A Klippy can pay another Klippy's monitor a visit. The klippy network is the
+server's device list: every Klippy companion paired to (and connected to) the same
+server is a monitor a pet can visit — no extra pairing, no addresses, the link
+they already share carries the whole thing.
 
-Finding the friend's server works like finding any server: multicast on the local
-network. When that cannot reach — the friend's machine is behind a NAT (a VM subnet),
-a VPN, a different site — the visit dialog also takes a typed address, resolved
-against the server's `/api/discovery/identity` the same way the phone resolves one,
-so the result is the beacon discovery would have produced.
+Right-click → Fun → **Summon Friend Portal** (or the visit dialog's picker, when
+more than one other Klippy is connected) opens a green vortex on this desktop and,
+via a targeted event to the chosen companion, its twin on theirs. Throw the pet in
+and he disappears here and stands up over there, next to their own Klippy, wearing
+whatever cosmetics he left in.
 
-Under the hood a visit is the link's hub model used twice. The visitor's companion
-pairs with the *friend's* server once, as a `visitor` device (a code to approve on
-their Devices page, remembered afterwards), and holds a second WebSocket there while a
-visit is afoot. On that server the two companions are just devices, so `visit.*`
-events routed between them are all the feature needs — the server gained no visit
-code at all. Nothing is queued or replayed: an arrival the host never confirms, or a
-socket that drops mid-visit, ends with the pet popping back out of the green portal.
+**Banish Friend Portal** takes both halves back down. **Call him back** — from the
+green portal's right-click menu, or **Send home** from the visitor's own
+right-click menu over there — opens a portal right on top of the visiting pet,
+pulls him through, and pops him back out at home with every portal (travel pair
+included) closing behind him.
 
-While he is away the friend can right-click him: set **Reminders** (announced by the
-visiting pet on that monitor, nagging until clicked) or **Send home**. The owner can
-also **Call him back** from the green portal's own right-click menu — a portal opens
-right on top of the visiting pet over there, he is pulled through, and he bursts back
-out at home with every portal closing behind him. Reminders set at home still fire
-while he is away; they are simply spoken over the visit link so they surface where he
-is standing.
+While he is away the friend can right-click him to set **Reminders**, announced by
+the visiting pet on that monitor, nagging until clicked. Reminders set at home
+still fire while he is away; they are simply spoken over the link so they surface
+where he is standing.
+
+Nothing is queued or replayed: a visit is a live moment. An arrival the other end
+never confirms, or the other Klippy (or the link) going away mid-visit, ends with
+the pet popping back out of the green portal — "Nobody's home..." — rather than
+stranding him on a screen nobody is showing.
 
 ## Shared clipboard
 
