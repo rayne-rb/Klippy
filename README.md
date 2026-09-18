@@ -104,6 +104,12 @@ A Klippy can pay a friend's monitor a visit. The Friend Portal (right-click → 
 disappears here and — through the other user's server — stands up over there, next to
 their own Klippy, wearing whatever cosmetics he left in.
 
+Finding the friend's server works like finding any server: multicast on the local
+network. When that cannot reach — the friend's machine is behind a NAT (a VM subnet),
+a VPN, a different site — the visit dialog also takes a typed address, resolved
+against the server's `/api/discovery/identity` the same way the phone resolves one,
+so the result is the beacon discovery would have produced.
+
 Under the hood a visit is the link's hub model used twice. The visitor's companion
 pairs with the *friend's* server once, as a `visitor` device (a code to approve on
 their Devices page, remembered afterwards), and holds a second WebSocket there while a
