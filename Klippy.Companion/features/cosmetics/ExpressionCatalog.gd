@@ -46,4 +46,5 @@ static func _ensure_initialized() -> void:
 	obsidian_expression.id = OBSIDIAN
 	obsidian_expression.display_name = "Obsidian"
 	obsidian_expression.texture = preload("res://assets/KlippyCosmetics/Expressions/Obsidian/KlippyExpression.png")
+	obsidian_expression.required_level = LevelUnlocks.OBSIDIAN_COSMETICS
 	_defs[obsidian_expression.id] = obsidian_expression

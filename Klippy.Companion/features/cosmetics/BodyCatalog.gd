@@ -45,4 +45,5 @@ static func _ensure_initialized() -> void:
 	obsidian_body.id = OBSIDIAN
 	obsidian_body.display_name = "Obsidian"
 	obsidian_body.texture = preload("res://assets/KlippyCosmetics/Bodies/Obsidian/KlippyBody.png")
+	obsidian_body.required_level = LevelUnlocks.OBSIDIAN_COSMETICS
 	_defs[obsidian_body.id] = obsidian_body

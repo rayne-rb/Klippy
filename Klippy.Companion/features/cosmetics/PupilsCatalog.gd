@@ -49,4 +49,5 @@ static func _ensure_initialized() -> void:
 	obsidian_pupils.display_name = "Obsidian"
 	obsidian_pupils.texture = preload("res://assets/KlippyCosmetics/Pupils/Obsidian/KlippyLeftPupil.png")
 	obsidian_pupils.right_texture = preload("res://assets/KlippyCosmetics/Pupils/Obsidian/KlippyRightPupil.png")
+	obsidian_pupils.required_level = LevelUnlocks.OBSIDIAN_COSMETICS
 	_defs[obsidian_pupils.id] = obsidian_pupils

@@ -40,4 +40,5 @@ static func _ensure_initialized() -> void:
 	obsidian_eyes.display_name = "Obsidian"
 	obsidian_eyes.texture = preload("res://assets/KlippyCosmetics/Eyes/Obsidian/KlippyLeftEye.png")
 	obsidian_eyes.right_texture = preload("res://assets/KlippyCosmetics/Eyes/Obsidian/KlippyRightEye.png")
+	obsidian_eyes.required_level = LevelUnlocks.OBSIDIAN_COSMETICS
 	_defs[obsidian_eyes.id] = obsidian_eyes

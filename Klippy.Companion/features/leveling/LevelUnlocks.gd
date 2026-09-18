@@ -6,4 +6,5 @@ extends RefCounted
 
 const MARBLE_COSMETICS := 3
 const JELLY_FOOD := 2
+const OBSIDIAN_COSMETICS := 6
 const CROWN_HAT := 50
