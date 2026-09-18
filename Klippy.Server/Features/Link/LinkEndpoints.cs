@@ -3,6 +3,7 @@ using System.Text;
 using Klippy.Server.Common;
 using Klippy.Server.Features.Accounts;
 using Klippy.Server.Features.Pairing;
+using Klippy.Server.Features.Visits;
 using Klippy.Shared.Link;
 using Klippy.Shared.Link.Payloads;
 
@@ -49,6 +50,7 @@ public static class LinkEndpoints
         AccountService accounts,
         LinkRegistry registry,
         EventDispatcher dispatcher,
+        VisitNeighborhood neighborhood,
         ServerIdentity identity,
         ILoggerFactory loggerFactory)
     {
@@ -77,7 +79,8 @@ public static class LinkEndpoints
             : null;
 
         var connection = new LinkConnection(
-            device.DeviceId, device.DeviceKind, device.DeviceName, owner?.UserId, socket, logger);
+            device.DeviceId, device.DeviceKind, device.DeviceName, owner?.UserId, socket, logger,
+            owner?.Username);
 
         await registry.AddAsync(connection);
 
@@ -98,6 +101,9 @@ public static class LinkEndpoints
                 ServerName = identity.Name,
                 OwnerName = owner?.Username,
                 Peers = registry.PeersOf(device.DeviceId),
+                // Two lists, and the difference between them is the account boundary: the
+                // rest of your own devices, and the friends you may knock on for a visit.
+                Neighbors = neighborhood.NeighborsFor(device.DeviceId),
             }));
 
             // Sourced to the arriving device so the broadcast skips it: it already knows

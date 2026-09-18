@@ -65,3 +65,57 @@ h1:focus {
 .klippy-submit:hover {
     background-color: var(--mud-palette-primary-darken);
 }
+
+/* The sign-in screen's backdrop: Rixö granite quarry, Bohuslän.
+   Photograph by W.carter, CC0, from Wikimedia Commons —
+   https://commons.wikimedia.org/wiki/File:Cliffs_in_Rixö_quarry_with_shadow_of_a_cloud_passing.jpg
+   Carried in wwwroot rather than linked, for the same reason the fonts are: a device on
+   this LAN may have no route to the internet, and a sign-in page that waits on one is a
+   sign-in page that hangs. */
+
+.klippy-quarry {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    background-image: url("login-quarry.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* Behind the photo while it loads, and behind the letterboxing on an aspect ratio
+       the photo cannot fill: quarry granite rather than a white flash. */
+    background-color: #3b3a38;
+}
+
+/* Darkened so the card and the wordmark stay legible over rock, and kept as a separate
+   layer so the photo itself is untouched — dimming the file would bake it in for good. */
+.klippy-quarry::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(20, 18, 16, 0.28) 0%, rgba(20, 18, 16, 0.62) 100%);
+}
+
+.klippy-quarry-content {
+    position: relative;
+    margin: auto;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Over a photograph, not over a page background: white, with enough shadow to hold an
+   edge against both the bright rock and the shaded cliff. */
+.klippy-quarry-title {
+    color: #fdfbf7;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.75);
+}
+
+/* The cards are deliberately opaque. A translucent one over this much texture makes the
+   labels and the typed password harder to read, which is the one thing a sign-in form
+   cannot afford. Selected by where they are, so every page on this layout gets it without
+   five files having to remember a class. */
+.klippy-quarry .mud-paper {
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}

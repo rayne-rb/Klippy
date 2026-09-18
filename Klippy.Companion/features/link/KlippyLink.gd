@@ -26,6 +26,9 @@ signal pairing_failed(reason: String)
 ## The set of other devices on this server changed. See [member peers].
 signal peers_changed
 
+## The set of visitable companions in other accounts changed. See [member neighbors].
+signal neighbors_changed
+
 enum State {
 	OFFLINE,     ## Nothing going on yet.
 	SEARCHING,   ## Looking for a server on the network.
@@ -47,6 +50,16 @@ var state: State = State.OFFLINE
 ## slice can ask what else is out there without a round trip. Cleared whenever the
 ## socket is not open: an old list is worse than no list.
 var peers: Array[Dictionary] = []
+
+## The companions on this server that belong to [i]other[/i] accounts, as
+## [code]{id, name, owner}[/code] — the friends a pet may go and visit.
+##
+## A separate list from [member peers] because it means something much smaller. A peer is
+## a device of your own that the link will carry anything to; a neighbour is somebody
+## else's machine that the server will carry nothing to but a visit, and whose owner is
+## asked before a door opens over there. Filled from the welcome and kept in step by
+## [constant LinkEvents.VISIT_NEIGHBORS], which always arrives whole.
+var neighbors: Array[Dictionary] = []
 
 var _settings: LinkSettings
 var _discovery: ServerDiscovery
@@ -142,6 +155,30 @@ func peers_of_kind(kind: String) -> Array[Dictionary]:
 	return matching
 
 
+## The neighbour entry for [param device_id], or an empty dictionary. Lets a slice put a
+## face to a device id that is not one of ours — "Klippy on studio-pc (sam)".
+func neighbor(device_id: String) -> Dictionary:
+	for entry in neighbors:
+		if entry["id"] == device_id:
+			return entry
+	return {}
+
+
+## Whether [param device_id] is a device of our own.
+func is_peer(device_id: String) -> bool:
+	for peer in peers:
+		if peer["id"] == device_id:
+			return true
+	return false
+
+
+## Whether this device is still on the server at all, ours or a friend's. The two lists
+## are announced by different events, so anything holding on to a device id across a
+## visit asks this rather than watching one of them.
+func is_device_online(device_id: String) -> bool:
+	return is_peer(device_id) or not neighbor(device_id).is_empty()
+
+
 ## Throws away the current pairing and goes looking for a server again.
 func forget_pairing() -> void:
 	_settings.clear()
@@ -160,6 +197,10 @@ func _set_state(new_state: State) -> void:
 	if state != State.CONNECTED and not peers.is_empty():
 		peers.clear()
 		peers_changed.emit()
+
+	if state != State.CONNECTED and not neighbors.is_empty():
+		neighbors.clear()
+		neighbors_changed.emit()
 
 	state_changed.emit(state)
 
@@ -345,6 +386,7 @@ func _track_presence(type: String, payload: Dictionary) -> void:
 				if typeof(entry) == TYPE_DICTIONARY:
 					peers.append(_peer_from(entry))
 			peers_changed.emit()
+			_track_neighbors(payload.get("neighbors", []))
 
 		LinkEvents.DEVICE_CONNECTED:
 			var arrival := _peer_from(payload)
@@ -359,6 +401,33 @@ func _track_presence(type: String, payload: Dictionary) -> void:
 		LinkEvents.DEVICE_DISCONNECTED:
 			if _forget_peer(str(payload.get("deviceId", ""))):
 				peers_changed.emit()
+
+		LinkEvents.VISIT_NEIGHBORS:
+			# Always the whole list, so it is replaced rather than patched: a friend
+			# going offline is this arriving without them in it.
+			_track_neighbors(payload.get("neighbors", []))
+
+
+## Replaces the neighbour list wholesale. [param entries] is whatever the server sent,
+## which is a list of [code]{deviceId, deviceName, ownerName}[/code] when all is well.
+func _track_neighbors(entries: Variant) -> void:
+	neighbors.clear()
+
+	if typeof(entries) == TYPE_ARRAY:
+		for entry in entries:
+			if typeof(entry) != TYPE_DICTIONARY:
+				continue
+			var id := str(entry.get("deviceId", ""))
+			if id == "":
+				continue
+			neighbors.append({
+				"id": id,
+				"kind": LinkEvents.KIND_COMPANION,
+				"name": str(entry.get("deviceName", "")),
+				"owner": str(entry.get("ownerName", "")),
+			})
+
+	neighbors_changed.emit()
 
 
 func _peer_from(payload: Dictionary) -> Dictionary:

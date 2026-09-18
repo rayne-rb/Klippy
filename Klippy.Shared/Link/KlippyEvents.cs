@@ -212,4 +212,27 @@ public static class KlippyEvents
     /// Payload: <see cref="Payloads.SayPayload"/>.
     /// </summary>
     public const string VisitSpeak = "visit.speak";
+
+    /// <summary>
+    /// Host to summoner, targeted: not right now. No payload. Sent when the person at
+    /// the other monitor turns a knock down, so the summoner can take its own half of
+    /// the doorway back down instead of waiting on a pet that is never going to arrive.
+    /// </summary>
+    public const string VisitDeclined = "visit.declined";
+
+    /// <summary>
+    /// Server to one Companion: the Companions on this server that belong to
+    /// <em>other</em> accounts — the friends it may visit. Payload:
+    /// <see cref="Payloads.VisitNeighborsPayload"/>, also carried in the welcome.
+    ///
+    /// Presence and this are deliberately two different lists.
+    /// <see cref="DeviceConnected"/> and the welcome's peers stay inside one account,
+    /// because that is what the clipboard and the audio cast are routed by; a friend
+    /// is not a peer and never becomes one. All this says is "there is a Klippy over
+    /// there you could knock on", which is the least a visit can be built from.
+    ///
+    /// Resent in full whenever the connected set changes, so it is never patched and
+    /// never drifts.
+    /// </summary>
+    public const string VisitNeighbors = "visit.neighbors";
 }

@@ -57,6 +57,16 @@ public sealed record WelcomePayload
     public string? OwnerName { get; init; }
 
     public required IReadOnlyList<DevicePresencePayload> Peers { get; init; }
+
+    /// <summary>
+    /// The Companions on this server owned by <em>other</em> accounts: the friends this
+    /// device could knock on for a visit. Empty for a phone, and for a device nobody has
+    /// claimed. Kept apart from <see cref="Peers"/> on purpose — see
+    /// <see cref="Link.KlippyEvents.VisitNeighbors"/>.
+    ///
+    /// Not required, so a device built before neighbours existed still reads a welcome.
+    /// </summary>
+    public IReadOnlyList<VisitNeighborPayload> Neighbors { get; init; } = [];
 }
 
 /// <summary>An item you listed on the market sold. See <see cref="Link.KlippyEvents.MarketPayout"/>.</summary>
@@ -92,4 +102,24 @@ public sealed record VisitArrivePayload
 
     /// <summary>The pet's window size in pixels; the host mirrors it so he lands the size he left.</summary>
     public required int Size { get; init; }
+}
+
+/// <summary>
+/// One Klippy on this server that belongs to somebody else. Carries the owner's name
+/// as well as the device's, because "Klippy on studio-pc" means nothing to a visitor
+/// who has to decide whose monitor they are about to stand on.
+/// </summary>
+public sealed record VisitNeighborPayload
+{
+    public required string DeviceId { get; init; }
+    public required string DeviceName { get; init; }
+
+    /// <summary>The account that owns it. Never null: an unclaimed device is nobody's friend.</summary>
+    public required string OwnerName { get; init; }
+}
+
+/// <summary>Who a Companion may visit, as a whole list. See <see cref="Link.KlippyEvents.VisitNeighbors"/>.</summary>
+public sealed record VisitNeighborsPayload
+{
+    public required IReadOnlyList<VisitNeighborPayload> Neighbors { get; init; }
 }

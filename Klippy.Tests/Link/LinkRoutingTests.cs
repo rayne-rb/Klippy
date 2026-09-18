@@ -1,6 +1,5 @@
 using Klippy.Server.Features.Link;
 using Klippy.Shared.Link;
-using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace Klippy.Tests.Link;
@@ -143,41 +142,4 @@ public sealed class LinkRoutingTests
     }
 
     private static LinkEnvelope Envelope(string type) => LinkEnvelope.Create(type);
-
-    /// <summary>A registry with connections in it, each pumping into a socket we can read.</summary>
-    private sealed class World : IDisposable
-    {
-        private readonly List<LinkConnection> _connections = [];
-        private readonly CancellationTokenSource _cts = new();
-
-        public LinkRegistry Registry { get; } = new(NullLogger<LinkRegistry>.Instance);
-
-        public (Guid DeviceId, Guid? OwnerUserId, FakeSocket Socket) Connect(string name, Guid? ownerUserId)
-        {
-            var socket = new FakeSocket();
-            var connection = new LinkConnection(
-                Guid.NewGuid(), DeviceKind.Companion, name, ownerUserId, socket, NullLogger.Instance);
-
-            Registry.AddAsync(connection).GetAwaiter().GetResult();
-            _connections.Add(connection);
-
-            // The send loop is what moves an enqueued envelope onto the socket, which is
-            // where these tests observe it.
-            _ = connection.RunSendLoopAsync(_cts.Token);
-
-            return (connection.DeviceId, ownerUserId, socket);
-        }
-
-        public void Dispose()
-        {
-            _cts.Cancel();
-
-            foreach (var connection in _connections)
-            {
-                connection.SignalClosed();
-            }
-
-            _cts.Dispose();
-        }
-    }
 }

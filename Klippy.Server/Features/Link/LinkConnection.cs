@@ -30,12 +30,14 @@ public sealed class LinkConnection : IAsyncDisposable
         string deviceName,
         Guid? ownerUserId,
         WebSocket socket,
-        ILogger logger)
+        ILogger logger,
+        string? ownerName = null)
     {
         DeviceId = deviceId;
         DeviceKind = deviceKind;
         DeviceName = deviceName;
         OwnerUserId = ownerUserId;
+        OwnerName = ownerName;
         _socket = socket;
         _logger = logger;
         _outbound = Channel.CreateBounded<string>(new BoundedChannelOptions(OutboundCapacity)
@@ -64,6 +66,15 @@ public sealed class LinkConnection : IAsyncDisposable
     /// group of everyone.
     /// </summary>
     public Guid? OwnerUserId { get; }
+
+    /// <summary>
+    /// That account's username, held for the same reason as the id above: the friends
+    /// list a visit is picked from names whose Klippy each one is, and rebuilding it on
+    /// every connect and disconnect must not mean a database round trip per device.
+    ///
+    /// Null exactly when <see cref="OwnerUserId"/> is.
+    /// </summary>
+    public string? OwnerName { get; }
 
     public DateTimeOffset ConnectedAt { get; } = DateTimeOffset.UtcNow;
 

@@ -124,14 +124,25 @@ public sealed class EventDispatcher(
 
         if (Guid.TryParse(envelope.Target, out var target))
         {
-            if (!registry.TrySendWithinGroup(target, senderOwner, envelope))
+            if (registry.TrySendWithinGroup(target, senderOwner, envelope))
             {
-                // Deliberately one message for both "offline" and "not yours to address".
-                // Telling them apart would let a device map out the rest of the server.
-                logger.LogDebug(
-                    "{Type} addressed to {Target}, which is not reachable from this account",
-                    envelope.Type, target);
+                return;
             }
+
+            // Inside the account first, then the one way out of it. A visit is aimed at
+            // somebody else's monitor by definition, so it is tried here rather than
+            // refused — on the registry's terms, which are narrow: a visit event, between
+            // two claimed Companions, and nothing else (see VisitPolicy).
+            if (source is { } sender && registry.TryVisitAcrossAccounts(target, sender, envelope))
+            {
+                return;
+            }
+
+            // Deliberately one message for both "offline" and "not yours to address".
+            // Telling them apart would let a device map out the rest of the server.
+            logger.LogDebug(
+                "{Type} addressed to {Target}, which is not reachable from this device",
+                envelope.Type, target);
 
             return;
         }

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Klippy.Server.Features.Visits;
 using Klippy.Shared.Link;
 using Klippy.Shared.Link.Payloads;
 
@@ -194,5 +195,72 @@ public sealed class LinkRegistry(ILogger<LinkRegistry> logger)
                 DeviceName = c.DeviceName,
             })
             .ToList();
+    }
+
+    /// <summary>
+    /// The Companions on this server that belong to somebody else: who this device could
+    /// go and visit. Empty unless the asker is itself a claimed Companion, so a phone and
+    /// a device nobody has approved both get nowhere.
+    ///
+    /// Deliberately not folded into <see cref="PeersOf"/>. A peer is a device of your own
+    /// that the link will carry anything to; a friend is a stranger you may knock on and
+    /// nothing more, and the two lists exist separately so that difference cannot be lost
+    /// by accident. See <see cref="VisitPolicy"/>.
+    /// </summary>
+    public IReadOnlyList<LinkConnection> CompanionsOutsideAccount(Guid deviceId)
+    {
+        if (!_connections.TryGetValue(deviceId, out var self)
+            || !VisitPolicy.CanTakePart(self.DeviceKind)
+            || self.OwnerUserId is not { } owner)
+        {
+            return [];
+        }
+
+        return _connections.Values
+            .Where(c => VisitPolicy.CanTakePart(c.DeviceKind)
+                        && c.OwnerUserId is { } theirs
+                        && theirs != owner)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Carries one Companion's envelope to a Companion in another account — the visit
+    /// exception, and the only thing on this server that crosses that line.
+    ///
+    /// Every condition is re-asked here rather than trusted from the caller, because this
+    /// is the method that makes the boundary leak on purpose and it is the last place
+    /// anything is checked. <see cref="VisitPolicy"/> says what may cross; this says who
+    /// it may cross between. Returns false when the answer is no, for any of the reasons,
+    /// which the caller cannot tell apart — the same silence <see cref="TrySendWithinGroup"/>
+    /// keeps, and for the same reason.
+    /// </summary>
+    public bool TryVisitAcrossAccounts(Guid deviceId, Guid senderDeviceId, LinkEnvelope envelope)
+    {
+        if (!VisitPolicy.MayCrossAccounts(envelope.Type))
+        {
+            return false;
+        }
+
+        if (!_connections.TryGetValue(senderDeviceId, out var sender)
+            || !_connections.TryGetValue(deviceId, out var target))
+        {
+            return false;
+        }
+
+        if (!VisitPolicy.CanTakePart(sender.DeviceKind) || !VisitPolicy.CanTakePart(target.DeviceKind))
+        {
+            return false;
+        }
+
+        // Both claimed, and by different people. Same-account delivery is
+        // TrySendWithinGroup's job and has already had its turn by the time anything asks
+        // this, so a visit between your own two machines never reaches here.
+        if (sender.OwnerUserId is not { } from || target.OwnerUserId is not { } to || from == to)
+        {
+            return false;
+        }
+
+        target.Enqueue(envelope);
+        return true;
     }
 }

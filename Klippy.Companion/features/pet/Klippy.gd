@@ -1026,12 +1026,12 @@ func banish_travel_portals() -> void:
 
 
 ## The session owns the green portal's whole life. With exactly one other Klippy
-## on the server there is nothing to choose, so the doorway opens on the spot;
-## with several, the dialog asks whose monitor.
+## on the server — ours or a friend's — there is nothing to choose, so the doorway
+## opens on the spot; with several, the dialog asks whose monitor.
 func _summon_friend_portal() -> void:
-	var peers := visit_session.companion_peers()
-	if peers.size() == 1:
-		visit_session.summon_portal(peers[0])
+	var klippys := visit_session.visitable_klippys()
+	if klippys.size() == 1:
+		visit_session.summon_portal(klippys[0])
 	else:
 		_open_visit_dialog()
 
@@ -1044,7 +1044,7 @@ func _open_visit_dialog() -> void:
 	if visit_dialog == null:
 		visit_dialog = VisitDialog.new()
 		add_child(visit_dialog)
-		visit_dialog.setup(visit_session)
+		visit_dialog.setup(visit_session, visit_host)
 		visit_dialog.close_requested.connect(_on_visit_dialog_closed)
 	visit_dialog.popup_centered()
 

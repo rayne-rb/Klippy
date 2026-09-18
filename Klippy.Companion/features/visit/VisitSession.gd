@@ -11,6 +11,12 @@ extends Node
 ## know about. Summoning opens a portal here and asks the other end (visit.open)
 ## to open its own; what each end does on its own monitor is its own business.
 ##
+## That companion can be another machine of your own, or a friend's: `visit.*` is
+## the one thing the server carries between two accounts. The difference shows up
+## here only at the end of a knock — a friend's side asks its owner before opening
+## anything, and may answer visit.declined instead, which takes this end's portal
+## back down rather than leaving the pet waiting on a door that will not open.
+##
 ## A throw into the green portal does not teleport the pet locally — it hides him
 ## here and asks the other companion (visit.arrive) to stand him up over there.
 ## Coming home is the same trip in reverse, and the exit the friend sees is a
@@ -48,13 +54,29 @@ func setup(klippy: Klippy) -> void:
 
 	KlippyLink.event_received.connect(_on_link_event)
 	KlippyLink.state_changed.connect(_on_link_state_changed)
+	KlippyLink.neighbors_changed.connect(_on_neighbors_changed)
 
 
-## The other Klippy companions currently connected to our server — the monitors
-## a friend portal can open onto. Phones and other devices are not klippys and
-## cannot host one, so they never appear.
+## The other Klippy companions of our own account — our own other machines.
+## Phones and other devices are not klippys and cannot host a portal, so they
+## never appear.
 func companion_peers() -> Array[Dictionary]:
 	return KlippyLink.peers_of_kind(LinkEvents.KIND_COMPANION)
+
+
+## The Klippy companions on this server belonging to other people. Same thing to
+## summon onto, one difference to the person doing it: somebody over there is
+## asked first.
+func friend_companions() -> Array[Dictionary]:
+	return KlippyLink.neighbors.duplicate()
+
+
+## Every monitor a portal could open onto, ours and theirs, for the count that
+## decides whether there is anything to choose between.
+func visitable_klippys() -> Array[Dictionary]:
+	var all := companion_peers()
+	all.append_array(friend_companions())
+	return all
 
 
 ## Whether the green door is currently on the desktop (drives the Fun menu items).
@@ -82,6 +104,13 @@ func summon_portal(peer: Dictionary) -> void:
 	_spawn_portal()
 
 	KlippyLink.publish(LinkEvents.VISIT_OPEN, null, _peer_id)
+
+	# Onto a friend's monitor the door does not open until somebody over there says
+	# so, and the portal on this desktop looks exactly the same either way. Saying it
+	# out loud is the only sign this end has that it is waiting on a person.
+	if not KlippyLink.neighbor(_peer_id).is_empty():
+		_klippy.say("Knock, knock...")
+
 	portal_changed.emit()
 
 
@@ -167,21 +196,47 @@ func _on_link_event(type: String, payload: Dictionary, source: String) -> void:
 			if _state == State.RECALLING and source == _peer_id:
 				_return_home(true)
 
+		LinkEvents.VISIT_DECLINED:
+			if source == _peer_id:
+				# A friend was asked and said not now. The pet may already be
+				# mid-jump, in which case he comes straight back out rather than
+				# waiting on an arrival that is not coming.
+				if is_visiting():
+					_return_home(false)
+				_klippy.say("Maybe another time...")
+				_forget_peer()
+
 		LinkEvents.DEVICE_DISCONNECTED:
-			var gone := str(payload.get("deviceId", ""))
-			if gone != _peer_id:
-				return
-			# The other end signing off takes the whole doorway with it: nobody is
-			# left to show him, and nothing is left to open onto.
-			if is_visiting():
-				_return_home(false)
-			elif has_portal():
-				_close_portal()
-				_peer_id = ""
-				portal_changed.emit()
+			if str(payload.get("deviceId", "")) == _peer_id:
+				_peer_vanished()
 
 		_:
 			pass
+
+
+## A friend's Klippy has no device.disconnected to give us — that event stays
+## inside an account — so their going offline reaches us as the neighbour list
+## arriving without them in it.
+func _on_neighbors_changed() -> void:
+	if _peer_id != "" and not KlippyLink.is_device_online(_peer_id):
+		_peer_vanished()
+
+
+## The other end is gone, whichever list said so. It takes the whole doorway with
+## it: nobody is left to show him, and nothing is left to open onto.
+func _peer_vanished() -> void:
+	if is_visiting():
+		_return_home(false)
+	_forget_peer()
+
+
+## Drops this end's half of the doorway without telling anyone — for the cases
+## where the other end already knows (it declined, or it is gone).
+func _forget_peer() -> void:
+	if has_portal():
+		_close_portal()
+	_peer_id = ""
+	portal_changed.emit()
 
 
 func _on_link_state_changed(state: KlippyLink.State) -> void:

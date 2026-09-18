@@ -11,6 +11,13 @@ extends Node
 ## when the other end summons, dress the guest from his arrival payload, drop him
 ## next to our own pet, and answer the door events (arrived, departed).
 ##
+## Whose visits open a door without asking is the one question this side has to
+## answer, and the link answers most of it: another device of your own account is
+## a peer, and walks in. A friend is a neighbour — somebody else's account on the
+## same server — and the server carries their visit across a boundary that stops
+## everything else, so they knock first ([VisitKnockDialog]) and the answer can be
+## remembered ([VisitSettings]). A device that is neither gets nothing at all.
+##
 ## Reminders the host user sets through the visiting pet live here too, in their
 ## own scheduler. They are a favor to the guest's stay — announced by the visitor
 ## on this monitor, dropped when the visit ends — and never touch the host pet's
@@ -36,10 +43,16 @@ var _exit_portal: TravelPortal
 var _guest_reminders: ReminderScheduler
 var _guest_reminder_dialog: ReminderDialog
 var _suck_in_tween: Tween
+## Friends who may skip the knock.
+var _settings: VisitSettings
+## The question on screen, and who it is about, while a friend waits at the door.
+var _knock: VisitKnockDialog
+var _knocking_peer := ""
 
 
 func setup(klippy: Klippy) -> void:
 	_klippy = klippy
+	_settings = VisitSettings.load_settings()
 
 	_guest_reminders = ReminderScheduler.new()
 	add_child(_guest_reminders)
@@ -47,6 +60,17 @@ func setup(klippy: Klippy) -> void:
 
 	KlippyLink.event_received.connect(_on_event_received)
 	KlippyLink.state_changed.connect(_on_link_state_changed)
+	KlippyLink.neighbors_changed.connect(_on_neighbors_changed)
+
+
+## The friends this machine has stopped asking about, and how to stop letting them
+## in — read by the visit dialog, which is where that list is undone.
+func remembered_friends() -> Array[Dictionary]:
+	return _settings.friends()
+
+
+func forget_friend(device_id: String) -> void:
+	_settings.forget(device_id)
 
 
 func is_hosting() -> bool:
@@ -58,9 +82,12 @@ func is_hosting() -> bool:
 func _on_event_received(type: String, payload: Dictionary, source: String) -> void:
 	match type:
 		LinkEvents.VISIT_OPEN:
-			_on_portal_opened(source)
+			_on_portal_requested(source)
 
 		LinkEvents.VISIT_CLOSE:
+			if source == _knocking_peer:
+				# They gave up on the door before it was answered.
+				_dismiss_knock()
 			if source == _open_peer_id and not is_hosting():
 				_close_standing_portal()
 				_open_peer_id = ""
@@ -92,9 +119,17 @@ func _on_link_state_changed(state: KlippyLink.State) -> void:
 		_end_visit()
 		_close_standing_portal()
 		_open_peer_id = ""
+		_dismiss_knock()
 
 
 func _on_device_gone(device_id: String) -> void:
+	if device_id == "":
+		return
+
+	if device_id == _knocking_peer:
+		# Nobody left at the door to let in.
+		_dismiss_knock()
+
 	if device_id == _visitor_id and is_hosting():
 		# The visitor's connection is his lifeline: if his device went away,
 		# whatever he is doing here is over.
@@ -106,11 +141,97 @@ func _on_device_gone(device_id: String) -> void:
 		_open_peer_id = ""
 
 
+## A friend's Klippy has no device.disconnected to give us — that event stays inside
+## an account — so their going offline reaches us as the neighbour list arriving
+## without them in it.
+func _on_neighbors_changed() -> void:
+	for device_id in [_visitor_id, _open_peer_id, _knocking_peer]:
+		if device_id != "" and not KlippyLink.is_device_online(device_id):
+			_on_device_gone(device_id)
+
+
 # --- The doorway ----------------------------------------------------------------
 
-func _on_portal_opened(source: String) -> void:
+## Somebody summoned a portal onto this desktop. One of our own opens it on the
+## spot; a friend is asked about first, unless they have been let in before.
+func _on_portal_requested(source: String) -> void:
+	if KlippyLink.is_peer(source):
+		_open_doorway(source)
+		return
+
+	var friend := KlippyLink.neighbor(source)
+	if friend.is_empty():
+		# Neither ours nor anybody the server has told us about. Nothing to open
+		# onto, and nothing worth saying to a device we do not know.
+		return
+
+	if _settings.is_allowed(source):
+		_open_doorway(source)
+		return
+
+	_ask_to_let_in(source, friend)
+
+
+func _open_doorway(source: String) -> void:
 	_open_peer_id = source
 	_spawn_standing_portal()
+
+
+## Puts the question on the screen. Only ever asked about a neighbour, and only one
+## at a time: a second knock replaces the first, which is also what happens to the
+## doorway itself.
+func _ask_to_let_in(source: String, friend: Dictionary) -> void:
+	_dismiss_knock()
+
+	_knocking_peer = source
+	_knock = VisitKnockDialog.new()
+	add_child(_knock)
+	_knock.setup(_describe(friend))
+	_knock.answered.connect(_on_knock_answered.bind(source, friend))
+	_knock.popup_centered()
+
+
+func _on_knock_answered(allow: bool, remember: bool, source: String, friend: Dictionary) -> void:
+	_knock = null
+	_knocking_peer = ""
+
+	if not allow:
+		# Answered rather than ignored, so the other end can take its own half of
+		# the doorway down instead of waiting on a pet that is not coming.
+		KlippyLink.publish(LinkEvents.VISIT_DECLINED, null, source)
+		return
+
+	if remember:
+		_settings.allow(source, _describe(friend))
+
+	_open_doorway(source)
+
+
+func _dismiss_knock() -> void:
+	if _knock != null and is_instance_valid(_knock):
+		_knock.withdraw()
+	_knock = null
+	_knocking_peer = ""
+
+
+## How a friend is named at the door: their Klippy and whose it is, since "Klippy on
+## studio-pc" on its own says nothing about who is asking.
+func _describe(friend: Dictionary) -> String:
+	var device_name := str(friend.get("name", "")).strip_edges()
+	if device_name == "":
+		device_name = "A Klippy"
+
+	var owner := str(friend.get("owner", "")).strip_edges()
+	return device_name if owner == "" else "%s (%s)" % [device_name, owner]
+
+
+## Whether an arrival from this device should be stood up on the screen at all. A
+## door we opened is the usual answer; the rest is for the arrival that beats its own
+## visit.open, or comes from a friend we long since stopped asking about.
+func _may_host(source: String) -> bool:
+	if source == "":
+		return false
+	return source == _open_peer_id or KlippyLink.is_peer(source) or _settings.is_allowed(source)
 
 
 ## The green door, placed next to our own pet on his screen — the spot an
@@ -146,6 +267,11 @@ func _doorway_spot() -> Vector2:
 # --- Visitor lifecycle ----------------------------------------------------------
 
 func _on_arrive(payload: Dictionary, source: String) -> void:
+	# A pet may only stand up here if his summoner was let in. Without this, a
+	# declined knock is answered by simply arriving anyway.
+	if not _may_host(source):
+		return
+
 	# One guest at a time: a second arrival replaces the first.
 	if is_hosting():
 		_end_visit()

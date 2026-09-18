@@ -104,11 +104,24 @@ server's device list: every Klippy companion paired to (and connected to) the sa
 server is a monitor a pet can visit — no extra pairing, no addresses, the link
 they already share carries the whole thing.
 
+That includes a friend's. Everything else on this server is routed by account — your
+devices reach each other and nobody else — and a visit is the one deliberate exception
+to it, because somebody else's monitor is the whole point. So the picker shows two
+lists: **your machines**, and **friends on this server**, which is every other
+account's connected Klippy, by name and by whose it is.
+
 Right-click → Fun → **Summon Friend Portal** (or the visit dialog's picker, when
 more than one other Klippy is connected) opens a green vortex on this desktop and,
 via a targeted event to the chosen companion, its twin on theirs. Throw the pet in
 and he disappears here and stands up over there, next to their own Klippy, wearing
 whatever cosmetics he left in.
+
+**A friend knocks first.** Summoning onto another account's monitor asks the person
+there — *"Klippy on studio-pc (sam) wants to come over"* — and nothing opens until
+they answer. **Let them in** opens the door once; **Always let them in** stops asking
+about that machine (undone from the bottom of the visit dialog); **Not now** answers
+the summoner, whose portal comes back down rather than standing there waiting for a
+pet that is not coming. Your own machines never knock — they are yours.
 
 **Banish Friend Portal** takes both halves back down. **Call him back** — from the
 green portal's right-click menu, or **Send home** from the visitor's own
@@ -201,15 +214,36 @@ suits a server that lives on a shelf in the same room.
 
 ### What this means for visits
 
-A visit connects two Companions that are already devices on this server, picked from the
-connected ones. Those are ordinary devices with ordinary tokens, so they are scoped like
-everything else: **a Companion only sees the Companions in its own account**, and that is
-the set a visit can choose from.
+A visit is the one thing that crosses the line, and it is written down in one place:
+`VisitPolicy` in the server's `Visits` slice. It may cross when, and only when, the event
+is one of the `visit.*` names, both ends are Companions, and both belong to an account. A
+whitelist, so a feature added next year is closed across accounts until somebody decides
+otherwise — and a phone is neither end of a visit, so nothing about one can be aimed at
+one.
 
-So visits work between your own machines — your desktop and your laptop — and two different
-people on one server cannot currently see each other to visit at all. If visits are meant
-to cross accounts, that wants a deliberate exception: the `visit.*` events allowed across
-the boundary while everything else stays inside it. Nothing does that today.
+Seeing each other takes a second list, because presence cannot be it. `device.connected`
+and the welcome's peers stay inside one account on purpose — that is what the clipboard and
+the audio relay are routed by, and widening them to make visits work would widen them for
+everything. So a Companion is also told its **neighbours**: the other accounts' Companions,
+their name and their owner's, and nothing else about them. A peer is a device of your own
+that the link will carry anything to; a neighbour is somebody you may knock on.
+
+Whether the knock is answered is not the server's business. It carries the knock, and the
+person at the other monitor decides (see **Visits** above). So the account boundary still
+means what it did — your clipboard, your phone, your audio — and a pet can still walk next
+door.
+
+## Credits
+
+The sign-in screen's backdrop is a photograph of the old granite quarry at Rixö in
+Bohuslän, by [W.carter](https://commons.wikimedia.org/wiki/User:W.carter), released
+[CC0](https://creativecommons.org/publicdomain/zero/1.0/) on Wikimedia Commons —
+[the original](https://commons.wikimedia.org/wiki/File:Cliffs_in_Rix%C3%B6_quarry_with_shadow_of_a_cloud_passing.jpg)
+is 4925×3043; what ships in `Klippy.Server/wwwroot/` is scaled to 2560 wide. CC0 asks for
+no attribution, but knowing where a file came from is worth more than the line it costs.
+
+Quarry, because that is what the Companion calls the menu where the work is: the
+Connection, the Market and the sell portal.
 
 ## Architecture
 
@@ -224,7 +258,7 @@ in the Godot project.
 | Pairing | ✓ | ✓ | ✓ |
 | Link | ✓ | ✓ | ✓ |
 | Pet | ✓ `PetState` | ✓ `pet` `food` `stats` `dialogue` `remote` | ✓ `Pet` |
-| Visits | — | ✓ `visit` | — |
+| Visits | ✓ | ✓ `visit` | — |
 | AudioCast | ✓ | — | ✓ (Android) |
 | Accounts | ✓ | — | — |
 | Clipboard | ✓ | ✓ | ✓ |

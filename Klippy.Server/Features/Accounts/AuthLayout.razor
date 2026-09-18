@@ -3,14 +3,20 @@
 @* The sign-in pages render as static SSR (see Login.razor for why), so this layout
    deliberately leaves out MainLayout's popover, dialog and snackbar providers — they
    exist to serve interactive components, and there are none here. The theme provider
-   stays: it is what emits the CSS variables the rest of the styling is written against. *@
+   stays: it is what emits the CSS variables the rest of the styling is written against.
+
+   The backdrop is a granite quarry, which is where this server keeps its work: Quarry is
+   the Companion's own name for the menu holding the Connection, the Market and the sell
+   portal. Styles live in app.css under .klippy-quarry. *@
 <MudThemeProvider Theme="KlippyTheme.Value" />
 
-<MudLayout>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="mt-16">
-            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Klippy</MudText>
-            @Body
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+@* No MudLayout here, unlike MainLayout: its own background would sit on top of the
+   photograph, and these pages want the quarry behind them edge to edge. *@
+<div class="klippy-quarry">
+    <MudContainer MaxWidth="MaxWidth.ExtraSmall" Class="klippy-quarry-content">
+        <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true" Class="klippy-quarry-title">
+            Klippy
+        </MudText>
+        @Body
+    </MudContainer>
+</div>

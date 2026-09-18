@@ -9,6 +9,7 @@ using Klippy.Server.Features.Link;
 using Klippy.Server.Features.Market;
 using Klippy.Server.Features.Pairing;
 using Klippy.Server.Features.PetState;
+using Klippy.Server.Features.Visits;
 using Klippy.Shared;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -43,6 +44,7 @@ builder.Services.AddPetStateFeature();
 builder.Services.AddAudioCastFeature();
 builder.Services.AddMarketFeature();
 builder.Services.AddClipboardFeature();
+builder.Services.AddVisitsFeature();
 
 var app = builder.Build();
 

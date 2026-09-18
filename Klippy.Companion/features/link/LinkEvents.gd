@@ -41,6 +41,10 @@ const MARKET_PAYOUT_ACK := "market.payout.ack"
 # klippy network is the server's device list — so these ride the ordinary link,
 # always targeted at the companion on the other end. The server only routes
 # them; both ends are companions. See the visit slice.
+#
+# They are also the only events the server will carry between two accounts, which
+# is how visiting a friend works at all: everything else stops at the boundary
+# that makes "my devices" mean something. The friend's side answers the knock.
 const VISIT_OPEN := "visit.open"
 const VISIT_CLOSE := "visit.close"
 const VISIT_ARRIVE := "visit.arrive"
@@ -48,6 +52,12 @@ const VISIT_ARRIVED := "visit.arrived"
 const VISIT_RECALL := "visit.recall"
 const VISIT_DEPARTED := "visit.departed"
 const VISIT_SPEAK := "visit.speak"
+const VISIT_DECLINED := "visit.declined"
+
+# Server to us: the companions on this server owned by other accounts — the
+# friends we may knock on. Kept apart from the peer list on purpose; see
+# [member KlippyLink.neighbors].
+const VISIT_NEIGHBORS := "visit.neighbors"
 
 # Clipboard. None of these carry what was copied: reading and writing entries is plain
 # HTTP (see ClipboardClient), both because those want a real answer and because the server
