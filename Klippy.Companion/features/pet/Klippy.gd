@@ -18,6 +18,8 @@ const SUMMON_PORTALS_ID := 11
 const BANISH_PORTALS_ID := 12
 const SLEEP_ID := 13
 const SKILLS_ID := 14
+const MARKET_ID := 15
+const SELL_PORTAL_ID := 16
 
 # While the pet loiters inside a portal (a dropper loop) the portal re-fires
 # every LINGER_REFIRE seconds; this gap throttles those repeat teleports.
@@ -136,6 +138,16 @@ var red_portal: TravelPortal
 var travel_portals: Array[TravelPortal] = []
 var _portal_chain_cooldown := 0.0
 
+var market_client: MarketClient
+var market_mailbox: MarketMailbox
+var market_dialog: MarketDialog
+var sell_price_dialog: MarketSellDialog
+var sell_portal: SellPortal
+## Which consumable window is currently frozen in the sell portal awaiting a
+## price decision, so the price dialog's confirm/cancel know which item to
+## finish selling or hand back. Null whenever no sale is in progress.
+var _pending_sale_window: Window
+
 var detail: Sprite2D
 var left_eye: Sprite2D
 var right_eye: Sprite2D
@@ -195,6 +207,7 @@ func _ready() -> void:
 	var consumable_bag_data: Dictionary = save_data.get("consumable_bag", {})
 	var level_data: Dictionary = save_data.get("level", {})
 	var points_data: Dictionary = save_data.get("klippy_points", {})
+	var market_data: Dictionary = save_data.get("market", {})
 
 	stats = PetStats.new()
 	add_child(stats)
@@ -216,6 +229,13 @@ func _ready() -> void:
 	klippy_points = KlippyPoints.new()
 	add_child(klippy_points)
 	klippy_points.load_points(int(points_data.get("points", 0)))
+
+	market_client = MarketClient.new()
+	add_child(market_client)
+
+	market_mailbox = MarketMailbox.new()
+	add_child(market_mailbox)
+	market_mailbox.setup(klippy_points, market_data.get("applied_payouts", []), _save_state)
 
 	consumable_spawner = ConsumableSpawner.new()
 	add_child(consumable_spawner)
@@ -242,6 +262,8 @@ func _ready() -> void:
 	context_menu.add_item("Summon Consumable", SUMMON_CONSUMABLE_ID)
 	context_menu.add_item("Wardrobe", WARDROBE_ID)
 	context_menu.add_item("Summon Portals", SUMMON_PORTALS_ID)
+	context_menu.add_item("Market", MARKET_ID)
+	context_menu.add_check_item("Sell Portal", SELL_PORTAL_ID)
 	context_menu.add_item("Status", STATUS_ID)
 	context_menu.add_check_item("Sleep", SLEEP_ID)
 	context_menu.add_item("Skills", SKILLS_ID)
@@ -259,6 +281,10 @@ func _ready() -> void:
 	_update_sleep_menu_item(stats.is_sleeping)
 	_update_revive_item()
 	_update_dev_tools_item()
+
+	# The market only means anything with somewhere to buy from and sell to.
+	KlippyLink.state_changed.connect(_on_klippy_link_state_changed_for_market)
+	_update_market_menu_state()
 
 	_create_consumable_bag()
 	_create_wardrobe()
@@ -728,6 +754,7 @@ func _save_state() -> void:
 		"reminders": reminder_scheduler.to_save_data(),
 		"level": {"xp": pet_level.xp},
 		"klippy_points": {"points": klippy_points.points},
+		"market": {"applied_payouts": market_mailbox.to_save_data()},
 		"meta": {"saved_at": Time.get_unix_time_from_system()},
 	})
 
@@ -770,6 +797,10 @@ func _on_context_menu_id_pressed(id: int) -> void:
 			_summon_portals()
 		BANISH_PORTALS_ID:
 			_banish_portals()
+		MARKET_ID:
+			_open_market()
+		SELL_PORTAL_ID:
+			_toggle_sell_portal()
 		CONNECTION_ID:
 			_open_connection()
 		WARDROBE_ID:
@@ -822,7 +853,19 @@ func _update_feed_menu_state() -> void:
 
 
 func _summon_consumable() -> void:
-	if active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
+	_open_consumable_portal(_roll_summon_consumable_type)
+
+
+## A bought item is already paid for by the time this is called (see
+## [signal MarketDialog.item_purchased]), so it bypasses [constant
+## MAX_CONSUMABLE_ITEMS] rather than risk vanishing a purchase the desktop
+## happened to be too full to hold.
+func _on_market_item_purchased(item_type: String) -> void:
+	_open_consumable_portal(func() -> String: return item_type, true)
+
+
+func _open_consumable_portal(type_provider: Callable, bypass_cap := false) -> void:
+	if not bypass_cap and active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
 
 	var portal := ConsumablePortal.new()
@@ -831,15 +874,15 @@ func _summon_consumable() -> void:
 	# wherever screen 0 is rather than next to the pet.
 	portal.current_screen = get_window().current_screen
 	add_child(portal)
-	portal.opened.connect(_on_consumable_portal_opened.bind(portal))
+	portal.opened.connect(_on_consumable_portal_opened.bind(portal, type_provider, bypass_cap))
 
 
 ## Spawns the consumable only once the portal is actually open (see
 ## [signal ConsumablePortal.opened]), then repositions/launches it out of the
 ## portal's center instead of [method _spawn_consumable_body]'s normal
 ## next-to-Klippy default.
-func _on_consumable_portal_opened(portal: ConsumablePortal) -> void:
-	_spawn_consumable_body(_roll_summon_consumable_type())
+func _on_consumable_portal_opened(portal: ConsumablePortal, type_provider: Callable, bypass_cap: bool) -> void:
+	_spawn_consumable_body(type_provider.call(), bypass_cap)
 	if active_consumable_items.is_empty():
 		return
 
@@ -909,6 +952,149 @@ func _update_portal_menu_items() -> void:
 		context_menu.remove_item(banish_index)
 
 
+# --- Market --------------------------------------------------------------------
+
+func _open_market() -> void:
+	if market_dialog == null:
+		market_dialog = MarketDialog.new()
+		add_child(market_dialog)
+		market_dialog.setup(market_client, klippy_points)
+		market_dialog.item_purchased.connect(_on_market_item_purchased)
+		market_dialog.close_requested.connect(_on_market_closed)
+	market_dialog.popup_centered()
+	market_dialog.refresh()
+
+
+func _on_market_closed() -> void:
+	market_dialog.queue_free()
+	market_dialog = null
+
+
+func _toggle_sell_portal() -> void:
+	if sell_portal != null:
+		_banish_sell_portal()
+	else:
+		_open_sell_portal()
+
+
+func _open_sell_portal() -> void:
+	sell_portal = SellPortal.new()
+	sell_portal.current_screen = get_window().current_screen
+	add_child(sell_portal)
+
+	var bounds := DisplayServer.screen_get_usable_rect(sell_portal.current_screen)
+	var spot := Vector2(bounds.position) + Vector2(bounds.size.x * 0.5, bounds.size.y * 0.75)
+	sell_portal.place(Vector2i(spot))
+
+	_apply_sell_portal_to_active_items()
+	context_menu.set_item_checked(context_menu.get_item_index(SELL_PORTAL_ID), true)
+
+
+func _banish_sell_portal() -> void:
+	if sell_portal == null:
+		return
+
+	if is_instance_valid(sell_portal):
+		sell_portal.queue_free()
+	sell_portal = null
+
+	_apply_sell_portal_to_active_items()
+	context_menu.set_item_checked(context_menu.get_item_index(SELL_PORTAL_ID), false)
+
+
+## Keeps every already-spawned item in step with whichever sell portal is
+## current, the same way [member ConsumableBody.bag] is pushed in rather than
+## looked up — an item dropped before the portal opened still needs to become
+## sellable the moment it does.
+func _apply_sell_portal_to_active_items() -> void:
+	for window in active_consumable_items:
+		var body := window.get_child(0) as ConsumableBody
+		body.sell_portal = sell_portal
+
+
+func _on_klippy_link_state_changed_for_market(state: KlippyLink.State) -> void:
+	_update_market_menu_state()
+	# A sale needs the server on the other end of it, so a portal left open
+	# through a disconnect would just be a promise nothing can keep.
+	if state != KlippyLink.State.CONNECTED:
+		_banish_sell_portal()
+
+
+func _update_market_menu_state() -> void:
+	var connected := KlippyLink.is_connected_to_server()
+	context_menu.set_item_disabled(context_menu.get_item_index(MARKET_ID), not connected)
+	context_menu.set_item_disabled(context_menu.get_item_index(SELL_PORTAL_ID), not connected)
+
+
+## Fired by the item itself once it has drifted into the sell portal (see
+## [signal ConsumableBody.sell_requested]). Freezes it in place rather than
+## removing it yet, so a cancelled sale or a failed listing call can just hand
+## it back.
+func _on_consumable_sell_requested(window: Window) -> void:
+	if sell_price_dialog == null:
+		sell_price_dialog = MarketSellDialog.new()
+		add_child(sell_price_dialog)
+		sell_price_dialog.confirmed.connect(_on_sell_price_confirmed)
+		sell_price_dialog.cancelled.connect(_on_sell_cancelled)
+
+	var body := window.get_child(0) as ConsumableBody
+	body.velocity = Vector2.ZERO
+	body.angular_velocity = 0.0
+	body.set_physics_process(false)
+
+	_pending_sale_window = window
+	sell_price_dialog.open_for(ConsumableCatalog.get_def(body.consumable_type).display_name)
+
+
+func _on_sell_price_confirmed(price: int) -> void:
+	if _pending_sale_window == null:
+		return
+	var body := _pending_sale_window.get_child(0) as ConsumableBody
+	market_client.sell(body.consumable_type, price, _on_sell_response)
+
+
+func _on_sell_response(ok: bool, error: String) -> void:
+	if ok:
+		sell_price_dialog.hide()
+		_finish_sale()
+	else:
+		sell_price_dialog.show_error(error)
+		_return_pending_sale_item()
+
+
+## The item actually leaves the desktop: pooled exactly like a normal
+## consumption, minus any of the eating rewards — this was a sale, not a meal.
+func _finish_sale() -> void:
+	var window := _pending_sale_window
+	_pending_sale_window = null
+	if window == null or not is_instance_valid(window):
+		return
+	_retire_consumable_window(window)
+
+
+## The listing call failed, or the user cancelled: give the item back rather
+## than lose it, bounced out of the portal the same way a bought item bursts
+## out of one.
+func _return_pending_sale_item() -> void:
+	var window := _pending_sale_window
+	_pending_sale_window = null
+	if window == null or not is_instance_valid(window):
+		return
+
+	var body := window.get_child(0) as ConsumableBody
+	body.pending_sale = false
+	body.set_physics_process(true)
+
+	if sell_portal != null:
+		var angle := randf() * TAU
+		body.velocity = Vector2(cos(angle), sin(angle)) * 220.0
+		body.state = PetBody.State.THROWN
+
+
+func _on_sell_cancelled() -> void:
+	_return_pending_sale_item()
+
+
 ## What the travel portals need to know about the pet each frame, in their
 ## own words — the pet stays in charge of how it moves.
 func _pet_probe() -> Dictionary:
@@ -963,8 +1149,8 @@ func _roll_summon_consumable_type() -> String:
 	return ConsumableCatalog.APPLE
 
 
-func _spawn_consumable_body(consumable_type: String) -> void:
-	if active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
+func _spawn_consumable_body(consumable_type: String, force := false) -> void:
+	if not force and active_consumable_items.size() >= MAX_CONSUMABLE_ITEMS:
 		return
 
 	var window: Window
@@ -993,12 +1179,15 @@ func _spawn_consumable_body(consumable_type: String) -> void:
 
 		add_child(window)
 		body.consumed.connect(_on_consumable_item_consumed.bind(window))
+		body.sell_requested.connect(_on_consumable_sell_requested.bind(window))
 
 	body.mass = CONSUMABLE_MASS
 	body.stats = stats
 	body.klippy = self
 	body.bag = consumable_bag
 	body.contained_in = null
+	body.sell_portal = sell_portal
+	body.pending_sale = false
 	# A pooled window's sprite still carries whatever consumable it last held, so this
 	# has to be re-applied every spawn rather than only when the window is built.
 	body.apply_consumable_type(consumable_type)
@@ -1025,7 +1214,17 @@ func _on_consumable_item_consumed(window: Window) -> void:
 	if def.points_reward > 0:
 		klippy_points.add_points(def.points_reward)
 	_apply_consumable_buff(def)
+	_retire_consumable_window(window)
+
+
+## Takes a consumable window off the desktop and back into the pool, shared by
+## eating (see [method _on_consumable_item_consumed]) and selling (see [method
+## _finish_sale]) — everything past "this item is done" is identical between
+## the two, they just disagree on what "done" earns.
+func _retire_consumable_window(window: Window) -> void:
+	var body := window.get_child(0) as ConsumableBody
 	body.set_physics_process(false)
+	body.pending_sale = false
 	window.hide()
 	active_consumable_items.erase(window)
 	if consumable_window_pool.size() < MAX_CONSUMABLE_ITEMS:

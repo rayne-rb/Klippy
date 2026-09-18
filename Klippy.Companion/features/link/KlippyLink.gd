@@ -121,6 +121,18 @@ func server_url() -> String:
 	return _settings.base_url
 
 
+## Bearer token for a plain HTTP call to the server (e.g. MarketClient) — the same
+## one the socket itself authenticates with.
+func auth_token() -> String:
+	return _settings.token if _settings != null else ""
+
+
+## This device's own id, so a UI can tell its own listings apart from everyone
+## else's (e.g. the Market dialog graying out "buy" on your own listing).
+func device_id() -> String:
+	return _settings.device_id if _settings != null else ""
+
+
 ## The connected devices of one kind, e.g. [constant LinkEvents.KIND_MOBILE].
 func peers_of_kind(kind: String) -> Array[Dictionary]:
 	var matching: Array[Dictionary] = []

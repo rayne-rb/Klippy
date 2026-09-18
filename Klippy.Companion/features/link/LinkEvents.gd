@@ -31,6 +31,12 @@ const LINK_PONG := "link.pong"
 const AUDIO_CAST_REQUEST := "audio.cast.request"
 const AUDIO_CAST_STATE := "audio.cast.state"
 
+# Market. Listing and buying go over plain HTTP (see MarketClient) since both want a
+# real success-or-failure response; only a payout to a seller who may be offline
+# rides the link.
+const MARKET_PAYOUT := "market.payout"
+const MARKET_PAYOUT_ACK := "market.payout.ack"
+
 # Device kinds, mirroring DeviceKind.cs in Klippy.Shared. Kept here with the event
 # names for the same reason: it is a wire constant the server decides, not ours.
 const KIND_COMPANION := "companion"

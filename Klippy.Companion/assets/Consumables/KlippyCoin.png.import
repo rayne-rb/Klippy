@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ch4i2s152upcv"
-path="res://.godot/imported/KlippyCoin.png-509972f48410fd2ea7cdfe508a9cd3c2.ctex"
+path="res://.godot/imported/KlippyCoin.png-3d9effd3ef6b6410a933bdf9508504b6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Food/KlippyCoin.png"
-dest_files=["res://.godot/imported/KlippyCoin.png-509972f48410fd2ea7cdfe508a9cd3c2.ctex"]
+source_file="res://assets/Consumables/KlippyCoin.png"
+dest_files=["res://.godot/imported/KlippyCoin.png-3d9effd3ef6b6410a933bdf9508504b6.ctex"]
 
 [params]
 

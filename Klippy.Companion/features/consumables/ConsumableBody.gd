@@ -2,12 +2,26 @@ class_name ConsumableBody
 extends PetBody
 
 signal consumed
+## Fired once, the tick this item first drifts within reach of [member sell_portal].
+## Whoever catches it (see [method Klippy._on_consumable_sell_requested]) is
+## responsible for clearing [member pending_sale] again if the sale doesn't
+## actually go through, or this item will never be sellable again.
+signal sell_requested
 
 var stats: PetStats
 var klippy: PetBody
 var bag: ConsumableBagBody
 var contained_in: ConsumableBagBody
 var consumable_type: String = ConsumableCatalog.APPLE
+
+## The current sell portal, or null when none is open. Kept in step by Klippy
+## rather than looked up here, the same way [member bag] is — see
+## [method Klippy._apply_sell_portal_to_active_items].
+var sell_portal: SellPortal
+## True from the moment [signal sell_requested] fires until the sale either
+## lists or is handed back, so one lingering drift through the portal's radius
+## doesn't fire it over and over.
+var pending_sale := false
 
 ## Every consumable item currently in the tree (bag-contained, loose on the
 ## desktop, or pooled-and-hidden alike), so any one of them can find the rest
@@ -36,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	_resolve_consumable_collisions(delta)
 	_check_bag(delta, pre_move_position)
 	_check_feeding()
+	_check_market_sell()
 
 
 ## Bounces this item off every other live consumable item it overlaps, using
@@ -143,6 +158,20 @@ func _check_feeding() -> void:
 	if klippy_center.distance_to(item_center) <= klippy.roll_radius + roll_radius:
 		stats.feed(ConsumableCatalog.get_def(consumable_type).feed_amount)
 		consumed.emit()
+
+
+## Loose (not stored in a bag, not mid-sale already) and drifted within reach
+## of [member sell_portal], if one is even open right now.
+func _check_market_sell() -> void:
+	if sell_portal == null or pending_sale or contained_in != null or not get_window().visible:
+		return
+
+	var item_window := get_window()
+	var item_center := Vector2(item_window.position) + Vector2(item_window.size) / 2.0
+
+	if sell_portal.center().distance_to(item_center) <= sell_portal.radius() + roll_radius:
+		pending_sale = true
+		sell_requested.emit()
 
 
 ## Switches this item to another [ConsumableCatalog] entry: swaps in its

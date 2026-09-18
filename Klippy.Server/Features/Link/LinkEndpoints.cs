@@ -26,7 +26,7 @@ public static class LinkEndpoints
             ServerIdentity identity,
             CancellationToken ct) =>
         {
-            var device = await pairing.AuthenticateAsync(ReadToken(context), ct);
+            var device = await pairing.AuthenticateAsync(BearerToken.Read(context), ct);
             return device is null
                 ? Results.Unauthorized()
                 : Results.Ok(new
@@ -56,7 +56,7 @@ public static class LinkEndpoints
             return;
         }
 
-        var device = await pairing.AuthenticateAsync(ReadToken(context), context.RequestAborted);
+        var device = await pairing.AuthenticateAsync(BearerToken.Read(context), context.RequestAborted);
         if (device is null)
         {
             // Refuse before the upgrade so the client gets a real status code.
@@ -187,15 +187,4 @@ public static class LinkEndpoints
         }
     }
 
-    /// <summary>Token from the Authorization header, or the query string for clients that cannot set headers on an upgrade.</summary>
-    private static string? ReadToken(HttpContext context)
-    {
-        var header = context.Request.Headers.Authorization.ToString();
-        if (header.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-        {
-            return header["Bearer ".Length..].Trim();
-        }
-
-        return context.Request.Query["token"].FirstOrDefault();
-    }
 }

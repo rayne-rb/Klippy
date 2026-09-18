@@ -96,4 +96,26 @@ public static class KlippyEvents
     /// this way that stays true however the cast was set off.
     /// </summary>
     public const string AudioCastRequest = "audio.cast.request";
+
+    // ---- Market ----------------------------------------------------------------
+    //
+    // Listing and buying are plain request/response, so they go over the HTTP API
+    // (/api/market) rather than this link. Only the seller's payout rides the link:
+    // it has to reach a device that may not be looking at the market, or may not
+    // even be online yet, at the moment its item sells.
+
+    /// <summary>
+    /// Server to the seller, targeted: an item of yours sold. Payload:
+    /// <see cref="Payloads.MarketPayoutPayload"/>. Queued server-side ("mailbox
+    /// payout") and delivered both the instant a sale happens if the seller is
+    /// online, and again on every reconnect until acknowledged, so it survives the
+    /// seller being offline when their item sells.
+    /// </summary>
+    public const string MarketPayout = "market.payout";
+
+    /// <summary>
+    /// Companion to server: I credited myself for this payout, stop resending it.
+    /// Payload: <see cref="Payloads.MarketPayoutAckPayload"/>.
+    /// </summary>
+    public const string MarketPayoutAck = "market.payout.ack";
 }

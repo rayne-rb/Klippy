@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bro802qeykthh"
-path="res://.godot/imported/KlippyXpGem.png-aa5d7c2eb277ef995c7942d61fe4a52f.ctex"
+path="res://.godot/imported/KlippyXpGem.png-fd8c8a9bde202c042ddeb8bcaf5b9392.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Food/KlippyXpGem.png"
-dest_files=["res://.godot/imported/KlippyXpGem.png-aa5d7c2eb277ef995c7942d61fe4a52f.ctex"]
+source_file="res://assets/Consumables/KlippyXpGem.png"
+dest_files=["res://.godot/imported/KlippyXpGem.png-fd8c8a9bde202c042ddeb8bcaf5b9392.ctex"]
 
 [params]
 

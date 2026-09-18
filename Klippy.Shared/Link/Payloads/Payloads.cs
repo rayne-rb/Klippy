@@ -50,3 +50,17 @@ public sealed record WelcomePayload
     public required string ServerName { get; init; }
     public required IReadOnlyList<DevicePresencePayload> Peers { get; init; }
 }
+
+/// <summary>An item you listed on the market sold. See <see cref="Link.KlippyEvents.MarketPayout"/>.</summary>
+public sealed record MarketPayoutPayload
+{
+    public required string PayoutId { get; init; }
+    public required string ItemType { get; init; }
+    public required int Price { get; init; }
+}
+
+/// <summary>Confirms a <see cref="MarketPayoutPayload"/> was applied, so the server stops resending it.</summary>
+public sealed record MarketPayoutAckPayload
+{
+    public required string PayoutId { get; init; }
+}

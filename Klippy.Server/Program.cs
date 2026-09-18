@@ -4,6 +4,7 @@ using Klippy.Server.Data;
 using Klippy.Server.Features.AudioCast;
 using Klippy.Server.Features.Discovery;
 using Klippy.Server.Features.Link;
+using Klippy.Server.Features.Market;
 using Klippy.Server.Features.Pairing;
 using Klippy.Server.Features.PetState;
 using Klippy.Shared;
@@ -34,6 +35,7 @@ builder.Services.AddLinkFeature();
 builder.Services.AddDiscoveryFeature();
 builder.Services.AddPetStateFeature();
 builder.Services.AddAudioCastFeature();
+builder.Services.AddMarketFeature();
 
 var app = builder.Build();
 
@@ -67,6 +69,7 @@ app.MapPairingEndpoints();
 app.MapLinkEndpoints();
 app.MapPetStateEndpoints();
 app.MapAudioCastEndpoints();
+app.MapMarketEndpoints();
 
 // Start before advertising: the beacon has to carry the port Kestrel actually bound,
 // which is only knowable once it has.
